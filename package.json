@@ -1,0 +1,29 @@
+{
+  "name": "grpcity-doc",
+  "version": "0.1.0",
+  "description": "gRPCity Doc Center",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "export": "next build && next export"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chakhsu/grpcity-doc.git"
+  },
+  "author": "Chakhsu.Lau",
+  "license": "MIT",
+  "dependencies": {
+    "next": "^13.5.6",
+    "nextra": "latest",
+    "nextra-theme-docs": "latest",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.8.8",
+    "typescript": "^5.2.2",
+    "@types/react": "^18.2.31"
+  }
+}
