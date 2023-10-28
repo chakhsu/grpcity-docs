@@ -1,5 +1,5 @@
 {
   "proto-loader": "Proto Loader",
-  "server": "Server Side",
-  "client": "Client Side"
+  "server-side": "Server Side",
+  "client-side": "Client Side"
 }

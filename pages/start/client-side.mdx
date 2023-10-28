@@ -1,0 +1,117 @@
+import { Card, Cards } from 'nextra/components'
+
+# Client Side
+
+客户端的开发工作相对简单一些，在这里你能看到如何使用轻松实现调用两个不同的 gRPC 服务端。
+
+### 项目目录
+
+```sh {13}
+.
+├── loader.js
+├── package-lock.json
+├── package.json
+├── proto
+│   └── test
+│       └── helloworld
+│           ├── model
+│           │   └── message.proto
+│           └── service.proto
+├── server.js
+├── server2.js
+└── client.js
+```
+
+我们在原来的项目里提前创建好`client.js`。
+
+### 初始化
+
+第一步：导入`loader.js`模块，我们在后续的开发中使用到这个模块去完成rpc与服务端的方法进行绑定。
+
+```js filename="./client.js"
+import loader from "./loader.js"
+```
+
+第二步：初始化客户端，需要传入服务端名称和地址
+
+```js filename="./client.js"
+const start = async (server1Addr, server2Addr) => {
+    await loader.init()
+
+    await loader.initClients({
+        services: {
+            'test.helloworld.Greeter': server1Addr,
+            'test.helloworld.Hellor': server2Addr
+        }
+    })
+}
+```
+
+### 调用和启动
+
+我们接着在 `start` 方法里补充客户端调用服务端的逻辑，并打印调用结果
+
+```js filename="./client.js"
+const start = async (server1Addr, server2Addr) => {
+
+    // ...
+    // loader init code
+    // ....
+
+    // server1
+    // greeter client
+    const server1Client = loader.client('test.helloworld.Greeter')
+    const server1Result = await server1Client.sayGreet({ name: 'greeter' })
+    console.log('server1Client.sayGreet', server1Result)
+
+    // server2
+    // hellor client
+    const server2Client = loader.client('test.helloworld.Hellor')
+    const hellorResult = await server2Client.sayHello({ name: 'hellor' })
+    console.log('server2Client.sayHello', hellorResult)
+}
+
+// 执行
+start('127.0.0.1:9098', '127.0.0.1:9099')
+```
+
+### 联调
+
+在上一篇服务端教程，我们已经启动好了两个 server，所以我们只需要直接执行 client 就可以完成联调。
+
+```sh
+node ./client.js
+```
+
+第一次执行结果如下：
+
+```sh
+server1Client.sayGreet { message: 'hello greeter by Greeter in server1', count: 1 }
+server2Client.sayHello { message: 'hello hellor by Hellor in server2' }
+```
+
+第二次执行结果如下：
+
+```sh
+server1Client.sayGreet { message: 'hello greeter by Greeter in server1', count: 2 }
+server2Client.sayHello { message: 'hello hellor by Hellor in server2' }
+```
+
+我们能看到两次结果都是正常返回，其中`sayGreet`中的`count`，在第二次执行后累加为2，符合预期，也说明这次客户端调用服务端的闭环完成了。
+
+快速入门使用的项目仓库：[link](https://github.com/chakhsu/grpcity-basic-demo)。
+
+---
+
+入门教程已完结了，是不是感觉非常简单和易用，欢迎回顾和进一步学习。
+
+<Cards>
+    <Card
+        title="Proto Loader →"
+        href="/start/proto-loader"
+    />
+    <Card
+        title="Server Side →"
+        href="/start/server-side"
+    />
+</Cards>

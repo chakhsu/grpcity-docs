@@ -8,7 +8,7 @@ import { Card, Cards } from 'nextra/components'
 
 ### 项目目录
 
-```sh
+```sh {11-12}
 .
 ├── loader.js
 ├── package-lock.json
@@ -23,7 +23,7 @@ import { Card, Cards } from 'nextra/components'
 └── server2.js
 ```
 
-我们在原来的项目的提前创建好`server.js`和`server2.js`，分别对应两种写法。
+我们在原来的项目里提前创建好`server.js`和`server2.js`，分别对应两种写法。
 
 ### 写法1 (推荐)
 
@@ -135,6 +135,7 @@ import loader from "./loader.js"
 let count = 0
 const Greeter = {
     // rpc method
+    // promise style
     sayGreet: async (ctx) => {
         const { name } = ctx.request
         count++
@@ -151,11 +152,12 @@ const Greeter = {
 ```js filename="./server2.js"
 const Hellor = {
     // rpc method
-    sayHello: async (ctx) => {
+    // callback style
+    sayHello: (ctx, callback) => {
         const { name } = ctx.request
-        return { 
-            message: `hello ${name || "world"} by Hellor` 
-        }
+        callback(null, {
+            message: `hello ${name || "world"} by Hellor in server2` 
+        })
     }
 }
 ```
@@ -185,19 +187,20 @@ start('127.0.0.1:9099')
 
 ### 联调
 
-我们看到，不管是方法1还是方法2，都将多个 service 注册到了同一个 server 里。
-这里为啥推荐方法1，是因为方法1的写法对模块化的学法更友好，可以将类拆出来，独立成文件，实现启动流程与业务解耦，增加服务的扩展性。
+我们看到，不管是方法1还是方法2，都实现了将多个 service 注册到了同一个 server 里。
+这里为啥推荐方法1，是因为方法1的写法对模块化更友好，可以将类拆出来，独立成文件，实现流程与业务解耦，增加服务的扩展性。
+在方法2中，展示了两种rpc method 的支持，即支持promise style，也支持callback style。一般来说，我们更多使用promise style 的rpc method 写法。
 
 我们将会启动这两个 server，在后续 client side 教程中，我们将会同时调用这两个 server，将 gRPC 的调用闭环。详细的联调环节将会在 client side 教程中展示。
 
-
 ```sh
-npm i
 // 在终端1启动 
 node ./server.js
 // 在终端2启动
 node ./server2.js
 ```
+
+启动后，我们的客户端就可以连上相应的地址就可以实现访问调用啦。
 
 ---
 
@@ -210,6 +213,6 @@ node ./server2.js
     />
     <Card
         title="Client Side →"
-        href="/start/client"
+        href="/start/client-side"
     />
 </Cards>
