@@ -1,10 +1,11 @@
-import { Card, Cards, FileTree } from 'nextra/components'
+import { Card, Cards } from 'nextra/components'
 
 # Proto loader
 
-protobuf 文件加载官方提供了两种方式，一种是直接加载 pb 文件，另外一种是工具编译后再通过依赖引用的方式。这两种方式的各有优劣，在这里 gRPCity 最终选择了仅支持第一种方式，就是直接加载 pb 文件。
+官方提供了两种protobuf 文件加载方式，一种是直接加载 pb 文件，另外一种是工具编译后再通过依赖引用的方式。
+这两种方式的各有优劣，在这里 gRPCity 最终选择了仅支持第一种方式，就是直接加载 pb 文件。
 
-下面我们将会通过新建项目的方式进行快速入门。
+下面我们将会通过新建项目的方式进行快速入门，项目仓库：[link](https://github.com/chakhsu/grpcity-basic-demo)。
 
 ### 初始化与安装依赖
 
@@ -64,13 +65,11 @@ import "test/helloworld/model/message.proto";
 
 // The greeting service definition.
 service Greeter {
-    rpc SayHello(model.HelloRequest) returns (model.HelloReply) {}
-    rpc SayHello2(model.HelloRequest) returns (model.HelloReply) {}
+    rpc SayGreet(model.HelloRequest) returns (model.HelloReply) {}
 }
 
 service Hellor {
     rpc SayHello(model.HelloRequest) returns (model.HelloReply) {}
-    rpc SayHello2(model.HelloRequest) returns (model.HelloReply) {}
 }
 ```
 
@@ -90,13 +89,13 @@ package test.helloworld.model;
 
 // The request message containing the user's name.
 message HelloRequest {
-    string name = 1;
+  string name = 1;
 }
 
 // The response message containing the greetings
 message HelloReply {
-    string message   = 1;
-    int32 nameCount = 2;
+  string message   = 1;
+  int32 count = 2;
 }
 ```
 
@@ -120,7 +119,11 @@ export default new GrpcLoader({
 })
 ```
 
-至此，我们完成了 proto 文件的加载工作，并得到了`loader.js`，这样我们就可以随处引入该文件，并支持我们去开发客户端调用或者服务端启动。
+至此，我们完成了 proto 文件的加载工作，并得到了`loader.js`。
+这样我们就可以随处引入该文件，并支持我们去开发客户端调用或者服务端启动。
+是不是非常简单？与官方的对比，本库去掉了大量的难以理解的定义，只需要将文件传入到对应的对象中即可完成文件加载。
+
+---
 
 下面我们就开始后续的客户端或服务端的上手开发工作吧。
 
