@@ -162,7 +162,6 @@ const Hellor = {
 
 #### 绑定和启动
 
-
 ```js filename="./server2.js"
 const start = async (addr) => {
     // loader 初始化
@@ -190,6 +189,15 @@ start('127.0.0.1:9099')
 这里为啥推荐方法1，是因为方法1的写法对模块化的学法更友好，可以将类拆出来，独立成文件，实现启动流程与业务解耦，增加服务的扩展性。
 
 我们将会启动这两个 server，在后续 client side 教程中，我们将会同时调用这两个 server，将 gRPC 的调用闭环。详细的联调环节将会在 client side 教程中展示。
+
+
+```sh
+npm i
+// 在终端1启动 
+node ./server.js
+// 在终端2启动
+node ./server2.js
+```
 
 ---
 
