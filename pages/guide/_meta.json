@@ -5,6 +5,7 @@
   "client": "Client",
   "metadata": "Metadata",
   "stream": "Stream",
+  "credentials": "Credentials",
   "status": "Status",
   "error": "Error",
   "context": "Context",
