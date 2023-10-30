@@ -65,9 +65,9 @@ export default new GrpcLoader([
 ])
 ```
 
-### 初始化
+### 初始化 init()
 
-为什么 loader 还需要 init ？
+**为什么 loader 还需要 init ？**
 
 init 是真正把proto加载的执行。同时也是自定义参数和环境的配置位置，功能更加独立，可以放到服务框架流程中的第一步，只需要执行一次。
 
@@ -99,6 +99,10 @@ options 的参数说明，包含如下参数：
 
 #### 示例
 
+注意使用了`packagePrefix`之后，服务端和客户端都要一致。
+
+dev 环境，配置如下：
+
 ```js
 await loader.init({
     isDev: true, 
@@ -107,7 +111,32 @@ await loader.init({
         'dev.path.to.serviceA': 'domain.local:9099',
         'path.to.serviceB': '192.168.32.111:10099'
     }, 
-    appName:'serviceC'
+    appName: 'myApp'
 })
 ```
 
+stage 环境，配置如下：
+
+```js
+await loader.init({
+    isDev: false, 
+    packagePrefix: 'dev', 
+    services: {
+        'dev.path.to.serviceA': 'domain.local:9099',
+        'path.to.serviceB': '192.168.32.111:10099'
+    }, 
+    appName: 'myApp'
+})
+```
+
+production 环境，直接忽略掉一些配置项即可，配置如下：
+
+```js
+await loader.init({
+    services: {
+        'dev.path.to.serviceA': 'domain.local:9099',
+        'path.to.serviceB': '192.168.32.111:10099'
+    }, 
+    appName: 'myApp'
+})
+```

@@ -1,1 +1,74 @@
 # Server
+
+Server是`gRPCity`的核心功能之一，提供了服务端生命周期的接管能力。通过一系列的接口函数，提供了从证书导入、服务绑定、中间件支持，服务启动和服务退出等，全周期的管理。
+
+### 实例获取
+
+`channelOptions`在 [Config指南](/guide/config) 里有详细讲解。
+
+```js
+// 获取 server 实例
+const server = loader.initServer(channelOptions)
+```
+
+得到`server`实例后，实例会有一系列的接口来帮助我们开发服务。
+
+### 服务绑定
+
+服务绑定需要两个参数，一个是`service`，另外一个是`implementation`。
+
+- `service`: (必填) 需要通过`loader.service(name)`来获取 proto 里指定的`service`；
+- `implementation`: (必填) 携带 service rpc 定义好的方法的对象或者类，可以通过`loader.callbackify()`来`async`化，并支持中间件；
+
+```js
+// service rpc 绑定
+server.addService(service, implementation)
+// service rpc 解绑
+server.removeService(service)
+```
+
+### 添加中间件
+
+`gRPCity` Server 的特色功能，提供了`implementation` 前后处理的中间件能力，更多详情查看 [Middleware 指南](/guide/middleware)
+
+注意：只有使用了`loader.callbackify()`绑定的`service` rpc 才支持中间件。
+
+```js
+// implementation 中间件支持
+server.addMiddleware(fn)
+server.addMiddlewares(fns)
+```
+
+### 证书与启动
+
+服务启动 `listen` 支持两个参数，分别是`addr`和`credentials`：
+
+- `addr`: (必选) 服务启动需要监听的地址和端口，支持类型如下，任选一个：
+    - string: ip+port 格式，如 `127.0.0.1:9099`；
+    - object: `{ host, port }`；
+        - host: 字符串，支持 ip 和域名；
+        - port: 数字，最小值为0，最大值为65535；
+- credentials: (可选) 使用`makeServerCredentials`来生成，并给`listen`调用；
+
+```js
+// 服务端证书
+const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkClientCertificate)
+// 服务启动
+await server.listen(addr, credentials)
+// await server.listen('127.0.0.1:9099', credentials)
+// await server.listen({ host: '127.0.0.1', port: 9099 }, credentials)
+```
+
+另外，可以阅读 [Credentials 指南](/guide/credentials) 来获得更多信息。
+
+### 服务退出
+
+`shutdown()` 需要使用`async`来保证异步执行完成，而`forceShutdown`不需要。
+
+```js
+// 服务优雅退出
+await server.shutdown()
+// 服务强制退出
+server.forceShutdown()
+```
+

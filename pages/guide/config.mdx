@@ -1,1 +1,78 @@
 # Config
+
+`gRPCity`关于proto有两个非常重要的配置，分别是`loadOptions`和`channelOptions`。
+其中，`init()`两个都使用到，而`initClients()`和`initServer()`只使用了`channelOptions`。
+
+- `loadOptions`: 对应的是`proto`文件加载时的规则配置；
+- `channelOptions`: 对应的是服务端与客户端通信直接的规则配置；
+
+## loadOptions
+
+loadOptions 包含的字段，详情如下：
+
+| 字段名称 | 有效值 | 描述 |
+|------------|--------------|------------|
+| `keepCase` | `true` 或 `false` | 保留字段名。默认情况下将它们更改为驼峰命名法。
+| `longs` | `String` 或 `Number` | 用于表示 `long` 值的类型。默认为 `Long` 对象类型。
+| `enums` | `String` | 用于表示 `enum` 值的类型。默认为数值类型。
+| `bytes` | `Array` 或 `String` | 用于表示 `bytes` 值的类型。默认为 `Buffer`。
+| `defaults` | `true` 或 `false` | 在输出对象上设置默认值。默认为 `false`。
+| `arrays` | `true` 或 `false` | 即使 `defaults` 为 `false`，对于缺失的数组值设置空数组。默认为 `false`。
+| `objects` | `true` 或 `false` | 即使 `defaults` 为 `false`，对于缺失的对象值设置空对象。默认为 `false`。
+| `oneofs` | `true` 或 `false` | 对于当前字段，将虚拟的 oneof 属性设置为字段名。默认为 `false`。
+| `json` | `true` 或 `false` | 在 `float` 字段中将 `Infinity` 和 `NaN` 表示为字符串，并自动解码 `google.protobuf.Any` 值。默认为 `false`。
+| `includeDirs` | 字符串数组 | 导入的 `.proto` 文件的搜索路径列表。
+
+`gRPCity`的默认`loadOptions`为：
+
+```js
+{
+  keepCase: true,
+  longs: String,
+  enums: String,
+  defaults: false,
+  oneofs: true
+}
+```
+
+## channelOptions
+
+`channelOptions` 支持度保持跟`grpc-js`官方一致，我们可以从 [这里](https://grpc.github.io/grpc/core/group__grpc__arg__keys.html) 看到所有的`channel`配置项。
+我们可以从 [这里](https://github.com/grpc/grpc-node/tree/master/packages/grpc-js#supported-channel-options) 看到目前支持的配置项。
+
+`gRPCity`的默认`channelOptions`为：
+
+```js
+{
+  // grpc库option只接收数值和string类型
+  // 配置grpc重连接时间(1s ~ 10s 随机数)
+  'grpc.min_reconnect_backoff_ms': 1000,
+  'grpc.max_reconnect_backoff_ms': 10000,
+  // 通信超时
+  'grpc.grpclb_call_timeout_ms': 5000,
+  // 下面3个参数解决长期空闲grpc客户端，不能及时发现tcp连接断开问题
+  // After waiting for a duration of this time, if the keepalive ping sender does not receive the ping ack, it will close the transport.
+  'grpc.keepalive_timeout_ms': (20 * 1000),
+  // duration of this time the client/server pings its peer to see if the transport is still alive
+  'grpc.keepalive_time_ms': (120 * 1000),
+  'grpc.keepalive_permit_without_calls': 1,
+  // 通信失败允许grpc库retry
+  'grpc.enable_retries': 1,
+  // 配置retry参数
+  // 参考： https://github.com/grpc/proposal/blob/master/A6-client-retries.md#integration-with-service-config
+  'grpc.service_config': JSON.stringify({
+    retryPolicy: {
+      // 1次正常发送+3次失败重试, 每次重试都有机会在不同于最初失败的子通道上发送
+      maxAttempts: 4,
+      // 初次重试时间间隔: random(0, initialBackoff) 秒
+      // 第n次重试时间; random(0, min(initialBackoff*backoffMultiplier^(n-1), maxBackoff)) 秒
+      initialBackoff: '0.1s',
+      maxBackoff: '1s',
+      backoffMultiplier: 2,
+      // 只有在网络不可达情况重试
+      retryableStatusCodes: ['UNAVAILABLE']
+    }
+  })
+}
+```
+
