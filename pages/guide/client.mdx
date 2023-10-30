@@ -1,10 +1,83 @@
 # Client
 
-Client`gRPCity`的核心功能之一，
+Client是`gRPCity`的核心功能之一，主要是提供获取 service，并进行 rpc 调用。
 
 ### 初始化
 
+初始化有两种方式，`init()`和`initClients()`，这两个方法有场景上的使用注意事项：
+
+- `init()`: 支持传入`services`和`channelOptions`参数，就自动在内部创建好`client`，将`service`与rpc进行绑定，但是不支持证书;
+- `initClients()`: 支持传入`services`、`channelOptions`和`credentials`参数，支持证书;
+
+`init()`更多适合希望在一个统一的位置，就做好了客户端的初始化，其他位置的调用就不用那么麻烦了，
+而`initClients()`适合更准精细化控制，例如有些服务端有证书有些没有，有些位置的只需要较少的调用等等场景。
+
+两者是可以共存的，但是使用`initClients()`之前，需要先执行`init()`.
+
+`channelOptions`参数说明请看 [Config 指南](/guide/config)，示例：
+
+```js
+await loader.init({
+    services: {
+        'dev.path.to.serviceA': 'domain.local:9099',
+        'path.to.serviceB': '192.168.32.111:10099'
+    },
+    channelOptions
+})
+```
+
+或者
+
+```js
+await loader.init()
+const credentials = loader.makeCredentials(rootCerts, privateKey, certChain, verifyOptions)
+await loader.initClients(
+    services: {
+        'dev.path.to.serviceA': 'domain.local:9099',
+        'path.to.serviceB': '192.168.32.111:10099'
+    },
+    channelOptions,
+)
+```
+
 ### 获取实例
 
-### 调用rpc
+这里获取实例的方式相对简单，直接调用`client()`即可，注意需要传入完整的`service name`，包括了包名。
+
+```js
+const serviceAClient = loader.client('dev.path.to.serviceA')
+const serviceBClient = loader.client('path.to.serviceB')
+```
+
+### 调用 rpc
+
+调用 rpc 有两种方法，分别是`async`和`callback`，习惯上，我们更多是使用`async`语法，支持了`promise`。
+
+#### async
+
+这里直接使用`async-await`语法。
+
+```js
+const a = await serviceAClient.rpcMethod1({ name: 'myapp' })
+const b = await serviceBClient.rpcMethod2({ name: 'youapp' })
+```
+
+#### callback
+
+`callback`的调用需要多加一个原型链，如`.original.`。
+
+```js
+const a = serviceAClient.original.rpcMethod1({ name: 'myapp' }, (err, result) => {
+    if (err) {
+        throw err
+    }
+    return result
+})
+const b = serviceBClient.original.rpcMethod2({ name: 'youapp' }, (err, result) => {
+    if (err) {
+        throw err
+    }
+    return result
+})
+```
 
