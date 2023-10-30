@@ -49,13 +49,15 @@ const serviceAClient = loader.client('dev.path.to.serviceA')
 const serviceBClient = loader.client('path.to.serviceB')
 ```
 
+注意：`client()`会缓存客户端，保证每次获取相同的客户端的时候，不会重复创建，减少内存消耗。
+
 ### 调用 rpc
 
 调用 rpc 有两种方法，分别是`async`和`callback`，习惯上，我们更多是使用`async`语法，支持了`promise`。
 
 #### async
 
-这里直接使用`async-await`语法。
+这里直接使用`async/await`语法。
 
 ```js
 const a = await serviceAClient.rpcMethod1({ name: 'myapp' })

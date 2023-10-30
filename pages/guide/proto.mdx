@@ -1,8 +1,266 @@
 # Proto
 
-### service()
+有时候，我们需要得到处理 proto 内容的能力，`gRPCity`库就提供了这样的能力，同时这些能力中在内部也会被调用。
+例如：`addService(serviceName, implementation)`，就需要获取 proto 文件里定义的 service name。
 
-### type()
+好处是多做了一层校验，保证服务的正确性。
 
-### message()
+### 加载
 
+假如我们的 proto 路径是 `protos/test/helloworld/`, proto 的内容如下
+
+```proto filename="protos/test/helloworld/helloworld.proto"
+service Greeter {
+  // Sends a greeting
+  rpc SayHello(model.HelloRequest) returns (model.HelloReply) {}
+  rpc SayHello2(model.HelloRequest) returns (model.HelloReply) {}
+}
+```
+
+我们需要先完成 proto 的加载。
+
+```js
+import GrpcLoader from 'grpcity'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+ 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const loader = new GrpcLoader({
+    location: path.resolve(__dirname, 'protos'),
+    files: ['test/helloworld/helloworld.proto']
+})
+
+(async () => {
+    await loader.init()
+})()
+```
+
+### service(name)
+
+`name`参数，指 proto 文件路由，具体是到 service 的位置。
+
+```js
+const serviceDefinition = loader.service('test.helloworld.Greeter')
+console.log(serviceDefinition)
+
+// log
+{
+  SayHello: {
+    path: '/stage.dev.test.helloworld.Greeter/SayHello',
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: [Function: serialize],
+    requestDeserialize: [Function: deserialize],
+    responseSerialize: [Function: serialize],
+    responseDeserialize: [Function: deserialize],
+    originalName: 'sayHello',
+    requestType: {
+      format: 'Protocol Buffer 3 DescriptorProto',
+      type: [Object],
+      fileDescriptorProtos: [Array]
+    },
+    responseType: {
+      format: 'Protocol Buffer 3 DescriptorProto',
+      type: [Object],
+      fileDescriptorProtos: [Array]
+    }
+  },
+  SayHello2: {
+    path: '/stage.dev.test.helloworld.Greeter/SayHello2',
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: [Function: serialize],
+    requestDeserialize: [Function: deserialize],
+    responseSerialize: [Function: serialize],
+    responseDeserialize: [Function: deserialize],
+    originalName: 'sayHello2',
+    requestType: {
+      format: 'Protocol Buffer 3 DescriptorProto',
+      type: [Object],
+      fileDescriptorProtos: [Array]
+    },
+    responseType: {
+      format: 'Protocol Buffer 3 DescriptorProto',
+      type: [Object],
+      fileDescriptorProtos: [Array]
+    }
+  }
+}
+```
+
+### type(name)
+
+`name`参数指 proto 文件的路由，包名到service，或到model，或到message。
+
+`type()`的能力包含了`service()`。
+
+```js
+const typePkg = loader.type('test')
+console.log(typePkg)
+
+// log
+{
+  helloworld: {
+    Greeter: [class ServiceClientImpl extends Client] {
+      service: [Object],
+      serviceName: 'Greeter'
+    },
+    Hellor: [class ServiceClientImpl extends Client] {
+      service: [Object],
+      serviceName: 'Hellor'
+    },
+    model: { HelloRequest: [Object], HelloReply: [Object] }
+  }
+}
+```
+
+```js
+const typePkg = loader.type('test.helloworld')
+console.log(typePkg)
+
+// log
+{
+  Greeter: [class ServiceClientImpl extends Client] {
+    service: { SayHello: [Object], SayHello2: [Object] },
+    serviceName: 'Greeter'
+  },
+  Hellor: [class ServiceClientImpl extends Client] {
+    service: { SayHello: [Object], SayHello2: [Object] },
+    serviceName: 'Hellor'
+  },
+  model: {
+    HelloRequest: {
+      format: 'Protocol Buffer 3 DescriptorProto',
+      type: [Object],
+      fileDescriptorProtos: [Array]
+    },
+    HelloReply: {
+      format: 'Protocol Buffer 3 DescriptorProto',
+      type: [Object],
+      fileDescriptorProtos: [Array]
+    }
+  }
+}
+```
+
+### message(name)
+
+`name`参数是指 proto 文件的路由，具体是指路由 message 的链条名。
+
+```js
+const HelloRequest = loader.message('test.helloworld.model.HelloRequest')
+console.log(HelloRequest)
+
+// log
+<ref *1> Type {
+  options: undefined,
+  parsedOptions: null,
+  name: 'HelloRequest',
+  parent: <ref *2> Namespace {
+    options: undefined,
+    parsedOptions: null,
+    name: 'model',
+    parent: Namespace {
+      options: undefined,
+      parsedOptions: null,
+      name: 'helloworld',
+      parent: [Namespace],
+      resolved: false,
+      comment: null,
+      filename: 'test_helloworld.proto',
+      nested: [Object],
+      _nestedArray: null,
+      Greeter: [Service],
+      Hellor: [Service]
+    },
+    resolved: false,
+    comment: null,
+    filename: 'test_helloworld_model.proto',
+    nested: { HelloRequest: [Circular *1], HelloReply: [Type] },
+    _nestedArray: null,
+    HelloRequest: [Circular *1],
+    HelloReply: Type {
+      options: undefined,
+      parsedOptions: null,
+      name: 'HelloReply',
+      parent: [Circular *2],
+      resolved: false,
+      comment: null,
+      filename: null,
+      nested: undefined,
+      _nestedArray: [],
+      fields: [Object],
+      oneofs: undefined,
+      extensions: undefined,
+      reserved: undefined,
+      group: undefined,
+      _fieldsById: null,
+      _fieldsArray: null,
+      _oneofsArray: null,
+      _ctor: null
+    }
+  },
+  resolved: false,
+  comment: null,
+  filename: null,
+  nested: undefined,
+  _nestedArray: [],
+  fields: {
+    name: Field {
+      options: undefined,
+      parsedOptions: null,
+      name: 'name',
+      parent: [Circular *1],
+      resolved: false,
+      comment: undefined,
+      filename: null,
+      rule: undefined,
+      type: 'string',
+      id: 1,
+      extend: undefined,
+      required: false,
+      optional: true,
+      repeated: false,
+      map: false,
+      message: [Circular *1],
+      partOf: null,
+      typeDefault: null,
+      defaultValue: null,
+      long: false,
+      bytes: false,
+      resolvedType: null,
+      extensionField: null,
+      declaringField: null,
+      _packed: null
+    }
+  },
+  oneofs: undefined,
+  extensions: undefined,
+  reserved: undefined,
+  group: undefined,
+  _fieldsById: null,
+  _fieldsArray: null,
+  _oneofsArray: null,
+  _ctor: null
+}
+```
+
+#### 编码和解码
+
+```js
+const HelloRequest = loader.message('test.helloworld.model.HelloRequest')
+const jsonData = { name: 'test' }
+// 编码
+const buffer = HelloRequest.encode(jsonData).finish()
+// 解码
+const decoded = HelloRequest.decode(buffer)
+
+// 验证解码与编码是否一致
+if (decoded.name === jsonData.name) {
+    console.log(true)
+}
+```
+
+### 注意
+
+我们一般只需要关心 `service()` 和 `message()` 的用法就可以了，`type()`对外使用的情况很少。

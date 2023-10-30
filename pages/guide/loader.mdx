@@ -3,6 +3,7 @@
 我们使用 Proto Loader 的时候，只需要在创建实例的时候，传入参数即可。
 
 ```js
+import GrpcLoader from 'grpcity'
 const loader = new GrpcLoader({ location, files })
 ```
 
@@ -101,12 +102,12 @@ options 的参数说明，包含如下参数：
 
 注意使用了`packagePrefix`之后，服务端和客户端都要一致。
 
-dev 环境，配置如下：
+test 环境，配置如下：
 
 ```js
 await loader.init({
     isDev: true, 
-    packagePrefix: 'dev', 
+    packagePrefix: 'test', 
     services: {
         'dev.path.to.serviceA': 'domain.local:9099',
         'path.to.serviceB': '192.168.32.111:10099'
