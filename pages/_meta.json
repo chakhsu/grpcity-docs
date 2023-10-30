@@ -1,7 +1,7 @@
 {
   "index": "首页",
   "start": "快速开始",
-  "guide": "指南",
+  "guide": "用户指南",
   "apis": "API",
   "404": {
     "type": "page",

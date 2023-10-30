@@ -4,7 +4,7 @@ Server是`gRPCity`的核心功能之一，提供了服务端生命周期的接�
 
 ### 实例获取
 
-`channelOptions`在 [Config指南](/guide/config) 里有详细讲解。
+`channelOptions`在 [Config 指南](/guide/config) 里有详细讲解。
 
 ```js
 // 获取 server 实例
@@ -18,7 +18,7 @@ const server = loader.initServer(channelOptions)
 服务绑定需要两个参数，一个是`service`，另外一个是`implementation`。
 
 - `service`: (必填) 需要通过`loader.service(name)`来获取 proto 里指定的`service`；
-- `implementation`: (必填) 携带 service rpc 定义好的方法的对象或者类，可以通过`loader.callbackify()`来`async`化，并支持中间件；
+- `implementation`: (必填) 携带 service rpc 定义好的方法的对象或者类，需要通过`loader.callbackify()`来`async`化，并支持中间件；
 
 ```js
 // service rpc 绑定

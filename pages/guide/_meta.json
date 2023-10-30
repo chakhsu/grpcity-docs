@@ -8,7 +8,6 @@
   "credentials": "Credentials",
   "status": "Status",
   "error": "Error",
-  "context": "Context",
   "middleware": "Middleware",
   "proto": "Proto"
 }
