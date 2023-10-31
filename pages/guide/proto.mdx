@@ -5,7 +5,7 @@
 
 好处是多做了一层校验，保证服务的正确性。
 
-### 加载
+### 加载 proto
 
 假如我们的 proto 路径是 `protos/test/helloworld/`, proto 的内容如下
 
@@ -156,92 +156,7 @@ console.log(HelloRequest)
   options: undefined,
   parsedOptions: null,
   name: 'HelloRequest',
-  parent: <ref *2> Namespace {
-    options: undefined,
-    parsedOptions: null,
-    name: 'model',
-    parent: Namespace {
-      options: undefined,
-      parsedOptions: null,
-      name: 'helloworld',
-      parent: [Namespace],
-      resolved: false,
-      comment: null,
-      filename: 'test_helloworld.proto',
-      nested: [Object],
-      _nestedArray: null,
-      Greeter: [Service],
-      Hellor: [Service]
-    },
-    resolved: false,
-    comment: null,
-    filename: 'test_helloworld_model.proto',
-    nested: { HelloRequest: [Circular *1], HelloReply: [Type] },
-    _nestedArray: null,
-    HelloRequest: [Circular *1],
-    HelloReply: Type {
-      options: undefined,
-      parsedOptions: null,
-      name: 'HelloReply',
-      parent: [Circular *2],
-      resolved: false,
-      comment: null,
-      filename: null,
-      nested: undefined,
-      _nestedArray: [],
-      fields: [Object],
-      oneofs: undefined,
-      extensions: undefined,
-      reserved: undefined,
-      group: undefined,
-      _fieldsById: null,
-      _fieldsArray: null,
-      _oneofsArray: null,
-      _ctor: null
-    }
-  },
-  resolved: false,
-  comment: null,
-  filename: null,
-  nested: undefined,
-  _nestedArray: [],
-  fields: {
-    name: Field {
-      options: undefined,
-      parsedOptions: null,
-      name: 'name',
-      parent: [Circular *1],
-      resolved: false,
-      comment: undefined,
-      filename: null,
-      rule: undefined,
-      type: 'string',
-      id: 1,
-      extend: undefined,
-      required: false,
-      optional: true,
-      repeated: false,
-      map: false,
-      message: [Circular *1],
-      partOf: null,
-      typeDefault: null,
-      defaultValue: null,
-      long: false,
-      bytes: false,
-      resolvedType: null,
-      extensionField: null,
-      declaringField: null,
-      _packed: null
-    }
-  },
-  oneofs: undefined,
-  extensions: undefined,
-  reserved: undefined,
-  group: undefined,
-  _fieldsById: null,
-  _fieldsArray: null,
-  _oneofsArray: null,
-  _ctor: null
+  ...
 }
 ```
 
