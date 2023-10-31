@@ -23,7 +23,7 @@ service Greeter {
 import GrpcLoader from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
- 
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const loader = new GrpcLoader({
     location: path.resolve(__dirname, 'protos'),

@@ -23,7 +23,7 @@ ESM 模块的代码文件目录获取如下：
 import GrpcLoader from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
- 
+
 // get this file dir path
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 ```
@@ -106,12 +106,12 @@ test 环境，配置如下：
 
 ```js
 await loader.init({
-    isDev: true, 
-    packagePrefix: 'test', 
+    isDev: true,
+    packagePrefix: 'test',
     services: {
         'dev.path.to.serviceA': 'domain.local:9099',
         'path.to.serviceB': '192.168.32.111:10099'
-    }, 
+    },
     appName: 'myApp'
 })
 ```
@@ -120,12 +120,12 @@ stage 环境，配置如下：
 
 ```js
 await loader.init({
-    isDev: false, 
-    packagePrefix: 'dev', 
+    isDev: false,
+    packagePrefix: 'dev',
     services: {
         'dev.path.to.serviceA': 'domain.local:9099',
         'path.to.serviceB': '192.168.32.111:10099'
-    }, 
+    },
     appName: 'myApp'
 })
 ```
@@ -137,7 +137,7 @@ await loader.init({
     services: {
         'dev.path.to.serviceA': 'domain.local:9099',
         'path.to.serviceB': '192.168.32.111:10099'
-    }, 
+    },
     appName: 'myApp'
 })
 ```
