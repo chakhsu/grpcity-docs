@@ -48,7 +48,7 @@ Metadata {
 
 - `content-type`: 值一般为`application/grpc+proto`;
 - `user-agent`: 值一般为`grpc-node-js/1.9.7`;
-- `date`: 值一般为`Wed, 01 Nov 2023 03:26:01 GMT`;
+- `date`: 值一般为`Wed, 01 Nov 2023 03:31:06 GMT`;
 
 ### 服务端接收
 
@@ -87,9 +87,9 @@ async sayGreet(ctx) {
 [ 'begin=2023-10-31T16:34:22.296Z' ]
 ```
 
-### 服务端返回
+### 服务端发送
 
-有时候，我们也需要服务端把`metadata`信息返回给客户端，方法如下：
+有时候，我们也需要服务端把`metadata`信息发送返回给客户端的情况，方法如下：
 
 ```js
 async SayHello (ctx) {
@@ -101,4 +101,4 @@ async SayHello (ctx) {
 }
 ```
 
-服务端发送`metadata`，客户端也是可以接收到的。
+服务端发送`metadata`，客户端是可以接收到的。
