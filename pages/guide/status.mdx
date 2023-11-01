@@ -1,8 +1,10 @@
 # Status
 
+`gRPCity`库提供了非常便捷获取`status`的能力。一般情况下会很少使用到，这里就简单提及。
+
 ### 获取 Status
 
-`gRPCity`库提供了非常便捷获取`status`的能力。就是在每次执行完 rpc 后，客户端接收服务端返回的结果里，就包含了`status`，如下所示：
+客户端获取服务端返回的`status`的方式，非常简单，如下所示。
 
 ```js
 const client = loader.client('path.to.service')
