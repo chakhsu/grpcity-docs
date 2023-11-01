@@ -1,12 +1,49 @@
 # Error
 
-### 错误类型
+错误处理是保证服务正常运行的重要工作。`gRPCity` 也提供方便的错误处理方式，
 
-### 客户端错误
+### 客户端发现错误
 
-### 服务端错误
+客户端调用服务端，如果服务端报错，则会返回`ERROR`对象，对象包含下面4个字段：
 
+- `name`: 值为`GrpcClientError`, 可以用来判断是否为客户端 rpc 发现的错误；
+- `code`: gRPC Status Code；
+- `message`: gRPC Server emit message details;
+- `stack`: file error trace stack;
 
+`ERROR`对象完全展开后如下所示：
 
+```js
+{
+    "name":"GrpcClientError",
+    "code":2,
+    "message":"/test.helloworld.Greeter/SayHello (2 UNKNOWN: Error: throw error because x-throw-error [Error Message From Server, stack: at Greeter.SayHello (/Users/lau/Documents/GitHub/grpcity/test/server.js:27:13)])",
+    "stack": "
+        at start (/Users/lau/Documents/GitHub/grpcity/test/client.js:36:72)
+        ...
+        at callErrorFromStatus (/Users/lau/Documents/GitHub/grpcity/node_modules/@grpc/grpc-js/build/src/call.js:31:19)
+        at Object.onReceiveStatus (/Users/lau/Documents/GitHub/grpcity/node_modules/@grpc/grpc-js/build/src/client.js:192:76)
+    "
+}
+```
 
+### 服务端触发错误
+
+下面展示如果客户端发送`x-timestamp-server`元信息，该`sayHello()`主动触发报错的例子。
+
+```js { 6-8 }
+async sayHello (ctx) {
+    const metadata = ctx.metadata.clone()
+    metadata.add('x-timestamp-server', 'received=' + new Date().toISOString())
+    ctx.sendMetadata(metadata)
+
+    if (metadata.get('x-throw-error').length > 0) {
+        throw new Error('throw error because x-throw-error')
+    }
+
+    return { message: `hello, ${ctx.request.name || 'world'}` }
+}
+```
+
+服务端主动触发报错后，客户端捕捉到的错误报错，如上面客户端发现错误展示的例子一样。
 
