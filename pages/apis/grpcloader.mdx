@@ -1,0 +1,53 @@
+# GrpcLoader API
+
+### class GrpcLoader
+
+```
+import GrpcLoader from 'grpcity'
+
+const loader = new GrpcLoader(options)
+```
+
+#### 参数
+
+options 参数有两个情况，分别是：
+- single: `{ location, files }`, 单对象;
+- array: `[ { location, files } ]`, 数组对象;
+
+`{ location, files }`说明：
+- `location`: path string, 例如：`path.join(__dirname, './proto')`;
+- `files`: array string, 例如：`['path/to/service-a.proto', 'path/to/service-b.proto']`
+
+#### 返回值
+
+返回 GrpcLoader 实例，包含一系列内部变量、内部方法和外部方法
+
+---
+
+下面将会展示`GrpcLoader`里的 API
+
+### init()
+
+### initClients()
+
+### client()
+
+### realClient()
+
+### clientWithoutCache()
+
+### makeCredentials()
+
+### makeMetadata
+
+
+### initServer()
+
+### callbackify()
+
+
+### service()
+
+### type()
+
+### message()
