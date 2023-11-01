@@ -64,22 +64,46 @@ const a = await serviceAClient.rpcMethod1({ name: 'myapp' })
 const b = await serviceBClient.rpcMethod2({ name: 'youapp' })
 ```
 
-#### callback
+`client`发起请求后，收到的结果包含了三个值，分别是`status`、`metadata`和`response`。
+- `status`: 服务端处理执行后的状态；
+- `metadata`: 客户端发送和服务端返回的 metadata 信息；
+- `response`: 服务端处理完成后响应的结果；
 
-`callback`的调用需要多加一个原型链，如`.original.`。
+我们打印一下返回的结果：
 
 ```js
-const a = serviceAClient.original.rpcMethod1({ name: 'myapp' }, (err, result) => {
+{
+  metadata: Metadata {
+    internalRepr: Map(2) { 'content-type' => [Array], 'date' => [Array] },
+    options: {}
+  },
+  response: { message: 'hello greeter by Greeter in server1', count: 1 },
+  status: {
+    code: 0,
+    details: 'OK',
+    metadata: Metadata { internalRepr: Map(0) {}, options: {} }
+  }
+}
+```
+
+#### callback
+
+`callback`的调用需要多加一个原型链，如`.call.`。
+
+```js
+const a = serviceAClient.call.rpcMethod1({ name: 'myapp' }, (err, result) => {
     if (err) {
         throw err
     }
     return result
 })
-const b = serviceBClient.original.rpcMethod2({ name: 'youapp' }, (err, result) => {
+const b = serviceBClient.call.rpcMethod2({ name: 'youapp' }, (err, result) => {
     if (err) {
         throw err
     }
     return result
 })
 ```
+
+`callback`的方法提供了`stream`的处理能力。
 

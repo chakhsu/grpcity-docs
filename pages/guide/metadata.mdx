@@ -1,15 +1,104 @@
 # MetaData
 
-MetaData 功能在 gRPC 里是非常重要。有些场景，我们需要像`http header`一样的能力，如 链路追踪，调用来源等等场景，这个时候 Metadata 就是解决这个问题的功能。
-
-###
+MetaData 功能在 gRPC 里是非常重要。有些场景，我们需要像`http header`一样的能力，如链路追踪，调用来源等等场景，这个时候 Metadata 就是满足这些场景的功能。
 
 ### 客户端发送
 
+客户端发送`metadata`，需要调用`loader.makeMetadata()`，使用方式如下：
+
+```js
+const client = loader.client('test.helloworld.Greeter')
+
+const meta = loader.makeMetadata({
+    'x-cache-control': 'max-age=100',
+    'x-business-id': ['grpcity', 'testing'],
+    'x-timestamp-client': 'begin=' + new Date().toISOString()
+})
+const { status, metadata, response } = await client.sayGreet({ name: 'greeter' }, meta)
+
+console.log(metadata)
+```
+
+我们打印`metadata`, 结果如下：
+
+```sh
+Metadata {
+    internalRepr: Map(8) {
+        'content-type' => [ 'application/grpc+proto' ],
+        'x-cache-control' => [ 'max-age=100' ],
+        'x-business-id' => [ 'grpcity, testing' ],
+        'x-timestamp-client' => [ 'begin=2023-11-01T03:31:05.942Z' ],
+        'x-client-hostname' => [ 'ChakhsudeAir' ],
+        'user-agent' => [ 'grpc-node-js/1.9.7' ],
+        'x-timestamp-server' => [ 'received=2023-11-01T03:31:06.987Z' ],
+        'date' => [ 'Wed, 01 Nov 2023 03:31:06 GMT' ]
+    },
+    options: {}
+}
+```
+
+这里需要注意的有一些默认情况：
+
+`gRPCity` Client 默认发送以下的 metadata:
+
+- `x-client-hostname`: 值为操作系统的`hostname`;
+- `x-client-app-name`: 值为`loader`初始化时使用到的 `appName`;
+
+`gRPCity` Server 默认发送以下的 metadata:
+
+- `content-type`: 值一般为`application/grpc+proto`;
+- `user-agent`: 值一般为`grpc-node-js/1.9.7`;
+- `date`: 值一般为`Wed, 01 Nov 2023 03:26:01 GMT`;
 
 ### 服务端接收
 
+服务端接收`metadata`的位置在 `ctx.metadata` 里，如果要使用需要先`clone()`出来，然后根据`key`去`get(key)`值。
 
-### 联调
+```js
+async sayGreet(ctx) {
+    const { name } = ctx.request
+    this.count++
 
+    // 获取 ctx 里的 metadata 信息
+    const metadata = ctx.metadata.clone()
 
+    // 获取具体的 metadata kv
+    const cacheAge = metadata.get('x-cache-control')
+    const businessId = metadata.get('x-business-id')
+    const clientTimestamp = metadata.get('x-timestamp-client')
+
+    // 打印 metadata value
+    console.log(cacheAge)
+    console.log(businessId)
+    console.log(clientTimestamp)
+
+    return {
+        message: `hello ${name || "world"} by Greeter in server1`,
+        count: this.count
+    }
+}
+```
+
+输出结果如下：
+
+```sh
+[ 'max-age=100' ]
+[ 'grpcity, testing' ]
+[ 'begin=2023-10-31T16:34:22.296Z' ]
+```
+
+### 服务端返回
+
+有时候，我们也需要服务端把`metadata`信息返回给客户端，方法如下：
+
+```js
+async SayHello (ctx) {
+    const metadata = ctx.metadata.clone()
+    metadata.add('x-timestamp-server', 'received=' + new Date().toISOString())
+    ctx.sendMetadata(metadata)
+
+    // 省略...
+}
+```
+
+服务端发送`metadata`，客户端也是可以接收到的。
