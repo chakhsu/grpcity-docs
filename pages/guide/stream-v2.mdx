@@ -1,4 +1,53 @@
 # Stream v2
 
-`grpc`
+在`0.9`版本之后，`gRPCity`提供了`client`调用`stream rpc`的全部`promisify`的能力，这意味着我们能使用`async/await`的语法进行`stream`处理。
+
+下面我们将会展示如何使用`Stream v2`的能力。在这里也建议先看一遍 [Stream](/guide/stream)，该文会有一些相似的地方在本文出现。
+
+### 定义 proto
+
+```proto filename="stream.proto"
+syntax="proto3";
+
+package stream;
+
+service Hellor {
+  rpc ClientStreamHello (stream Message) returns (Message) {}
+  rpc ServerStreamHello (Message) returns (stream Message) {}
+  rpc MutualStreamHello (stream Message) returns (stream Message) {}
+}
+
+message Message {
+  string message = 1;
+}
+```
+
+### 加载 proto
+
+```js filename="./loader.js"
+import GrpcLoader from 'grpcity'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+// get this file dir path
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+export default new GrpcLoader({
+    location: path.resolve(__dirname, './'),
+    files: ['stream.proto']
+})
+```
+
+### 客户端
+
+
+#### 流对点
+
+
+#### 点对流
+
+
+#### 流对流
+
+
 

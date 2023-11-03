@@ -42,7 +42,7 @@ import { fileURLToPath } from 'node:url'
 // get this file dir path
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-export default ew GrpcLoader({
+export default new GrpcLoader({
     location: path.resolve(__dirname, './'),
     files: ['stream.proto']
 })

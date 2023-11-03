@@ -68,8 +68,6 @@ const result = await serviceAClient.rpcMethod(request, metadata, options)
 - `metadata`（元数据）：这是一个可选参数，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据；
 - `options`（选项）：这是一个可选参数，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入`deadline`的方式修改超时时间；
 
-
-
 例子：
 ```js
 const meta = loader.makeMetadata({
@@ -86,7 +84,7 @@ const b = await serviceBClient.rpcMethod2({ name: 'youapp' }, meta, options)
 
 `client`发起请求后，收到的结果包含了三个值，分别是`status`、`metadata`和`response`。
 - `status`: 服务端处理执行后的状态；
-- `metadata`: 客户端发送和服务端返回的 metadata 信息；
+- `metadata`: 服务端返回的 metadata 信息；
 - `response`: 服务端处理完成后响应的结果；
 
 我们打印一下返回的结果：
