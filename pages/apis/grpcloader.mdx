@@ -28,7 +28,30 @@ options 参数有两个情况，分别是：
 
 ### init()
 
+```
+await loader.init({ services, isDev, packagePrefix, loadOptions, channelOptions, appName })
+```
+
+options 的参数说明，包含如下参数：
+- services: （可选）跟 initClient() 里的参数一样，如果有这个参数，则可以跳过initClient，直接完成client的初始化。同时支持字符串和对象参数；
+    - string: ip+port 格式，如 `127.0.0.1:9099`；
+    - object: `{ host, port }`；
+        - host: 字符串，支持 ip 和域名；
+        - port: 数字，最小值为0，最大值为65535；
+- isDev: （可选）布尔值，是否为开发模式；
+- packagePrefix: （可选）字符串，service name 包前缀，如：`dev`, `stage`等等；
+- loadOptions: （可选）proto load options；
+- channelOptions: （可选）proto channel options；
+- appName: （可选）字符串，当前应用的应用名，用来标记；
+
+返回值：
+- void：空
+
 ### initClients()
+
+```
+await loader.initClients({ services, channelOptions, credentials })
+```
 
 ### client()
 

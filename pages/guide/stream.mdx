@@ -3,6 +3,10 @@
 `gRPCity` 库提供了完整的 Stream 处理能力，流式 rpc 可以满足文件上传，事件机制，任务监听，指标回播等业务场景。
 目前流式 rpc 有三种情况，以`client - server`模式举例，分别是`client stream - server`、`client - server stream` 和 `client stream - server stream`。
 
+这里展示的使用`callback`和事件机制来完成流处理工作。使用的是`client`的`proxy`的`call`里的方法。
+
+如果需要获取`async stream`的用法，可以查看 [Stream v2](/guide/stream-v2) 指南。
+
 ### 前置工作
 
 我们的 proto 文件里的 `service` 的`rpc`，需要标记清楚 使用了`stream`，如下所示：
