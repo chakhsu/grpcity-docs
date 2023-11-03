@@ -52,15 +52,15 @@ Metadata {
 
 ### 服务端接收
 
-服务端接收`metadata`的位置在 `ctx.metadata` 里，如果要使用需要先`clone()`出来，然后根据`key`去`get(key)`值。
+服务端接收`metadata`的位置在 `call.metadata` 里，如果要使用需要先`clone()`出来，然后根据`key`去`get(key)`值。
 
 ```js
-async sayGreet(ctx) {
-    const { name } = ctx.request
+async sayGreet(call) {
+    const { name } = call.request
     this.count++
 
-    // 获取 ctx 里的 metadata 信息
-    const metadata = ctx.metadata.clone()
+    // 获取 call 里的 metadata 信息
+    const metadata = call.metadata.clone()
 
     // 获取具体的 metadata kv
     const cacheAge = metadata.get('x-cache-control')
@@ -92,10 +92,10 @@ async sayGreet(ctx) {
 有时候，我们也需要服务端把`metadata`信息发送返回给客户端的情况，方法如下：
 
 ```js
-async SayHello (ctx) {
-    const metadata = ctx.metadata.clone()
+async SayHello (call) {
+    const metadata = call.metadata.clone()
     metadata.add('x-timestamp-server', 'received=' + new Date().toISOString())
-    ctx.sendMetadata(metadata)
+    call.sendMetadata(metadata)
 
     // 省略...
 }

@@ -32,16 +32,16 @@
 下面展示如果客户端发送`x-throw-error`元信息，服务端执行`sayHello()`检查该元信息后主动触发报错的例子。
 
 ```js { 6-8 }
-async sayHello (ctx) {
-    const metadata = ctx.metadata.clone()
+async sayHello (call) {
+    const metadata = call.metadata.clone()
     metadata.add('x-timestamp-server', 'received=' + new Date().toISOString())
-    ctx.sendMetadata(metadata)
+    call.sendMetadata(metadata)
 
     if (metadata.get('x-throw-error').length > 0) {
         throw new Error('throw error because x-throw-error')
     }
 
-    return { message: `hello, ${ctx.request.name || 'world'}` }
+    return { message: `hello, ${call.request.name || 'world'}` }
 }
 ```
 

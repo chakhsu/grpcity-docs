@@ -56,8 +56,8 @@ class Greeter {
     }
 
     // rpc method
-    async sayGreet(ctx) {
-        const { name } = ctx.request
+    async sayGreet(call) {
+        const { name } = call.request
         this.count++
         return {
             message: `hello ${name || "world"} by Greeter`,
@@ -87,8 +87,8 @@ class Hellor {
     }
 
     // rpc method
-    async sayHello(ctx) {
-        const { name } = ctx.request
+    async sayHello(call) {
+        const { name } = call.request
         return { message: `hello ${name || "world"} by Hellor` }
     }
 }
@@ -136,8 +136,8 @@ let count = 0
 const Greeter = {
     // rpc method
     // promise style
-    sayGreet: async (ctx) => {
-        const { name } = ctx.request
+    sayGreet: async (call) => {
+        const { name } = call.request
         count++
         return {
             message: `hello ${name || "world"} by Greeter`,
@@ -153,10 +153,10 @@ const Greeter = {
 const Hellor = {
     // rpc method
     // callback style
-    sayHello: (ctx, callback) => {
-        const { name } = ctx.request
+    sayHello: (call, callback) => {
+        const { name } = call.request
         callback(null, {
-            message: `hello ${name || "world"} by Hellor in server2` 
+            message: `hello ${name || "world"} by Hellor in server2`
         })
     }
 }
@@ -194,7 +194,7 @@ start('127.0.0.1:9099')
 我们将会启动这两个 server，在后续 client side 教程中，我们将会同时调用这两个 server，将 gRPC 的调用闭环。详细的联调环节将会在 client side 教程中展示。
 
 ```sh
-// 在终端1启动 
+// 在终端1启动
 node ./server.js
 // 在终端2启动
 node ./server2.js
