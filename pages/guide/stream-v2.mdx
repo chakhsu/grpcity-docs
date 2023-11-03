@@ -4,6 +4,8 @@
 
 下面我们将会展示如何使用`Stream v2`的能力。在这里也建议先看一遍 [Stream](/guide/stream)，该文会有一些相似的地方在本文出现。
 
+注意：本篇的服务端延用了 [Stream](/guide/stream) 里的服务端。
+
 ### 定义 proto
 
 该 `proto` 定义了三个 `rpc`，正好对应了客户端与服务端的三种流对接方式，分别是流对点、点对流和流对流。
@@ -42,14 +44,224 @@ export default new GrpcLoader({
 
 ### 客户端
 
+客户端的一些前期工作，如加载 `proto`，初始化客户端，创建新的 `metadata`.
+
+```js filename="./client.js"
+const GrpcLoader = require('../../index.js')
+const path = require('path')
+
+const start = async (addr) => {
+    const loader = new GrpcLoader({
+        location: path.resolve(__dirname, './'),
+        files: ['stream.proto']
+    })
+    await loader.init()
+
+    await loader.initClients({
+        services: {
+            'stream.Hellor': addr
+        }
+    })
+
+    const client = loader.client('stream.Hellor')
+
+    const meta = loader.makeMetadata({
+        'x-cache-control': 'max-age=100',
+        'x-business-id': ['grpcity', 'testing'],
+        'x-timestamp-client': 'begin=' + new Date().toISOString()
+    })
+}
+```
 
 #### 流对点
 
+流对点，指`client stream request` -> `server response`。
+
+我们继续在`start`方法里流对点的流程：
+
+```js
+const start = async (addr) => {
+
+    // ...
+
+    // stream client to server
+    const clientStreamHelloCall = client.clientStreamHello(meta)
+
+    // send stream message to server
+    clientStreamHelloCall.write({ message: 'Hello!' })
+    clientStreamHelloCall.write({ message: 'How are you?' })
+
+    // end to send message and get server response
+    const writeResult = await clientStreamHelloCall.writeEnd()
+    console.log(writeResult)
+
+    // ...
+
+}
+```
+
+运行结果如下，我们看到`writeEnd()`返回了这次调用服务端的返回结果`{ status, metadata, response }`，同时也把`stream message`发送到了服务端。
+
+```sh
+// client
+{
+  metadata: Metadata {
+    internalRepr: Map(8) {
+      'content-type' => [Array],
+      'x-cache-control' => [Array],
+      'x-business-id' => [Array],
+      'x-timestamp-client' => [Array],
+      'x-client-hostname' => [Array],
+      'user-agent' => [Array],
+      'x-timestamp-server' => [Array],
+      'date' => [Array]
+    },
+    options: {}
+  },
+  response: { message: "Hello! I'm fine, thank you!" },
+  status: {
+    code: 0,
+    details: 'OK',
+    metadata: Metadata { internalRepr: Map(0) {}, options: {} }
+  }
+}
+
+// server
+{ message: 'Hello!' }
+{ message: 'How are you?' }
+```
 
 #### 点对流
 
+点对流，指`client request -> server stream response`。
+
+我们继续在`start`方法里点对流的流程：
+
+```js
+const start = async (addr) => {
+
+    // ...
+
+    const serverStreamHelloCall = client.serverStreamHello({ message: 'Hello! How are you?' }, meta)
+    const serverReadResult = await serverStreamHelloCall.readAll()
+    console.log(serverReadResult)
+    for await (const data of serverReadResult.response) {
+        console.log(data)
+    }
+
+    // ..
+}
+```
+
+运行结果如下，我们看到`readAll()`返回了这次调用服务端的返回结果`{ status, metadata, response }`，同时也把`message`发送到了服务端。
+
+注意：这里的服务端返回的`response`是一个`asyncIterator`，需要我们使用`for await`获取服务端返回的逐条`stream message`结果。
+
+```sh
+// client
+{
+  response: {
+    next: [AsyncFunction: next],
+    return: [AsyncFunction: return],
+    [Symbol(Symbol.asyncIterator)]: [Function: [Symbol.asyncIterator]]
+  },
+  metadata: Metadata {
+    internalRepr: Map(8) {
+      'content-type' => [Array],
+      'x-cache-control' => [Array],
+      'x-business-id' => [Array],
+      'x-timestamp-client' => [Array],
+      'x-client-hostname' => [Array],
+      'user-agent' => [Array],
+      'x-timestamp-server' => [Array],
+      'date' => [Array]
+    },
+    options: {}
+  },
+  status: {
+    code: 0,
+    details: 'OK',
+    metadata: Metadata { internalRepr: Map(0) {}, options: {} }
+  }
+}
+{ message: 'Hello! I got you message.' }
+{ message: "I'm fine, thank you" }
+
+// server
+{ message: 'Hello! How are you?' }
+```
 
 #### 流对流
 
+流对流，指`client stream request -> server stream response`。
 
+我们继续在`start`方法里流对流的流程。我们先调用`writeAll()`发送3条消息，然后再调用`write()`发送1条消息，最后调用`readAll()`获取服务端返回的结果。
 
+```js
+const start = async (addr) => {
+
+    // ...
+
+    const mutualStreamHelloCall = client.mutualStreamHello(meta)
+    mutualStreamHelloCall.writeAll([
+        { message: 'Hello!' },
+        { message: 'How are you?' },
+        { message: 'other thing x' }
+    ])
+    mutualStreamHelloCall.write({ message: 'maybe' })
+
+    const mutualReadAllResult = await mutualStreamHelloCall.readAll()
+    for await (const data of mutualReadAllResult.response) {
+        console.log(data)
+    }
+    console.log(mutualReadAllResult)
+
+    // ..
+}
+```
+
+运行结果如下，我们看到我们是先客户端发送消息完给服务端后，调用`readAll()`，然后返回了这次调用服务端的返回结果`{ status, metadata, response }`，
+
+注意：这里的服务端返回的`response`是一个`asyncIterator`，需要我们使用`for await`获取服务端返回的逐条`stream message`结果。
+
+```sh
+// client
+{ message: 'emmm...' }
+{ message: 'Hello too.' }
+{ message: "I'm fine, thank you" }
+{ message: 'pardon?' }
+{ message: 'pardon?' }
+{ message: 'delay 1s' }
+{
+  response: {
+    next: [AsyncFunction: next],
+    return: [AsyncFunction: return],
+    [Symbol(Symbol.asyncIterator)]: [Function: [Symbol.asyncIterator]]
+  },
+  metadata: Metadata {
+    internalRepr: Map(8) {
+      'content-type' => [Array],
+      'x-cache-control' => [Array],
+      'x-business-id' => [Array],
+      'x-timestamp-client' => [Array],
+      'x-client-hostname' => [Array],
+      'user-agent' => [Array],
+      'x-timestamp-server' => [Array],
+      'date' => [Array]
+    },
+    options: {}
+  },
+  status: {
+    code: 0,
+    details: 'OK',
+    metadata: Metadata { internalRepr: Map(0) {}, options: {} }
+  }
+}
+
+// server
+Hello!
+How are you?
+other thing x
+maybe
+client call end.
+```
