@@ -10,17 +10,17 @@ import { Card, Cards } from 'nextra/components'
 ### 初始化与安装依赖
 
 创建 demo 项目并进入：
-```sh
+```bash filename="Terminal"
 mkdir demo && cd demo
 ```
 
 初始化：
-```sh sh npm2yarn
-npm init 
+```bash filename="Terminal" sh npm2yarn
+npm init
 ```
 
 安装依赖：
-```sh npm2yarn
+```bash filename="Terminal" npm2yarn
 npm i grpcity
 ```
 
@@ -30,7 +30,7 @@ npm i grpcity
 
 我们需要创建一系列的目录和文件，最终项目目录与文件结构如下：
 
-```sh {2}
+```bash filename="Terminal" {2}
 .
 ├── loader.js
 ├── package-lock.json
@@ -47,7 +47,7 @@ npm i grpcity
 
 创建 proto 目录，创建`service.proto`文件：
 
-```sh
+```bash filename="Terminal"
 mkdir -p ./proto/test/helloworld
 vim ./proto/test/helloworld/service.proto
 ```
@@ -75,7 +75,7 @@ service Hellor {
 
 创建 model 目录，创建`message.proto`文件：
 
-```sh
+```bash filename="Terminal"
 mkdir -p ./proto/test/helloworld/model
 vim ./proto/test/helloworld/model/message.proto
 ```
@@ -107,7 +107,7 @@ message HelloReply {
 import GrpcLoader from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
- 
+
 // get this file dir path
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 

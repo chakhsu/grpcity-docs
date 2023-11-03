@@ -102,7 +102,7 @@ const start = async (addr) => {
 
 运行结果如下，我们看到`writeEnd()`返回了这次调用服务端的返回结果`{ status, metadata, response }`，同时也把`stream message`发送到了服务端。
 
-```sh
+```bash filename="Terminal"
 // client
 {
   metadata: Metadata {
@@ -157,7 +157,7 @@ const start = async (addr) => {
 
 注意：这里的服务端返回的`response`是一个`asyncIterator`，需要我们使用`for await`获取服务端返回的逐条`stream message`结果。
 
-```sh
+```bash filename="Terminal"
 // client
 {
   response: {
@@ -224,7 +224,7 @@ const start = async (addr) => {
 
 注意：这里的服务端返回的`response`是一个`asyncIterator`，需要我们使用`for await`获取服务端返回的逐条`stream message`结果。
 
-```sh
+```bash filename="Terminal"
 // client
 { message: 'emmm...' }
 { message: 'Hello too.' }

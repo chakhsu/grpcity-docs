@@ -6,7 +6,7 @@ import { Card, Cards } from 'nextra/components'
 
 ### 项目目录
 
-```sh {13}
+```bash filename="Terminal" {13}
 .
 ├── loader.js
 ├── package-lock.json
@@ -84,20 +84,20 @@ start('127.0.0.1:9098', '127.0.0.1:9099')
 
 在上一篇服务端教程，我们已经启动好了两个 server，所以我们只需要直接执行 client 就可以完成联调。
 
-```sh
+```bash filename="Terminal"
 node ./client.js
 ```
 
 第一次执行结果如下：
 
-```sh
+```bash filename="Terminal"
 server1Client.sayGreet { message: 'hello greeter by Greeter in server1', count: 1 }
 server2Client.sayHello { message: 'hello hellor by Hellor in server2' }
 ```
 
 第二次执行结果如下：
 
-```sh
+```bash filename="Terminal"
 server1Client.sayGreet { message: 'hello greeter by Greeter in server1', count: 2 }
 server2Client.sayHello { message: 'hello hellor by Hellor in server2' }
 ```
