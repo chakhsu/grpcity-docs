@@ -5,174 +5,245 @@
 ### unary
 
 ```js
-
+const { status, metadata, response } = await client.rpcUnaryMethod(request, metadata, options)
 ```
 
-功能说明:
-- 1
+**功能说明:**
+- 发一次`rpcUnaryMethod`调用，点对点，并等待直至结果返回。
 
-参数说明:
-- 2
+**参数说明:**
+- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
+- `metadata`（元数据）: 这是一个可选参数，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据；
+- `options`（选项）: 这是一个可选参数，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入`deadline`或`timeout`的方式修改超时时间；
 
-返回值:
-- 3
+**返回值:**
+- `object`: `{ status, metadata, response }`
+    - `status`: 服务端处理执行后的状态；
+    - `metadata`: 服务端返回的 metadata 信息；
+    - `response`: 服务端处理完成后响应的结果；
 
 ### client stream
+
+```js
+const clientStreamCall = client.rpcClientStreamMethod(metadata, options)
+```
+
+**功能说明:**
+- 处理一次`rpcClientStreamMethod`调用，提供客户端发送流信息的能力和获取服务端处理完流的结果的能力。
+
+**参数说明:**
+- `metadata`（元数据）: 这是一个可选参数，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据；
+- `options`（选项）: 这是一个可选参数，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入`deadline`或`timeout`的方式修改超时时间；
+
+**返回值:**
+- `stream 实例`，提供一系列方法处理客户端流。
 
 #### write()
 
 ```js
-
+clientStreamCall.write(request)
 ```
 
-功能说明:
-- 1
+**功能说明:**
+- 客户端发送一条流信息。
 
-参数说明:
-- 2
+**参数说明:**
+- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
 
-返回值:
-- 3
+**返回值:**
+- `Boolean`: 布尔值，一般为`true`;
 
 #### writeAll()
 
 ```js
-
+clientStreamCall.writeAll([request])
 ```
 
-功能说明:
-- 1
+**功能说明:**
+- 客户端批量发送多条流信息。
 
-参数说明:
-- 2
+**参数说明:**
+- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
 
-返回值:
-- 3
+**返回值:**
+- void: 空。
 
 #### writeEnd()
 
 ```js
-
+const { status, metadata, response } = await clientStreamCall.writeEnd()
 ```
 
-功能说明:
-- 1
+**功能说明:**
+- 获取服务端处理完流信息的结果。
 
-参数说明:
-- 2
+**参数说明:**
+- void: 空。
 
-返回值:
-- 3
+**返回值:**
+- `object`: `{ status, metadata, response }`
+    - `status`: 服务端处理执行后的状态；
+    - `metadata`: 服务端返回的 metadata 信息；
+    - `response`: 服务端处理完成后响应的结果；
 
 ### server stream
+
+```js
+const clientServerStreamCall = client.rpcServerStreamMethod(request, metadata, options)
+```
+
+**功能说明:**
+- 处理一次`rpcServerStreamMethod`调用，提供客户端发起一次调用的能力和获取服务端发送的流信息的能力。
+
+**参数说明:**
+- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
+- `metadata`（元数据）: 这是一个可选参数，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据；
+- `options`（选项）: 这是一个可选参数，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入`deadline`或`timeout`的方式修改超时时间；
+
+**返回值:**
+- `stream 实例`，提供一系列方法处理客户端流。
 
 #### readAll()
 
 ```js
-
+const { status, metadata, response } = await serverStreamHelloCall.readAll()
 ```
 
-功能说明:
-- 1
+**功能说明:**
+- 接收服务端返回流信息。
 
-参数说明:
-- 2
+**参数说明:**
+- void: 空。
 
-返回值:
-- 3
+**返回值:**
+- `object`: `{ status, metadata, response }`
+    - `status`: 服务端处理执行后的状态；
+    - `metadata`: 服务端返回的 metadata 信息；
+    - `response`: 服务端返回的一个`asyncIterator`对象，需要我们使用`for await`获取服务端返回的逐条`stream message`结果；
 
 ### duplex stream
+
+```
+const clientDuplexStreamCall = client.rpcDuplexStreamMethod(metadata, options)
+```
+
+**功能说明:**
+- 处理一次`rpcDuplexStreamMethod`调用，提供客户端发送流信息的能力和获取服务端发送的流信息的能力。
+
+**参数说明:**
+- `metadata`（元数据）: 这是一个可选参数，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据；
+- `options`（选项）: 这是一个可选参数，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入`deadline`或`timeout`的方式修改超时时间；
+
+**返回值:**
+- `stream 实例`，提供一系列方法处理客户端流。
 
 #### write()
 
 ```js
-
+clientDuplexStreamCall.write(request)
 ```
 
-功能说明:
-- 1
+**功能说明:**
+- 客户端发送一条流信息。
 
-参数说明:
-- 2
+**参数说明:**
+- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
 
-返回值:
-- 3
+**返回值:**
+- `Boolean`: 布尔值，一般为`true`;
 
 #### writeAll()
 
 ```js
-
+clientDuplexStreamCall.writeAll([request])
 ```
 
-功能说明:
-- 1
+**功能说明:**
+- 客户端批量发送多条流信息。
 
-参数说明:
-- 2
+**参数说明:**
+- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
 
-返回值:
-- 3
+**返回值:**
+- void: 空。
 
 #### readAll()
 
 ```js
-
+const { status, metadata, response } = await clientDuplexStreamCall.readAll()
 ```
 
-功能说明:
-- 1
+**功能说明:**
+- 接收服务端返回流信息。
 
-参数说明:
-- 2
+**参数说明:**
+- void: 空。
 
-返回值:
-- 3
-
+**返回值:**
+- `object`: `{ status, metadata, response }`
+    - `status`: 服务端处理执行后的状态；
+    - `metadata`: 服务端返回的 metadata 信息；
+    - `response`: 服务端返回的一个`asyncIterator`对象，需要我们使用`for await`获取服务端返回的逐条`stream message`结果；
 
 ## proxy.call[method]
 
+```js
+const callInstance = client.call.rpcMethod(request, metadata, options, callback)
+```
+
+**功能说明:**
+- 处理一次`call.rpcMethod`调用，使用回调函数和事件监听的机制处理服务端的信息。
+
+**参数说明:**
+- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
+- `metadata`（元数据）: 这是一个可选参数，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据；
+- `options`（选项）: 这是一个可选参数，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入`deadline`或`timeout`的方式修改超时时间；
+- `callback` (回调函数) : 这是一个必选项，用来接收服务端返回错误信息和处理结果。
+
+**返回值:**
+- `call 实例`，提供一系列方法处理客户端。
 
 ### on()
 
 ```js
-
+callInstance.on('eventName', callback)
 ```
 
-功能说明:
-- 1
+**功能说明:**
+- 监听服务端事件，并处理监听数据。
 
-参数说明:
-- 2
+**参数说明:**
+- `eventName`: (必选)，事件名，有：`data`, `end`, `status`, `metadata`和`error`,
 
-返回值:
-- 3
+**返回值:**
+- void: 空。
 
 ### write()
 
 ```js
-
+callInstance.write(request)
 ```
 
-功能说明:
-- 1
+**功能说明:**
+- 客户端发送一条流信息。
 
-参数说明:
-- 2
+**参数说明:**
+- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
 
-返回值:
-- 3
+**返回值:**
+- `Boolean`: 布尔值，一般为`true`;
 
 ### end()
 
 ```js
-
+callInstance.end()
 ```
 
-功能说明:
-- 1
+**功能说明:**
+- 客户端发送流信息已结束。
 
-参数说明:
-- 2
+**参数说明:**
+- void: 空。
 
-返回值:
-- 3
+**返回值:**
+- void: 空。

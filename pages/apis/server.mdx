@@ -2,7 +2,7 @@
 
 通过调用`loader.initServer()`获取`server`实例，实例挂着一系列 API，方便我们去支持 gRPC Server 开发。
 
-```
+```js
 const server = await loader.initServer(channelOptions)
 ```
 
@@ -12,15 +12,15 @@ const server = await loader.initServer(channelOptions)
 server.addService(service, implementation)
 ```
 
-功能说明:
+**功能说明:**
 - 将`proto service rpc`定义与具体的执行实现进行绑定。
 
-参数说明:
+**参数说明:**
 - `service`: (必填) 需要通过`loader.service(name)`来获取 proto 里指定的`service`；
 - `implementation`: (必填) 携带 service rpc 定义好的方法的对象或者类，需要通过`loader.callbackify()`来`async`化，并支持中间件；
 
-返回值:
-- void: 空
+**返回值:**
+- void: 空。
 
 ### removeService()
 
@@ -28,14 +28,14 @@ server.addService(service, implementation)
 server.removeService(service)
 ```
 
-功能说明:
+**功能说明:**
 - 对已经绑定的`service`进行解绑。
 
-参数说明:
+**参数说明:**
 - `service`: (必填) 需要通过`loader.service(name)`来获取 proto 里指定的`service`；
 
-返回值:
-- void: 空
+**返回值:**
+- void: 空。
 
 ### makeServerCredentials()
 
@@ -43,17 +43,17 @@ server.removeService(service)
 const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkClientCertificate)
 ```
 
-功能说明:
+**功能说明:**
 - 1
 
-参数说明:
+**参数说明:**
 - `rootCerts`: (可选) Buffer, 一般为 ca 文件；
 - `keyCertPairs`: 证书对，key和crt，必须数组；
     - `private_key`: (可选) Buffer, 一般为 key 文件；
     - `cert_chain`: (可选) Buffer, 一般为 crt 文件；
 - `checkClientCertificate`: (可选) 是否检查客户端证书；
 
-返回值:
+**返回值:**
 
 存在两种情况:
 - 如果有完整的参数，则返回:`grpc.ServerCredentials.createSsl()`；
@@ -65,14 +65,14 @@ const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkC
 server.addMiddleware(fn)
 ```
 
-功能说明:
+**功能说明:**
 - 添加一个处理 rpc 前后逻辑的中间件。
 
-参数说明:
+**参数说明:**
 - `fn`: (必选) 中间件函数，一般为`async (ctx, next) => { await next() }`
 
-返回值:
-- void: 空
+**返回值:**
+- void: 空。
 
 ### addMiddlewares()
 
@@ -80,14 +80,14 @@ server.addMiddleware(fn)
 server.addMiddlewares(fns)
 ```
 
-功能说明:
+**功能说明:**
 - 添加多个处理 rpc 前后逻辑的中间件。
 
-参数说明:
+**参数说明:**
 - `fns`: (必选) 中间件函数数组，一般为`[ async (ctx, next) => { await next() } ]`
 
-返回值:
-- void: 空
+**返回值:**
+- void: 空。
 
 ### listen()
 
@@ -95,10 +95,10 @@ server.addMiddlewares(fns)
 await server.listen(addr, credentials)
 ```
 
-功能说明:
+**功能说明:**
 - 监听地址与端口，启动 gRPC 服务。
 
-参数说明:
+**参数说明:**
 - `addr`: (必选) 服务启动需要监听的地址和端口，支持类型如下，任选一个:
     - string: ip+port 格式，如 `127.0.0.1:9099`；
     - object: `{ host, port }`；
@@ -106,8 +106,8 @@ await server.listen(addr, credentials)
         - port: 数字，最小值为0，最大值为65535；
 - `credentials`: (可选) 使用`makeServerCredentials`来生成，并给`listen`调用；
 
-返回值:
-- void: 空
+**返回值:**
+- void: 空。
 
 ### shutdown()
 
@@ -115,14 +115,14 @@ await server.listen(addr, credentials)
 await server.shutdown()
 ```
 
-功能说明:
+**功能说明:**
 - gRPC 服务优雅退出。
 
-参数说明:
-- void: 空
+**参数说明:**
+- void: 空。
 
-返回值:
-- void: 空
+**返回值:**
+- void: 空。
 
 ### forceShutdown()
 
@@ -130,11 +130,11 @@ await server.shutdown()
 server.forceShutdown()
 ```
 
-功能说明:
+**功能说明:**
 - gRPC 服务强制退出。
 
-参数说明:
-- void: 空
+**参数说明:**
+- void: 空。
 
-返回值:
-- void: 空
+**返回值:**
+- void: 空。
