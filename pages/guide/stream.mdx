@@ -9,7 +9,7 @@
 
 ### 前置工作
 
-我们的 proto 文件里的 `service` 的`rpc`，需要标记清楚 使用了`stream`，如下所示：
+我们的 proto 文件里的 `service` 的`rpc`，需要标记清楚 使用了`stream`，如下所示:
 
 ```proto filename="stream.proto"
 syntax="proto3";
@@ -123,7 +123,7 @@ start('localhost:9097')
 
 ### 客户端
 
-客户端使用`Stream`调用服务端，需要使用`.call.`里的函数才可以。示例如下：
+客户端使用`Stream`调用服务端，需要使用`.call.`里的函数才可以。示例如下:
 
 ```js filename="./client.js"
 async function start (addr) {
@@ -184,7 +184,7 @@ start('localhost:9097')
 
 `client stream - server`: 我们只执行客户端的`clientStreamHello()`，执行结果如下:
 
-服务端：
+服务端:
 ```bash filename="Terminal"
 Hello!
 How are you?
@@ -197,7 +197,7 @@ How are you?
 
 `client - server stream`: 我们只执行客户端的`serverStreamHello`，执行结果如下:
 
-服务端：
+服务端:
 ```bash filename="Terminal"
 Hello! How are you?
 ```
@@ -213,7 +213,7 @@ server call end.
 `client stream - server stream`: 我们只执行客户端的`mutualStreamHello`，执行结果如下:
 
 
-服务端：
+服务端:
 ```bash filename="Terminal"
 Hello!
 How are you?

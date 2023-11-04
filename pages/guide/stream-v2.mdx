@@ -4,7 +4,7 @@
 
 下面我们将会展示如何使用`Stream v2`的能力。在这里也建议先看一遍 [Stream](/guide/stream)，该文会有一些相似的地方在本文出现。
 
-注意：本篇的服务端延用了 [Stream](/guide/stream) 里的服务端。
+注意: 本篇的服务端延用了 [Stream](/guide/stream) 里的服务端。
 
 ### 定义 proto
 
@@ -77,7 +77,7 @@ const start = async (addr) => {
 
 流对点，指`client stream request` -> `server response`。
 
-我们继续在`start`方法里流对点的流程：
+我们继续在`start`方法里流对点的流程:
 
 ```js
 const start = async (addr) => {
@@ -135,7 +135,7 @@ const start = async (addr) => {
 
 点对流，指`client request -> server stream response`。
 
-我们继续在`start`方法里点对流的流程：
+我们继续在`start`方法里点对流的流程:
 
 ```js
 const start = async (addr) => {
@@ -155,7 +155,7 @@ const start = async (addr) => {
 
 运行结果如下，我们看到`readAll()`返回了这次调用服务端的返回结果`{ status, metadata, response }`，同时也把`message`发送到了服务端。
 
-注意：这里的服务端返回的`response`是一个`asyncIterator`，需要我们使用`for await`获取服务端返回的逐条`stream message`结果。
+注意: 这里的服务端返回的`response`是一个`asyncIterator`，需要我们使用`for await`获取服务端返回的逐条`stream message`结果。
 
 ```bash filename="Terminal"
 // client
@@ -222,7 +222,7 @@ const start = async (addr) => {
 
 运行结果如下，我们看到我们是先客户端发送消息完给服务端后，调用`readAll()`，然后返回了这次调用服务端的返回结果`{ status, metadata, response }`，
 
-注意：这里的服务端返回的`response`是一个`asyncIterator`，需要我们使用`for await`获取服务端返回的逐条`stream message`结果。
+注意: 这里的服务端返回的`response`是一个`asyncIterator`，需要我们使用`for await`获取服务端返回的逐条`stream message`结果。
 
 ```bash filename="Terminal"
 // client

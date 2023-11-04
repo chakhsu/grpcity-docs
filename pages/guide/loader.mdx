@@ -11,13 +11,13 @@ const loader = new GrpcLoader({ location, files })
 - `location`是指 proto 文件目录，包含 service 引用的 proto，如`model.proto`、`empty.proto`等等这些被独立引用的文件。
 - `files`是指具体的`service.proto`文件，告诉底层 service 的定义来自这些文件，是具体的服务体现。
 
-**带来的好处：**
+**带来的好处: **
 - service 加载非常清晰，知道是哪些 service 会被使用
 - proto 的目录结构，可以自定义，不影响加载
 
 ### 目录获取
 
-ESM 模块的代码文件目录获取如下：
+ESM 模块的代码文件目录获取如下:
 
 ```js
 import GrpcLoader from 'grpcity'
@@ -33,7 +33,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 ### 单个目录加载
 
-大多数情况下，我们只需要加载一次proto目录，并指定多个service，如下所示：
+大多数情况下，我们只需要加载一次proto目录，并指定多个service，如下所示:
 
 ```js
 export default new GrpcLoader({
@@ -47,7 +47,7 @@ export default new GrpcLoader({
 
 ### 多个目录加载
 
-有时候，我们需要跨业务进行服务调用，这个时候就会出现多个proto目录都需要加载的情况，我们的`gRPCity`已经做好了这块的多proto目录的加载支持了。如下所示：
+有时候，我们需要跨业务进行服务调用，这个时候就会出现多个proto目录都需要加载的情况，我们的`gRPCity`已经做好了这块的多proto目录的加载支持了。如下所示:
 
 ```js
 export default new GrpcLoader([
@@ -76,33 +76,33 @@ init 是真正把proto加载的执行。同时也是自定义参数和环境的�
 await loader.init(options)
 ```
 
-入参：
+入参:
 - options: （可选）该 loader init 的选项对象
 
-返回值：
-- void：空
+返回值:
+- void: 空
 
 ### 选项说明
 
-options 的参数说明，包含如下参数：
+options 的参数说明，包含如下参数:
 - services: （可选）跟 initClient() 里的参数一样，如果有这个参数，则可以跳过initClient，直接完成client的初始化。同时支持字符串和对象参数；
     - string: ip+port 格式，如 `127.0.0.1:9099`；
     - object: `{ host, port }`；
         - host: 字符串，支持 ip 和域名；
         - port: 数字，最小值为0，最大值为65535；
 - isDev: （可选）布尔值，是否为开发模式；
-- packagePrefix: （可选）字符串，service name 包前缀，如：`dev`, `stage`等等；
+- packagePrefix: （可选）字符串，service name 包前缀，如: `dev`, `stage`等等；
 - loadOptions: （可选）proto load options；
 - channelOptions: （可选）proto channel options；
 - appName: （可选）字符串，当前应用的应用名，用来标记；
 
-其中`loadOptions`和`channelOptions`更多说明请看这一篇：[Config](/guide/config)
+其中`loadOptions`和`channelOptions`更多说明请看这一篇: [Config](/guide/config)
 
 #### 示例
 
 注意使用了`packagePrefix`之后，服务端和客户端都要一致。
 
-test 环境，配置如下：
+test 环境，配置如下:
 
 ```js
 await loader.init({
@@ -116,7 +116,7 @@ await loader.init({
 })
 ```
 
-stage 环境，配置如下：
+stage 环境，配置如下:
 
 ```js
 await loader.init({
@@ -130,7 +130,7 @@ await loader.init({
 })
 ```
 
-production 环境，直接忽略掉一些配置项即可，配置如下：
+production 环境，直接忽略掉一些配置项即可，配置如下:
 
 ```js
 await loader.init({

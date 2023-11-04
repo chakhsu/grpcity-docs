@@ -8,7 +8,7 @@
 
 ## loadOptions
 
-loadOptions 包含的字段，详情如下：
+loadOptions 包含的字段，详情如下:
 
 | 字段名称 | 有效值 | 描述 |
 |------------|--------------|------------|
@@ -23,7 +23,7 @@ loadOptions 包含的字段，详情如下：
 | `json` | `true` 或 `false` | 在 `float` 字段中将 `Infinity` 和 `NaN` 表示为字符串，并自动解码 `google.protobuf.Any` 值。默认为 `false`。
 | `includeDirs` | 字符串数组 | 导入的 `.proto` 文件的搜索路径列表。
 
-`gRPCity`的默认`loadOptions`为：
+`gRPCity`的默认`loadOptions`为:
 
 ```js
 {
@@ -40,7 +40,7 @@ loadOptions 包含的字段，详情如下：
 `channelOptions` 支持度保持跟`grpc-js`官方一致，我们可以从 [这里](https://grpc.github.io/grpc/core/group__grpc__arg__keys.html) 看到所有的`channel`配置项。
 我们可以从 [这里](https://github.com/grpc/grpc-node/tree/master/packages/grpc-js#supported-channel-options) 看到目前支持的配置项。
 
-`gRPCity`的默认`channelOptions`为：
+`gRPCity`的默认`channelOptions`为:
 
 ```js
 {
@@ -59,7 +59,7 @@ loadOptions 包含的字段，详情如下：
   // 通信失败允许grpc库retry
   'grpc.enable_retries': 1,
   // 配置retry参数
-  // 参考： https://github.com/grpc/proposal/blob/master/A6-client-retries.md#integration-with-service-config
+  // 参考:  https://github.com/grpc/proposal/blob/master/A6-client-retries.md#integration-with-service-config
   'grpc.service_config': JSON.stringify({
     retryPolicy: {
       // 1次正常发送+3次失败重试, 每次重试都有机会在不同于最初失败的子通道上发送

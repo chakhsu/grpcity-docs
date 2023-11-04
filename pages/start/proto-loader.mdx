@@ -5,30 +5,30 @@ import { Card, Cards } from 'nextra/components'
 官方提供了两种protobuf 文件加载方式，一种是直接加载 pb 文件，另外一种是工具编译后再通过依赖引用的方式。
 这两种方式的各有优劣，在这里 gRPCity 最终选择了仅支持第一种方式，就是直接加载 pb 文件。
 
-下面我们将会通过新建项目的方式进行快速入门，demo 项目仓库：[link](https://github.com/chakhsu/grpcity-basic-demo)。
+下面我们将会通过新建项目的方式进行快速入门，demo 项目仓库: [link](https://github.com/chakhsu/grpcity-basic-demo)。
 
 ### 初始化与安装依赖
 
-创建 demo 项目并进入：
+创建 demo 项目并进入:
 ```bash filename="Terminal"
 mkdir demo && cd demo
 ```
 
-初始化：
+初始化:
 ```bash filename="Terminal" sh npm2yarn
 npm init
 ```
 
-安装依赖：
+安装依赖:
 ```bash filename="Terminal" npm2yarn
 npm i grpcity
 ```
 
-注意：我们需要在`package.json`里补上`"type": "module",`，激活 esm 模块。
+注意: 我们需要在`package.json`里补上`"type": "module",`，激活 esm 模块。
 
 ### 项目目录
 
-我们需要创建一系列的目录和文件，最终项目目录与文件结构如下：
+我们需要创建一系列的目录和文件，最终项目目录与文件结构如下:
 
 ```bash filename="Terminal" {2}
 .
@@ -45,7 +45,7 @@ npm i grpcity
 
 ### 定义 proto
 
-创建 proto 目录，创建`service.proto`文件：
+创建 proto 目录，创建`service.proto`文件:
 
 ```bash filename="Terminal"
 mkdir -p ./proto/test/helloworld
@@ -54,7 +54,7 @@ vim ./proto/test/helloworld/service.proto
 
 我们定义两个 service，分别是 Greeter 和 Hellor，同时把 message 拆分到 model 里。
 
-对`service.proto`输入如下内容：
+对`service.proto`输入如下内容:
 
 ```proto filename="./proto/test/helloworld/service.proto"
 syntax = "proto3";
@@ -73,14 +73,14 @@ service Hellor {
 }
 ```
 
-创建 model 目录，创建`message.proto`文件：
+创建 model 目录，创建`message.proto`文件:
 
 ```bash filename="Terminal"
 mkdir -p ./proto/test/helloworld/model
 vim ./proto/test/helloworld/model/message.proto
 ```
 
-对`message.proto`输入如下内容：
+对`message.proto`输入如下内容:
 
 ```proto filename="./proto/test/helloworld/model/message.proto"
 syntax = "proto3";

@@ -26,13 +26,13 @@ import { Card, Cards } from 'nextra/components'
 
 ### 初始化
 
-第一步：导入`loader.js`模块，我们在后续的开发中使用到这个模块去完成rpc与服务端的方法进行绑定。
+第一步: 导入`loader.js`模块，我们在后续的开发中使用到这个模块去完成rpc与服务端的方法进行绑定。
 
 ```js filename="./client.js"
 import loader from "./loader.js"
 ```
 
-第二步：初始化客户端，需要传入服务端名称和地址
+第二步: 初始化客户端，需要传入服务端名称和地址
 
 ```js filename="./client.js"
 const start = async (server1Addr, server2Addr) => {
@@ -88,14 +88,14 @@ start('127.0.0.1:9098', '127.0.0.1:9099')
 node ./client.js
 ```
 
-第一次执行结果如下：
+第一次执行结果如下:
 
 ```bash filename="Terminal"
 server1Client.sayGreet { message: 'hello greeter by Greeter in server1', count: 1 }
 server2Client.sayHello { message: 'hello hellor by Hellor in server2' }
 ```
 
-第二次执行结果如下：
+第二次执行结果如下:
 
 ```bash filename="Terminal"
 server1Client.sayGreet { message: 'hello greeter by Greeter in server1', count: 2 }
@@ -104,7 +104,7 @@ server2Client.sayHello { message: 'hello hellor by Hellor in server2' }
 
 我们能看到两次结果都是正常返回，其中`sayGreet`中的`count`，在第二次执行后累加为2，符合预期，也说明这次客户端调用服务端的闭环完成了。
 
-快速入门使用的项目仓库：[link](https://github.com/chakhsu/grpcity-basic-demo)。
+快速入门使用的项目仓库: [link](https://github.com/chakhsu/grpcity-basic-demo)。
 
 ---
 

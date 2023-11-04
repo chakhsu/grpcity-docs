@@ -4,7 +4,7 @@ MetaData 功能在 gRPC 里是非常重要。有些场景，我们需要像`http
 
 ### 客户端发送
 
-客户端发送`metadata`，需要调用`loader.makeMetadata()`，使用方式如下：
+客户端发送`metadata`，需要调用`loader.makeMetadata()`，使用方式如下:
 
 ```js
 const client = loader.client('test.helloworld.Greeter')
@@ -19,7 +19,7 @@ const { status, metadata, response } = await client.sayGreet({ name: 'greeter' }
 console.log(metadata)
 ```
 
-我们打印`metadata`, 结果如下：
+我们打印`metadata`, 结果如下:
 
 ```bash filename="Terminal"
 Metadata {
@@ -37,7 +37,7 @@ Metadata {
 }
 ```
 
-注意，`metadata`会有一些默认情况，如下：
+注意，`metadata`会有一些默认情况，如下:
 
 `gRPCity` Client 默认发送以下的 metadata:
 
@@ -79,7 +79,7 @@ async sayGreet(call) {
 }
 ```
 
-输出结果如下：
+输出结果如下:
 
 ```bash filename="Terminal"
 [ 'max-age=100' ]
@@ -89,7 +89,7 @@ async sayGreet(call) {
 
 ### 服务端发送
 
-有时候，我们也需要服务端把`metadata`信息发送返回给客户端的情况，方法如下：
+有时候，我们也需要服务端把`metadata`信息发送返回给客户端的情况，方法如下:
 
 ```js
 async SayHello (call) {

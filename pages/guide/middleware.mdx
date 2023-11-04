@@ -8,7 +8,7 @@
 
 `gRPCity`的中间件实现是基于`koa-compose`库，它提供了洋葱模型的工作机制，方便我们去执行中间件。
 
-假如我们有 a、b、c 这三个中间件，中间件执行的顺序是`a → b → c`，如下所示：
+假如我们有 a、b、c 这三个中间件，中间件执行的顺序是`a → b → c`，如下所示:
 
 ```
 enter a
@@ -24,7 +24,7 @@ exit  a
 
 `gRPCity` server 提供了两个方法去支持中间件，分别是`server.addMiddleware(fn)`和`server.addMiddlewares(fns)`。
 
-两个方法区别就是一个只能传入一个中间件，另外一个可以传入多个中间件，如：
+两个方法区别就是一个只能传入一个中间件，另外一个可以传入多个中间件，如:
 
 ```js
 server.addMiddleware(a)
@@ -40,7 +40,7 @@ server.addMiddleware([a, b, c])
 
 在这里我们将演示可以编写 rpc 调用日志打印的中间件。
 
-中间件方法支持两个参数，分别是`ctx`和`next`，详情如下：
+中间件方法支持两个参数，分别是`ctx`和`next`，详情如下:
 - `ctx`: `object`类型，中间件上下文;
   - `path`: rpc 路由路径；
   - `request`: rpc 请求参数；

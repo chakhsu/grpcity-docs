@@ -4,7 +4,7 @@ Client是`gRPCity`的核心功能之一，主要是提供获取 service，并进
 
 ### 初始化
 
-初始化有两种方式，`init()`和`initClients()`，这两个方法有场景上的使用注意事项：
+初始化有两种方式，`init()`和`initClients()`，这两个方法有场景上的使用注意事项:
 
 - `init()`: 支持传入`services`和`channelOptions`参数，就自动在内部创建好`client`，将`service`与rpc进行绑定，但是不支持证书;
 - `initClients()`: 支持传入`services`、`channelOptions`和`credentials`参数，支持证书;
@@ -14,7 +14,7 @@ Client是`gRPCity`的核心功能之一，主要是提供获取 service，并进
 
 两者是可以共存的，但是使用`initClients()`之前，需要先执行`init()`.
 
-`channelOptions`参数说明请看 [Config 指南](/guide/config)，示例：
+`channelOptions`参数说明请看 [Config 指南](/guide/config)，示例:
 
 ```js
 await loader.init({
@@ -49,7 +49,7 @@ const serviceAClient = loader.client('dev.path.to.serviceA')
 const serviceBClient = loader.client('path.to.serviceB')
 ```
 
-注意：`client()`会缓存客户端，保证每次获取相同的客户端的时候，不会重复创建，减少内存消耗。
+注意: `client()`会缓存客户端，保证每次获取相同的客户端的时候，不会重复创建，减少内存消耗。
 
 ### 调用 rpc
 
@@ -63,12 +63,12 @@ const serviceBClient = loader.client('path.to.serviceB')
 const result = await serviceAClient.rpcMethod(request, metadata, options)
 ```
 
-- `rpcMethod`（请求方法）：这是一个执行请求的方法。请求方法取决于定义的 gRPC 服务的`.proto`文件中的`rpc`，有4种形式，分别是点对点、流对点、点对流，流对流；
-- `request`（请求参数）：这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
-- `metadata`（元数据）：这是一个可选参数，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据；
-- `options`（选项）：这是一个可选参数，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入`deadline`的方式修改超时时间；
+- `rpcMethod`（请求方法）: 这是一个执行请求的方法。请求方法取决于定义的 gRPC 服务的`.proto`文件中的`rpc`，有4种形式，分别是点对点、流对点、点对流，流对流；
+- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
+- `metadata`（元数据）: 这是一个可选参数，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据；
+- `options`（选项）: 这是一个可选参数，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入`deadline`的方式修改超时时间；
 
-例子：
+例子:
 ```js
 const meta = loader.makeMetadata({
     'x-business-id': ['grpcity', 'testing'],
@@ -87,7 +87,7 @@ const b = await serviceBClient.rpcMethod2({ name: 'youapp' }, meta, options)
 - `metadata`: 服务端返回的 metadata 信息；
 - `response`: 服务端处理完成后响应的结果；
 
-我们打印一下返回的结果：
+我们打印一下返回的结果:
 
 ```js
 {

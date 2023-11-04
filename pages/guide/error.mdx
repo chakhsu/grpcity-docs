@@ -4,14 +4,14 @@
 
 ### 客户端发现错误
 
-客户端调用服务端，如果服务端报错，则会返回`ERROR`对象，对象包含下面4个字段：
+客户端调用服务端，如果服务端报错，则会返回`ERROR`对象，对象包含下面4个字段:
 
 - `name`: 值为`GrpcClientError`, 可以用来判断是否为客户端 rpc 的错误；
 - `code`: gRPC Status Code；
 - `message`: gRPC Server emit message details;
 - `stack`: file error trace stack;
 
-`ERROR`对象完全展开后如下所示：
+`ERROR`对象完全展开后如下所示:
 
 ```js
 {

@@ -27,7 +27,7 @@ import { Card, Cards } from 'nextra/components'
 
 ### 写法1 (推荐)
 
-第一步：导入`loader.js`模块，我们在后续的开发中使用到这个模块去完成rpc与服务端的方法进行绑定。
+第一步: 导入`loader.js`模块，我们在后续的开发中使用到这个模块去完成rpc与服务端的方法进行绑定。
 
 ```js filename="./server.js"
 import loader from "./loader.js"
@@ -35,7 +35,7 @@ import loader from "./loader.js"
 
 #### 定义类
 
-第二步：定义`Greeter`类
+第二步: 定义`Greeter`类
 
 ```js filename="./server.js"
 class Greeter {
@@ -45,7 +45,7 @@ class Greeter {
         this.count = 0
     }
 
-    // 类执行初始化：将本类的方法与指定的 service 绑定
+    // 类执行初始化: 将本类的方法与指定的 service 绑定
     init(server) {
         server.addService(
             // 指定 service name
@@ -67,7 +67,7 @@ class Greeter {
 }
 ```
 
-第三步：继续用同样的方式定义`Hellor`类
+第三步: 继续用同样的方式定义`Hellor`类
 
 ```js filename="./server.js"
 class Hellor {
@@ -76,7 +76,7 @@ class Hellor {
         this._loader = loader
     }
 
-    // 类执行初始化：将本类的方法与指定的 service 绑定
+    // 类执行初始化: 将本类的方法与指定的 service 绑定
     init(server) {
         server.addService(
             // 指定 service name
@@ -105,7 +105,7 @@ const start = async (addr) => {
     const server = loader.initServer()
     // 多个 service 类创建
     const servicers = [new Greeter(loader), new Hellor(loader)]
-    // 多个 service 初始化：rpc 与类方法绑定
+    // 多个 service 初始化: rpc 与类方法绑定
     await Promise.all(servicers.map(async s => s.init(server)))
 
     // 启动
@@ -121,7 +121,7 @@ start('127.0.0.1:9098')
 
 我们另外在`server2.js`上进行编码。
 
-第一步：导入`loader.js`模块，我们在后续的开发中使用到这个模块去完成rpc与服务端的方法进行绑定。
+第一步: 导入`loader.js`模块，我们在后续的开发中使用到这个模块去完成rpc与服务端的方法进行绑定。
 
 ```js filename="./server2.js"
 import loader from "./loader.js"
@@ -129,7 +129,7 @@ import loader from "./loader.js"
 
 #### 定义对象
 
-第二步：定义`Greeter`对象
+第二步: 定义`Greeter`对象
 
 ```js filename="./server2.js"
 let count = 0
@@ -147,7 +147,7 @@ const Greeter = {
 }
 ```
 
-第三步：继续用同样的方式定义`Hellor`对象
+第三步: 继续用同样的方式定义`Hellor`对象
 
 ```js filename="./server2.js"
 const Hellor = {

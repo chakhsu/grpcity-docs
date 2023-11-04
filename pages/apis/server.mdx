@@ -1,28 +1,128 @@
 # Server API
 
+通过调用`loader.initServer()`获取`server`实例，实例挂着一系列 API，方便我们去支持 gRPC Server 开发。
+
+```
+const server = await loader.initServer(channelOptions)
+```
 
 ### addService()
 
+```js
+server.addService(service, implementation)
+```
+
+功能说明:
+- 将`proto service rpc`定义与具体的执行实现进行绑定。
+
+参数说明:
+- `service`: (必填) 需要通过`loader.service(name)`来获取 proto 里指定的`service`；
+- `implementation`: (必填) 携带 service rpc 定义好的方法的对象或者类，需要通过`loader.callbackify()`来`async`化，并支持中间件；
+
+返回值:
+- void: 空
 
 ### removeService()
 
+```js
+
+```
+
+功能说明:
+- 1
+
+参数说明:
+- 2
+
+返回值:
+- 3
 
 ### makeServerCredentials()
 
+```js
+
+```
+
+功能说明:
+- 1
+
+参数说明:
+- 2
+
+返回值:
+- 3
 
 ### addMiddleware()
 
+```js
+
+```
+
+功能说明:
+- 1
+
+参数说明:
+- 2
+
+返回值:
+- 3
 
 ### addMiddlewares()
 
+```js
+
+```
+
+功能说明:
+- 1
+
+参数说明:
+- 2
+
+返回值:
+- 3
 
 ### listen()
 
+```js
+
+```
+
+功能说明:
+- 1
+
+参数说明:
+- 2
+
+返回值:
+- 3
 
 ### shutdown()
 
+```js
+
+```
+
+功能说明:
+- 1
+
+参数说明:
+- 2
+
+返回值:
+- 3
 
 ### forceShutdown()
 
+```js
 
+```
 
+功能说明:
+- 1
+
+参数说明:
+- 2
+
+返回值:
+- 3
