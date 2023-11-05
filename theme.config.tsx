@@ -6,9 +6,9 @@ const config: DocsThemeConfig = {
   project: {
     link: 'https://github.com/chakhsu/grpcity',
   },
-  docsRepositoryBase: 'https://github.com/chakhsu/grpcity-doc',
+  docsRepositoryBase: 'https://github.com/chakhsu/grpcity-docs',
   footer: {
-    content: (
+    text: (
       <p className="nx-text-sm">
         © {new Date().getFullYear()} The gRPCity Project.
       </p>
@@ -40,8 +40,8 @@ const config: DocsThemeConfig = {
     backToTop: true
   },
   i18n: [
-    { locale: 'en-US', name: 'English' },
-    { locale: 'zh-CN', name: '简体中文' }
+    { locale: 'en-US', text: 'English' },
+    { locale: 'zh-CN', text: '简体中文' }
   ]
 }
 
