@@ -8,7 +8,7 @@ const config: DocsThemeConfig = {
   },
   docsRepositoryBase: 'https://github.com/chakhsu/grpcity-doc',
   footer: {
-    text: (
+    content: (
       <p className="nx-text-sm">
         © {new Date().getFullYear()} The gRPCity Project.
       </p>
@@ -40,8 +40,8 @@ const config: DocsThemeConfig = {
     backToTop: true
   },
   i18n: [
-    { locale: 'en-US', text: 'English' },
-    { locale: 'zh-CN', text: '简体中文' }
+    { locale: 'en-US', name: 'English' },
+    { locale: 'zh-CN', name: '简体中文' }
   ]
 }
 
