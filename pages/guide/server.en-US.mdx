@@ -1,0 +1,74 @@
+# Server
+
+The Server is one of the core features of `gRPCity`, providing the ability to manage the server lifecycle.
+It offers a range of interface functions for managing the entire lifecycle, from importing certificates, binding services, supporting middleware, starting services, and shutting down services.
+
+### Server Instance
+
+`channelOptions` are explained in detail in the [Config guide](/guide/config).
+
+```javascript
+// Get a server instance
+const server = loader.initServer(channelOptions)
+```
+
+Once you have the `server` instance, it offers a series of interfaces to help you develop services.
+
+### Service Binding
+
+Service binding requires two parameters: `service` and `implementation`.
+
+- `service`: (required) Obtain the specified `service` from the proto file using `loader.service(name)`.
+- `implementation`: (required) An object or class that carries the methods defined by the service RPC. You need to `async`ify it using `loader.callbackify()` and add support for middleware.
+
+```javascript
+// Bind service RPC
+server.addService(service, implementation)
+// Unbind service RPC
+server.removeService(service)
+```
+
+### Adding Middleware
+
+A distinctive feature of `gRPCity` Server is that it provides middleware capabilities for pre- and post-processing of `implementation`. For more details, see the [Middleware guide](/guide/middleware).
+
+Note: Only service RPCs bound using `loader.callbackify()` support middleware.
+
+```javascript
+// Middleware support for implementation
+server.addMiddleware(fn)
+server.addMiddlewares(fns)
+```
+
+### Certificates and Startup
+
+To start the service, the `listen` function supports two parameters: `addr` and `credentials`:
+
+- `addr`: (required) The address and port on which the service needs to listen. You can provide either of the following, either as a string or as an object (choose one):
+    - string: in the format `ip+port`, such as `127.0.0.1:9099`;
+    - object: `{ host, port }`:
+        - host: a string, supports both IP addresses and domain names;
+        - port: a number, with a minimum value of 0 and a maximum value of 65535;
+- `credentials`: (optional) Generated using `makeServerCredentials` and provided to the `listen` call.
+
+```javascript
+// Server credentials
+const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkClientCertificate)
+// Start the service
+await server.listen(addr, credentials)
+// await server.listen('127.0.0.1:9099', credentials)
+// await server.listen({ host: '127.0.0.1', port: 9099 }, credentials)
+```
+
+For more information, you can read the [Credentials guide](/guide/credentials).
+
+### Service Shutdown
+
+Use `shutdown()` with `async` to ensure that it completes asynchronously, while `forceShutdown` doesn't require `async`.
+
+```javascript
+// Graceful service shutdown
+await server.shutdown()
+// Forceful service shutdown
+server.forceShutdown()
+```

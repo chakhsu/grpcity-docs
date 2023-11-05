@@ -1,0 +1,50 @@
+# Error
+
+Error handling is an important aspect of ensuring the smooth operation of services. `gRPCity` provides convenient error handling mechanisms.
+In general, it is recommended to use `try/catch` for error catching and `throw` to expose errors.
+
+### Client-Side Error Handling
+
+When a client calls a server, if the server encounters an error, it will return an `ERROR` object with the following four fields:
+
+- `name`: The value is `GrpcClientError`, which can be used to determine if it is a client-side RPC error.
+- `code`: gRPC Status Code.
+- `message`: The error message emitted by the gRPC server.
+- `stack`: The error trace stack from the server.
+
+The expanded `ERROR` object looks like this:
+
+```javascript
+{
+    "name": "GrpcClientError",
+    "code": 2,
+    "message": "/test.helloworld.Greeter/SayHello (2 UNKNOWN: Error: throw error because x-throw-error [Error Message From Server, stack: at Greeter.SayHello (/Users/lau/Documents/GitHub/grpcity/test/server.js:27:13)])",
+    "stack": "
+        at start (/Users/lau/Documents/GitHub/grpcity/test/client.js:36:72)
+        ...
+        at callErrorFromStatus (/Users/lau/Documents/GitHub/grpcity/node_modules/@grpc/grpc-js/build/src/call.js:31:19)
+        at Object.onReceiveStatus (/Users/lau/Documents/GitHub/grpcity/node_modules/@grpc/grpc-js/build/src/client.js:192:76)
+    "
+}
+```
+
+### Server-Side Error Triggering
+
+The following example shows how the server can proactively trigger an error when the client sends `x-throw-error` metadata,
+and the `sayHello()` method on the server checks for this metadata:
+
+```javascript
+async sayHello(call) {
+    const metadata = call.metadata.clone()
+    metadata.add('x-timestamp-server', 'received=' + new Date().toISOString())
+    call.sendMetadata(metadata)
+
+    if (metadata.get('x-throw-error').length > 0) {
+        throw new Error('throw error because x-throw-error')
+    }
+
+    return { message: `hello, ${call.request.name || 'world'}` }
+}
+```
+
+When the server proactively triggers an error, the error is caught by the client and reported as shown in the client-side error handling example above.

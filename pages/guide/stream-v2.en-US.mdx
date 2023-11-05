@@ -1,0 +1,261 @@
+# Stream v2
+
+Starting from version 0.9, `gRPCity` provides full `promisify` capabilities for calling streaming RPCs from the client, allowing you to use `async/await` syntax for stream processing.
+
+Here, we will demonstrate how to use the capabilities of `Stream v2`. We recommend reading the [Stream](/guide/stream) guide first, as there will be some similarities in this guide.
+
+Note: The server used in this guide is based on the server defined in [Stream](/guide/stream).
+
+### Define Proto
+
+The `proto` file defines three RPCs, each corresponding to one of the three ways to connect the client and server: client-stream, client-server-stream, and bidirectional-stream.
+
+```proto filename="stream.proto"
+syntax="proto3";
+
+package stream;
+
+service Hellor {
+  rpc ClientStreamHello (stream Message) returns (Message) {}
+  rpc ServerStreamHello (Message) returns (stream Message) {}
+  rpc MutualStreamHello (stream Message) returns (stream Message) {}
+}
+
+message Message {
+  string message = 1;
+}
+```
+
+### Load Proto
+
+```javascript filename="./loader.js"
+import GrpcLoader from 'grpcity'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+// get this file dir path
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+export default new GrpcLoader({
+    location: path.resolve(__dirname, './'),
+    files: ['stream.proto']
+})
+```
+
+### Client
+
+Some preliminary work on the client, such as loading the `proto`, initializing the client, and creating new `metadata`.
+
+```javascript filename="./client.js"
+const GrpcLoader = require('../../index.js')
+const path = require('path')
+
+const start = async (addr) => {
+    const loader = new GrpcLoader({
+        location: path.resolve(__dirname, './'),
+        files: ['stream.proto']
+    })
+    await loader.init()
+
+    await loader.initClients({
+        services: {
+            'stream.Hellor': addr
+        }
+    })
+
+    const client = loader.client('stream.Hellor')
+
+    const meta = loader.makeMetadata({
+        'x-cache-control': 'max-age=100',
+        'x-business-id': ['grpcity', 'testing'],
+        'x-timestamp-client': 'begin=' + new Date().toISOString()
+    })
+}
+```
+
+#### Client-Stream
+
+Client-stream means `client stream request` -> `server response`.
+
+We continue the process of client-stream within the `start` method:
+
+```javascript filename="./client.js"
+const start = async (addr) => {
+
+    // ...
+
+    // stream client to server
+    const clientStreamHelloCall = client.clientStreamHello(meta)
+
+    // send stream message to server
+    clientStreamHelloCall.write({ message: 'Hello!' })
+    clientStreamHelloCall.write({ message: 'How are you?' })
+
+    // end to send message and get server response
+    const writeResult = await clientStreamHelloCall.writeEnd()
+    console.log(writeResult)
+
+    // ...
+
+}
+```
+
+The running result is as follows. We see that `writeEnd()` returns the server response for this call: `{ status, metadata, response }`. At the same time, the `stream message` has been sent to the server.
+
+```bash filename="Terminal"
+// client
+{
+  metadata: Metadata {
+    internalRepr: Map(8) {
+      'content-type' => [Array],
+      'x-cache-control' => [Array],
+      'x-business-id' => [Array],
+      'x-timestamp-client' => [Array],
+      'x-client-hostname' => [Array],
+      'user-agent' => [Array],
+      'x-timestamp-server' => [Array],
+      'date' => [Array]
+    },
+    options: {}
+  },
+  response: { message: "Hello! I'm fine, thank you!" },
+  status: {
+    code: 0,
+    details: 'OK',
+    metadata: Metadata { internalRepr: Map(0) {}, options: {} }
+  }
+}
+
+// server
+{ message: 'Hello!' }
+{ message: 'How are you?' }
+```
+
+#### Server-Stream
+
+Server-stream means `client request -> server stream response`.
+
+We continue the process of server-stream within the `start` method:
+
+```javascript filename="./client.js"
+const start = async (addr) => {
+
+    // ...
+
+    const serverStreamHelloCall = client.serverStreamHello({ message: 'Hello! How are you?' }, meta)
+    const serverReadAllResult = await serverStreamHelloCall.readAll()
+    for await (const data of serverReadAllResult) {
+        console.log(data)
+    }
+    const serverReadEndResult = serverStreamHelloCall.readEnd()
+    console.log(serverReadEndResult)
+
+    // ..
+}
+```
+
+The running result is as follows:
+
+We see that `readAll()` returns an `asyncIterator`, which requires us to use `for await` to obtain the results of individual `stream messages` returned by the server. The `readEnd()` returns `{ status, metadata }`. We also see the server's log records, and we received the `message` sent by the client.
+
+```bash filename="Terminal"
+// client
+{ message: 'Hello! I got you message.' }
+{ message: "I'm fine, thank you" }
+{
+  metadata: Metadata {
+    internalRepr: Map(8) {
+      'content-type' => [Array],
+      'x-cache-control' => [Array],
+      'x-business-id' => [Array],
+      'x-timestamp-client' => [Array],
+      'x-client-hostname' => [Array],
+      'user-agent' => [Array],
+      'x-timestamp-server' => [Array],
+      'date' => [Array]
+    },
+    options: {}
+  },
+  status: {
+    code: 0,
+    details: 'OK',
+    metadata: Metadata { internalRepr: Map(0) {}, options: {} }
+  }
+}
+
+// server
+{ message: 'Hello! How are you?' }
+```
+
+#### Bidirectional-Stream
+
+Bidirectional-stream means `client stream request` -> `server stream response`.
+
+We continue the process of bidirectional-stream within the `start` method. First, we call `writeAll()` to send 3 messages, then we call `write()` to send 1 message, and finally, we call `readAll()` to get the results returned by the server.
+
+```javascript filename="./client.js"
+const start = async (addr) => {
+
+    // ...
+
+    const mutualStreamHelloCall = client.mutualStreamHello(meta)
+    mutualStreamHelloCall.writeAll([
+        { message: 'Hello!' },
+        { message:
+
+ 'How are you?' },
+        { message: 'other thing x' }
+    ])
+    mutualStreamHelloCall.write({ message: 'maybe' })
+
+    const mutualReadAllResult = await mutualStreamHelloCall.readAll()
+    for await (const data of mutualReadAllResult) {
+        console.log(data)
+    }
+    const mutualReadEndResult = mutualStreamHelloCall.readEnd()
+    console.log(mutualReadEndResult)
+
+    // ..
+}
+```
+
+The running result is as follows. We see that we first send messages from the client to the server, and then we call `readAll()` to get an `asyncIterator`, which requires us to use `for await` to obtain the results of individual `stream messages` returned by the server. Finally, we call `readEnd()` to get the server's end stream information, returned as `{ status, metadata }`.
+
+```bash filename="Terminal"
+// client
+{ message: 'emmm...' }
+{ message: 'Hello too.' }
+{ message: "I'm fine, thank you" }
+{ message: 'pardon?' }
+{ message: 'pardon?' }
+{ message: 'delay 1s' }
+{
+  metadata: Metadata {
+    internalRepr: Map(8) {
+      'content-type' => [Array],
+      'x-cache-control' => [Array],
+      'x-business-id' => [Array],
+      'x-timestamp-client' => [Array],
+      'x-client-hostname' => [Array],
+      'user-agent' => [Array],
+      'x-timestamp-server' => [Array],
+      'date' => [Array]
+    },
+    options: {}
+  },
+  status: {
+    code: 0,
+    details: 'OK',
+    metadata: Metadata { internalRepr: Map(0) {}, options: {} }
+  }
+}
+
+// server
+Hello!
+How are you?
+other thing x
+maybe
+client call end.
+```
+
+This demonstrates how to work with different types of streams between the client and server in gRPC using the Stream v2 feature.

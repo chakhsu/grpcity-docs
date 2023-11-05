@@ -1,0 +1,140 @@
+# Server API
+
+To obtain a `server` instance, call `loader.initServer()`, which provides a set of APIs to facilitate gRPC Server development.
+
+```js
+const server = await loader.initServer(channelOptions)
+```
+
+### addService()
+
+```js
+server.addService(service, implementation)
+```
+
+**Description:**
+- Binds the `proto service rpc` definition to a specific execution implementation.
+
+**Parameters:**
+- `service`: (required) The `service` specified in the proto, obtained through `loader.service(name)`;
+- `implementation`: (required) An object or class with the methods defined by the service rpc, which needs to be made `async` using `loader.callbackify()` and supports middleware.
+
+**Return Value:**
+- void: No return value.
+
+### removeService()
+
+```js
+server.removeService(service)
+```
+
+**Description:**
+- Unbinds a previously bound `service`.
+
+**Parameters:**
+- `service`: (required) The `service` specified in the proto, obtained through `loader.service(name)`.
+
+**Return Value:**
+- void: No return value.
+
+### makeServerCredentials()
+
+```js
+const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkClientCertificate)
+```
+
+**Description:**
+- 1
+
+**Parameters:**
+- `rootCerts`: (optional) Buffer, typically the CA file;
+- `keyCertPairs`: Certificate pairs, key and crt, must be an array;
+    - `private_key`: (optional) Buffer, typically the key file;
+    - `cert_chain`: (optional) Buffer, typically the crt file;
+- `checkClientCertificate`: (optional) Whether to check the client certificate;
+
+**Return Value:**
+
+There are two scenarios:
+- If all parameters are provided, it returns:`grpc.ServerCredentials.createSsl()`;
+- If no parameters are provided, it returns: `grpc.ServerCredentials.createInsecure()`.
+
+### addMiddleware()
+
+```js
+server.addMiddleware(fn)
+```
+
+**Description:**
+- Adds middleware to handle logic before and after the RPC.
+
+**Parameters:**
+- `fn`: (required) Middleware function, typically an `async (ctx, next) => { await next() }`.
+
+**Return Value:**
+- void: No return value.
+
+### addMiddlewares()
+
+```js
+server.addMiddlewares(fns)
+```
+
+**Description:**
+- Adds multiple middlewares to handle logic before and after the RPC.
+
+**Parameters:**
+- `fns`: (required) Array of middleware functions, typically `[async (ctx, next) => { await next() }]`.
+
+**Return Value:**
+- void: No return value.
+
+### listen()
+
+```js
+await server.listen(addr, credentials)
+```
+
+**Description:**
+- Listens on an address and port to start the gRPC service.
+
+**Parameters:**
+- `addr`: (required) The address and port to listen to for service startup. Supported types include:
+    - string: in the format of ip+port, like `127.0.0.1:9099`;
+    - object: `{ host, port }`;
+        - host: a string that supports both IP and domain names;
+        - port: a number, with a minimum value of 0 and a maximum value of 65535;
+- `credentials`: (optional) Generated using `makeServerCredentials` and passed to the `listen` call;
+
+**Return Value:**
+- void: No return value.
+
+### shutdown()
+
+```js
+await server.shutdown()
+```
+
+**Description:**
+- Gracefully shuts down the gRPC service.
+
+**Parameters:**
+- void: No parameters.
+
+**Return Value:**
+- void: No return value.
+
+### forceShutdown()
+
+```js
+server.forceShutdown()
+```
+
+**Description:**
+- Forcefully shuts down the gRPC service.
+
+**Parameters:**
+- void: No parameters.
+
+**Return Value:**
+- void: No return value.

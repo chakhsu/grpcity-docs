@@ -1,0 +1,104 @@
+# Metadata
+
+Metadata functionality is essential in gRPC. In some scenarios, we need capabilities similar to HTTP headers, such as tracing, source of the request, and more. Metadata serves these purposes.
+
+### Client-Side Metadata Sending
+
+To send metadata from the client, you need to call `loader.makeMetadata()`. Here's an example of how to use it:
+
+```javascript
+const client = loader.client('test.helloworld.Greeter')
+
+const meta = loader.makeMetadata({
+    'x-cache-control': 'max-age=100',
+    'x-business-id': ['grpcity', 'testing'],
+    'x-timestamp-client': 'begin=' + new Date().toISOString()
+})
+const { status, metadata, response } = await client.sayGreet({ name: 'greeter' }, meta)
+
+console.log(metadata)
+```
+
+When we print the `metadata`, the result is as follows:
+
+```bash
+Metadata {
+    internalRepr: Map(8) {
+        'content-type' => [ 'application/grpc+proto' ],
+        'x-cache-control' => [ 'max-age=100' ],
+        'x-business-id' => [ 'grpcity, testing' ],
+        'x-timestamp-client' => [ 'begin=2023-11-01T03:31:05.942Z' ],
+        'x-client-hostname' => [ 'ChakhsudeAir' ],
+        'user-agent' => [ 'grpc-node-js/1.9.7' ],
+        'x-timestamp-server' => [ 'received=2023-11-01T03:31:06.987Z' ],
+        'date' => [ 'Wed, 01 Nov 2023 03:31:06 GMT' ]
+    },
+    options: {}
+}
+```
+
+It's important to note that there are some default values in the `metadata`, such as:
+
+For `gRPCity` Clients, the following metadata is sent by default:
+
+- `x-client-hostname`: This is set to the hostname of the operating system.
+- `x-client-app-name`: This is set to the `appName` used during `loader` initialization.
+
+For `gRPCity` Servers, the following metadata is sent by default:
+
+- `content-type`: This is generally set to `application/grpc+proto`.
+- `user-agent`: This is generally set to `grpc-node-js/1.9.7`.
+- `date`: This is generally set to the current date.
+
+### Server-Side Metadata Reception
+
+The server can receive metadata in the `call.metadata` object. To use it, you need to `clone()` it and then retrieve values based on the keys.
+
+```javascript
+async sayGreet(call) {
+    const { name } = call.request
+    this.count++
+
+    // Get metadata from the call object
+    const metadata = call.metadata.clone()
+
+    // Get specific metadata key-value pairs
+    const cacheAge = metadata.get('x-cache-control')
+    const businessId = metadata.get('x-business-id')
+    const clientTimestamp = metadata.get('x-timestamp-client')
+
+    // Print metadata values
+    console.log(cacheAge)
+    console.log(businessId)
+    console.log(clientTimestamp)
+
+    return {
+        message: `hello ${name || "world"} by Greeter in server1`,
+        count: this.count
+    }
+}
+```
+
+The output will look like this:
+
+```bash
+[ 'max-age=100' ]
+[ 'grpcity, testing' ]
+[ 'begin=2023-10-31T16:34:22.296Z' ]
+```
+
+### Server-Side Metadata Sending
+
+In some cases, you might want the server to send metadata back to the client. You can do so as follows:
+
+```javascript
+async SayHello(call) {
+    const metadata = call.metadata.clone()
+    metadata.add('x-timestamp-server', 'received=' + new Date().toISOString())
+    call.sendMetadata(metadata)
+
+    // ... (rest of the code)
+}
+```
+
+When the server sends metadata, the client can receive it.

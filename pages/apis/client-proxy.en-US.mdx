@@ -1,0 +1,280 @@
+# Client Proxy
+
+## proxy[method]
+
+### unary
+
+```js
+const { status, metadata, response } = await client.rpcUnaryMethod(request, metadata, options)
+```
+
+**Description:**
+- Perform a `rpcUnaryMethod` call, point-to-point, and wait for the result to be returned.
+
+**Parameters:**
+- `request` (Request Data): This is an object containing the request data. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service.
+- `metadata` (Metadata): This is an optional parameter used to pass metadata related to the request. Metadata is represented as key-value pairs and can contain data for purposes like authentication, authorization, tracking, or others.
+- `options` (Options): This is an optional parameter used to set specific call options. It's an object containing a set of key-value pairs that can be used to configure the call's behavior. Some available options include timeout duration, retry strategy, and more. If not provided, a default 10-second timeout will be set, and you can modify the timeout duration by passing `deadline` or `timeout` as options.
+
+**Return Value:**
+- `object`: `{ status, metadata, response }`
+    - `status`: The status after server-side processing.
+    - `metadata`: Metadata information returned by the server.
+    - `response`: The result after server-side processing.
+
+### client stream
+
+```js
+const clientStreamCall = client.rpcClientStreamMethod(metadata, options)
+```
+
+**Description:**
+- Handle a `rpcClientStreamMethod` call, providing the client with the ability to send a stream of information and receive the result after server-side processing.
+
+**Parameters:**
+- `metadata` (Metadata): This is an optional parameter used to pass metadata related to the request. Metadata is represented as key-value pairs and can contain data for purposes like authentication, authorization, tracking, or others.
+- `options` (Options): This is an optional parameter used to set specific call options. It's an object containing a set of key-value pairs that can be used to configure the call's behavior. Some available options include timeout duration, retry strategy, and more. If not provided, a default 10-second timeout will be set, and you can modify the timeout duration by passing `deadline` or `timeout` as options.
+
+**Return Value:**
+- Stream instance providing a series of methods to handle client-side streaming.
+
+#### write()
+
+```js
+clientStreamCall.write(request)
+```
+
+**Description:**
+- The client sends a stream of data.
+
+**Parameters:**
+- `request` (Request Data): This is an object containing the request data. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service.
+
+**Return Value:**
+- `Boolean`: Boolean value, typically `true`.
+
+#### writeAll()
+
+```js
+clientStreamCall.writeAll([request])
+```
+
+**Description:**
+- The client sends multiple data entries in bulk.
+
+**Parameters:**
+- `request` (Request Data): This is an object containing the request data. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service.
+
+**Return Value:**
+- void: No return value.
+
+#### writeEnd()
+
+```js
+const { status, metadata, response } = await clientStreamCall.writeEnd()
+```
+
+**Description:**
+- Get the result after server-side processing of the stream.
+
+**Parameters:**
+- void: No parameters.
+
+**Return Value:**
+- `object`: `{ status, metadata, response }`
+    - `status`: The status after server-side processing.
+    - `metadata`: Metadata information returned by the server.
+    - `response`: The result after server-side processing.
+
+### server stream
+
+```js
+const clientServerStreamCall = client.rpcServerStreamMethod(request, metadata, options)
+```
+
+**Description:**
+- Handle a `rpcServerStreamMethod` call, allowing the client to initiate a call and receive a stream of data sent by the server.
+
+**Parameters:**
+- `request` (Request Data): This is an object containing the request data. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service.
+- `metadata` (Metadata): This is an optional parameter used to pass metadata related to the request. Metadata is represented as key-value pairs and can contain data for purposes like authentication, authorization, tracking, or others.
+- `options` (Options): This is an optional parameter used to set specific call options. It's an object containing a set of key-value pairs that can be used to configure the call's behavior. Some available options include timeout duration, retry strategy, and more. If not provided, a default 10-second timeout will be set, and you can modify the timeout duration by passing `deadline` or `timeout` as options.
+
+**Return Value:**
+- Stream instance providing a series of methods to handle client-side streaming.
+
+#### readAll()
+
+```js
+const asyncIterator = await serverStreamHelloCall.readAll()
+```
+
+**Description:**
+- Receive a stream of data sent by the server.
+
+**Parameters:**
+- void: No parameters.
+
+**Return Value:**
+- `asyncIterator`: An `asyncIterator` object returned by the server, requiring the use of `for await` to retrieve individual stream message results.
+
+#### readEnd()
+
+```js
+const { status, metadata } = serverStreamHelloCall.readEnd()
+```
+
+**Description:**
+- Receive the server's status and metadata information.
+
+**Parameters:**
+- void: No parameters.
+
+**Return Value:**
+- `object`: `{ status, metadata }`
+    - `status`: The status after server-side processing.
+    - `metadata`: Metadata information returned by the server.
+
+### duplex stream
+
+```js
+const clientDuplexStreamCall = client.rpcDuplexStreamMethod(metadata, options)
+```
+
+**Description:**
+- Handle a `rpcDuplexStreamMethod` call, providing the client with the ability to send a stream of data and receive a stream of data from the server.
+
+**Parameters:**
+- `metadata` (Metadata): This is an optional parameter used to pass metadata related to the request. Metadata is represented as key-value pairs and can contain data for purposes like authentication, authorization, tracking, or others.
+- `options` (Options): This is an optional parameter used to set specific call options. It's an object containing a set of key-value pairs that can be used to configure the call's behavior. Some available options include timeout duration, retry strategy, and more. If not provided, a default 10-second timeout will be set, and you can modify the timeout duration by passing `deadline` or `timeout` as options.
+
+**Return Value:**
+- Stream instance providing a series of methods to handle client-side streaming.
+
+#### write()
+
+```js
+clientDuplexStreamCall.write(request)
+```
+
+**Description:**
+- The client sends a stream of data.
+
+**Parameters:**
+- `request` (Request Data): This is an object containing the request data. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service.
+
+**Return Value:**
+- `Boolean`: Boolean value, typically `true`.
+
+#### writeAll()
+
+```js
+clientDuplexStreamCall.writeAll([request])
+```
+
+**Description:**
+- The client
+
+ sends multiple data entries in bulk.
+
+**Parameters:**
+- `request` (Request Data): This is an object containing the request data. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service.
+
+**Return Value:**
+- void: No return value.
+
+#### readAll()
+
+```js
+const asyncIterator = await clientDuplexStreamCall.readAll()
+```
+
+**Description:**
+- Receive a stream of data sent by the server.
+
+**Parameters:**
+- void: No return value.
+
+**Return Value:**
+- `asyncIterator`: An `asyncIterator` object returned by the server, requiring the use of `for await` to retrieve individual stream message results.
+
+#### readEnd()
+
+```js
+const { status, metadata } = serverStreamHelloCall.readEnd()
+```
+
+**Description:**
+- Receive the server's status and metadata information.
+
+**Parameters:**
+- void: No parameters.
+
+**Return Value:**
+- `object`: `{ status, metadata }`
+    - `status`: The status after server-side processing.
+    - `metadata`: Metadata information returned by the server.
+
+## proxy.call[method]
+
+```js
+const callInstance = client.call.rpcMethod(request, metadata, options, callback)
+```
+
+**Description:**
+- Handle a `call.rpcMethod` call, using a callback function and event listeners to process server information.
+
+**Parameters:**
+- `request` (Request Data): This is an object containing the request data. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service.
+- `metadata` (Metadata): This is an optional parameter used to pass metadata related to the request. Metadata is represented as key-value pairs and can contain data for purposes like authentication, authorization, tracking, or others.
+- `options` (Options): This is an optional parameter used to set specific call options. It's an object containing a set of key-value pairs that can be used to configure the call's behavior. Some available options include timeout duration, retry strategy, and more. If not provided, a default 10-second timeout will be set, and you can modify the timeout duration by passing `deadline` or `timeout` as options.
+- `callback` (Callback Function): This is a required parameter used to receive and process server-side error information and results.
+
+**Return Value:**
+- Call instance providing a series of methods to handle the client.
+
+### on()
+
+```js
+callInstance.on('eventName', callback)
+```
+
+**Description:**
+- Listen for server events and handle the received data.
+
+**Parameters:**
+- `eventName` (Required): Event name, including `data`, `end`, `status`, `metadata`, and `error`.
+- `callback` (Required): This is a callback function used to receive and process server-side error information and results.
+
+**Return Value:**
+- void: No return value.
+
+### write()
+
+```js
+callInstance.write(request)
+```
+
+**Description:**
+- The client sends a stream of data.
+
+**Parameters:**
+- `request` (Request Data): This is an object containing the request data. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service.
+
+**Return Value:**
+- `Boolean`: Boolean value, typically `true`.
+
+### end()
+
+```js
+callInstance.end()
+```
+
+**Description:**
+- Signal to the server that the client has finished sending stream data.
+
+**Parameters:**
+- void: No parameters.
+
+**Return Value:**
+- void: No return value.

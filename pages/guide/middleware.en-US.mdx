@@ -1,0 +1,75 @@
+# Middleware
+
+Middleware is an essential feature in `gRPCity`, providing the ability to execute middleware code before and after handling RPC calls.
+Middleware plays a convenient role in scenarios such as uniform call logging, monitoring metric collection, authentication, parameter modification, result modification, and delay.
+This helps improve development efficiency in handling business logic.
+
+The middleware implementation in `gRPCity` is based on the `koa-compose` library, which provides an onion model working mechanism for executing middleware.
+
+Suppose we have three middleware functions: A, B, and C. The order in which middleware is executed is `A -> B -> C`. Here's how it works:
+
+```
+enter A
+  enter B
+    enter C
+      rpc-method()
+    exit C
+  exit B
+exit A
+```
+
+### Usage
+
+`gRPCity` server provides two methods to support middleware: `server.addMiddleware(fn)` and `server.addMiddlewares(fns)`.
+
+The difference between the two methods is that one can only pass a single middleware, while the other can accept multiple middlewares, as follows:
+
+```js
+server.addMiddleware(a)
+server.addMiddleware(b)
+server.addMiddleware(c)
+// Equivalent to
+server.addMiddleware([a, b, c])
+```
+
+You can add middleware after initializing the server with `initServer()` and before calling `listen()`.
+
+### Writing Middleware
+
+Here, we will demonstrate how to write middleware for logging RPC calls.
+
+Middleware functions support two parameters: `ctx` and `next`, as follows:
+- `ctx`: An object that represents the middleware context.
+  - `path`: The RPC route path.
+  - `request`: The RPC request parameters.
+  - `metadata`: Metadata from the client.
+  - `response`: The result returned by the RPC method, which is available only after the RPC method is executed.
+- `next`: A function that executes the next middleware or the actual method.
+
+```javascript
+class Log {
+  async middleware(ctx, next) {
+    const startTime = Date.now()
+    await next()
+    const responseTimeMs = Date.now() - startTime
+
+    console.log({
+        path: ctx.path,
+        request: ctx.request,
+        responseTimeMs
+    })
+  }
+}
+
+export default new Log()
+```
+
+To add the middleware:
+
+```javascript
+import log from './log.js'
+
+server.addMiddleware(log.middleware)
+```
+
+With these steps, you have completed writing and using middleware.

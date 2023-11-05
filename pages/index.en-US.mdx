@@ -1,0 +1,47 @@
+# gRPCity
+
+<p class="nx-flex nx-h-6 nx-mt-4 nx-gap-2">
+    <img alt="npm" src="https://badgen.net/npm/v/grpcity"></img>
+    <img alt="license" src="https://badgen.net/npm/license/grpcity"></img>
+</p>
+
+gPRCity is a simple, easy-to-use, and advanced gRPC microservices library based on Node.js.
+
+> The name is derived from "gRPC + City = gRPCity", symbolizing the author's hope that this library can support the development of business cities. Taking a technological perspective as the foundation, it enables everyone to focus on business and better support delivery. Here, I would like to recommend a game called "Cities: Skylines 2." It is a city simulation game that allows players to experience the excitement and challenges of creating and maintaining a real city firsthand.
+
+### Code Hub
+
+- GitHub: https://github.com/chakhsu/grpcity
+- npm: https://www.npmjs.com/package/grpcity
+
+### Target
+
+Committed to providing a comprehensive Node.js-based, gRPC-based microservices development experience. Offering the Node.js community and developers an additional choice for microservices libraries with enhanced features.
+Building two foundations: a microservices library technical foundation and a business support foundation.
+
+![gPRCity foundation](/img/grpcity-foundation.svg)
+
+### Principle
+
+- **Focus**: Specialize in a gRPC microservices library, not a one-size-fits-all framework.
+- **Simplicity**: Provide a simple and clear API that is easy to understand and quick to get started with.
+- **Usability**: Simplify complex concepts as much as possible, offering clear and easy-to-follow code.
+- **Stability**: High testability, extensive coverage, and a proven track record of reliability in online deployments.
+- **Collaboration**: Leverage the Node.js community and ecosystem to the fullest extent.
+
+### Features
+
+- **API**: The communication protocol is based on gRPC and defined using Protobuf.
+- **Protobuf**: Supports only dynamic loading of pb, simplifying the loading process of pb files.
+- **Client**: Configured once and can be called anytime, anywhere, supporting multi-server invocation.
+- **Server**: Simplifies the initialization process, starting the server in three steps, supporting multi-server startup.
+- **No-Route**: No routing, RPC is inherently bound to methods.
+- **Middleware**: Integrates middleware mechanism similar to Koa, providing pre and post-processing capabilities for RPC.
+- **Metadata**: Standardizes the transmission and retrieval of metadata.
+- **Error**: Provides dedicated Error objects to ensure targeted handling of exceptions after catching.
+- **Promise**: Supports promisify internally in RPC methods while also preserving callbackify.
+- **Config**: Aligned with official configurations, supports pb load configuration and gRPC channel configuration.
+- **Pattern**: Singleton pattern ensures the uniqueness of instance objects.
+- **Typescript**: Supported, ensuring compatibility between TS and JS.
+
+...and a lot more.

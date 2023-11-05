@@ -8,11 +8,14 @@ const withNextra = require('nextra')({
   defaultShowCopyCode: true
 })
 
-module.exports = {
-  ...withNextra({
-    basePath: '/grpcity-docs'
-  }),
+module.exports = withNextra({
+  basePath: '/grpcity-docs',
   images: {
     unoptimized: true,
-  }
-}
+  },
+  i18n: {
+    locales: ['en-US', 'zh-CN'],
+    defaultLocale: 'en-US'
+  },
+  reactStrictMode: true
+})
