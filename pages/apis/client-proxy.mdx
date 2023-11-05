@@ -106,7 +106,7 @@ const clientServerStreamCall = client.rpcServerStreamMethod(request, metadata, o
 #### readAll()
 
 ```js
-const { status, metadata, response } = await serverStreamHelloCall.readAll()
+const asyncIterator = await serverStreamHelloCall.readAll()
 ```
 
 **功能说明:**
@@ -116,10 +116,24 @@ const { status, metadata, response } = await serverStreamHelloCall.readAll()
 - void: 空。
 
 **返回值:**
-- `object`: `{ status, metadata, response }`
+- `asyncIterator`:服务端返回的一个`asyncIterator`对象，需要我们使用`for await`获取服务端返回的逐条`stream message`结果；
+
+#### readEnd()
+
+```js
+const { status, metadata } = serverStreamHelloCall.readEnd()
+```
+
+**功能说明:**
+- 接收服务端返回的状态和`metadata`元信息。
+
+**参数说明:**
+- void: 空。
+
+**返回值:**
+- `object`: `{ status, metadata }`
     - `status`: 服务端处理执行后的状态；
     - `metadata`: 服务端返回的 metadata 信息；
-    - `response`: 服务端返回的一个`asyncIterator`对象，需要我们使用`for await`获取服务端返回的逐条`stream message`结果；
 
 ### duplex stream
 
@@ -170,7 +184,7 @@ clientDuplexStreamCall.writeAll([request])
 #### readAll()
 
 ```js
-const { status, metadata, response } = await clientDuplexStreamCall.readAll()
+const asyncIterator = await clientDuplexStreamCall.readAll()
 ```
 
 **功能说明:**
@@ -180,10 +194,24 @@ const { status, metadata, response } = await clientDuplexStreamCall.readAll()
 - void: 空。
 
 **返回值:**
-- `object`: `{ status, metadata, response }`
+- `asyncIterator`:服务端返回的一个`asyncIterator`对象，需要我们使用`for await`获取服务端返回的逐条`stream message`结果；
+
+#### readEnd()
+
+```js
+const { status, metadata } = serverStreamHelloCall.readEnd()
+```
+
+**功能说明:**
+- 接收服务端返回的状态和`metadata`元信息。
+
+**参数说明:**
+- void: 空。
+
+**返回值:**
+- `object`: `{ status, metadata }`
     - `status`: 服务端处理执行后的状态；
     - `metadata`: 服务端返回的 metadata 信息；
-    - `response`: 服务端返回的一个`asyncIterator`对象，需要我们使用`for await`获取服务端返回的逐条`stream message`结果；
 
 ## proxy.call[method]
 
@@ -241,7 +269,7 @@ callInstance.end()
 ```
 
 **功能说明:**
-- 客户端发送流信息已结束。
+- 客户端发送流信息已结束的信号给服务端。
 
 **参数说明:**
 - void: 空。
