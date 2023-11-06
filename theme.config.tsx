@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import type { DocsThemeConfig } from 'nextra-theme-docs'
-import { useConfig } from 'nextra-theme-docs'
+import { LocaleSwitch, useConfig } from 'nextra-theme-docs'
 
 const config: DocsThemeConfig = {
   logo: <span>gRPCity Doc</span>,
@@ -36,6 +36,9 @@ const config: DocsThemeConfig = {
   sidebar: {
     defaultMenuCollapseLevel: 2,
     toggleButton: true
+  },
+  navbar: {
+    extraContent: LocaleSwitch
   },
   toc: {
     backToTop: true
