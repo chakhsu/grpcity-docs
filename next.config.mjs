@@ -11,6 +11,7 @@ const withNextra = nextra({
 })
 
 export default withNextra({
+  reactStrictMode: true,
   basePath: '/grpcity-docs',
   images: {
     unoptimized: true,
