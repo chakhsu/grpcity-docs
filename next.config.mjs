@@ -16,7 +16,6 @@ export default withNextra({
     ignoreDuringBuilds: true
   },
   reactStrictMode: true,
-  basePath: '/grpcity-docs',
   images: {
     unoptimized: true,
   },
