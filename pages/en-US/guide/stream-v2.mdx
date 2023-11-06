@@ -201,9 +201,7 @@ const start = async (addr) => {
     const mutualStreamHelloCall = client.mutualStreamHello(meta)
     mutualStreamHelloCall.writeAll([
         { message: 'Hello!' },
-        { message:
-
- 'How are you?' },
+        { message: 'How are you?' },
         { message: 'other thing x' }
     ])
     mutualStreamHelloCall.write({ message: 'maybe' })
