@@ -35,21 +35,28 @@ figcaption {
   margin-top: 0.5rem;
 }
 
-code.text-\[\.9em\] {
-  font-size: 14px;
+.nextra-code {
+  font-size: .8rem;
 }
 
-@media screen and (max-width: 1200px) {
-  .home-content .hide-medium {
-    display: none;
-  }
+.nextra-code ._bg-gray-100 {
+  background-color: hsl(var(--nextra-primary-hue)var(--nextra-primary-saturation)94%/var(--tw-bg-opacity));
 }
 
-@media screen and (max-width: 720px) {
-  .home-content p {
-    font-size: 0.9rem;
-  }
-  .home-content .hide-small {
-    display: none;
-  }
+.nextra-code ._rounded-t-md {
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+}
+.nextra-code ._rounded-b-md {
+  border-bottom-right-radius: 0.75rem;
+  border-bottom-left-radius: 0.75rem;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.nextra-code pre {
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
+  border-bottom-left-radius: 0.75rem;
 }
