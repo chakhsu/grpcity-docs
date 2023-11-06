@@ -11,7 +11,10 @@ const withNextra = nextra({
 })
 
 export default withNextra({
-  pageExtensions: ['mdx', 'md', 'jsx', 'js', 'tsx'],
+  eslint: {
+    // Eslint behaves weirdly in this monorepo.
+    ignoreDuringBuilds: true
+  },
   reactStrictMode: true,
   basePath: '/grpcity-docs',
   images: {
