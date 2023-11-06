@@ -4,6 +4,7 @@
   "description": "gRPCity Docs",
   "author": "Chakhsu.Lau",
   "license": "MIT",
+  "homepage": "https://chakhsu.github.io/grpcity-docs",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
