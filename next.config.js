@@ -1,6 +1,7 @@
 const withNextra = require('nextra')({
   theme: 'nextra-theme-docs',
   themeConfig: './theme.config.tsx',
+  staticImage: true,
   latex: false,
   flexsearch: {
     codeblocks: false
@@ -9,7 +10,6 @@ const withNextra = require('nextra')({
 })
 
 module.exports = withNextra({
-  basePath: '/grpcity-docs',
   images: {
     unoptimized: true,
   },
