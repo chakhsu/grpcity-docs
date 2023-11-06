@@ -11,6 +11,7 @@ const withNextra = nextra({
 })
 
 export default withNextra({
+  pageExtensions: ['mdx', 'md', 'jsx', 'js', 'tsx', 'ts'],
   reactStrictMode: true,
   basePath: '/grpcity-docs',
   images: {
