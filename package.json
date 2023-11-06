@@ -1,7 +1,7 @@
 {
-  "name": "grpcity-doc",
-  "version": "0.1.0",
-  "description": "gRPCity Doc Center",
+  "name": "grpcity-docs",
+  "version": "1.0.0",
+  "description": "gRPCity Docs",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chakhsu/grpcity-doc.git"
+    "url": "git+https://github.com/chakhsu/grpcity-docs.git"
   },
   "author": "Chakhsu.Lau",
   "license": "MIT",
@@ -24,6 +24,8 @@
   "devDependencies": {
     "@types/node": "20.8.9",
     "typescript": "^5.2.2",
-    "@types/react": "^18.2.33"
+    "@types/react": "^18.2.33",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.3"
   }
 }

@@ -1,0 +1,122 @@
+import { Card, Cards } from 'nextra/components'
+
+# Proto loader
+
+The official provides two ways to load protobuf files. One is to directly load .pb files, and the other is to use tools to compile and reference dependencies. In this case, gRPCity ultimately chose to support only the first method, which is to load .pb files directly.
+
+Next, we'll get started by creating a new project. You can find the demo project repository here: [link](https://github.com/chakhsu/grpcity-basic-demo).
+
+### Initialization and Installation
+
+Create a demo project and navigate to it:
+```bash filename="Terminal"
+mkdir demo && cd demo
+```
+
+Initialize the project:
+```bash filename="Terminal" sh npm2yarn
+npm init
+```
+
+Install the dependencies:
+```bash filename="Terminal" npm2yarn
+npm i grpcity
+```
+
+Note: We need to add `"type": "module"` to `package.json` to activate ESM modules.
+
+### Project Structure
+
+We need to create a series of directories and files. The final project directory and file structure will look like this:
+
+```bash filename="Terminal" {2}
+.
+├── loader.js
+├── package-lock.json
+├── package.json
+└── proto
+    └── test
+        └── helloworld
+            ├── service.proto
+            └── model
+                └── message.proto
+```
+
+### Define the Proto
+
+Create a `proto` directory and create the `service.proto` file:
+```bash filename="Terminal"
+mkdir -p ./proto/test/helloworld
+vim ./proto/test/helloworld/service.proto
+```
+
+Define two services in `service.proto`: Greeter and Hellor. Also, split the message into the model.
+Enter the following content into `service.proto`:
+
+```proto filename="./proto/test/helloworld/service.proto"
+syntax = "proto3";
+
+package test.helloworld;
+
+import "test/helloworld/model/message.proto";
+
+// The greeting service definition.
+service Greeter {
+    rpc SayGreet(model.HelloRequest) returns (model.HelloReply) {}
+}
+
+service Hellor {
+    rpc SayHello(model.HelloRequest) returns (model.HelloReply) {}
+}
+```
+
+Create a `model` directory and create the `message.proto` file:
+```bash filename="Terminal"
+mkdir -p ./proto/test/helloworld/model
+vim ./proto/test/helloworld/model/message.proto
+```
+
+Enter the following content into `message.proto`:
+
+```proto filename="./proto/test/helloworld/model/message.proto"
+syntax = "proto3";
+
+package test.helloworld.model;
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings.
+message HelloReply {
+  string message = 1;
+  int32 count = 2;
+}
+```
+
+### Load PB & Modularize
+
+Import the `grpcity` dependency and create an instance. Note that you need to provide two parameters: `location` and `files`, which represent the root directory of proto files and the specific proto files, respectively.
+
+```js filename="./loader.js"
+import GrpcLoader from 'grpcity'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+// Get the directory path of this file
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+export default new GrpcLoader({
+    location: path.join(__dirname, './proto'),
+    files: [
+        'test/helloworld/service.proto'
+    ]
+})
+```
+
+With this, we have completed the loading of proto files and obtained `loader.js`. You can now import this file anywhere and use it to develop client-side or server-side applications. It's that simple! Compared to the official approach, this library simplifies the complex definitions and only requires you to pass the files to the corresponding object for file loading.
+
+---
+
+Now, let's proceed with the development of the client or server side.

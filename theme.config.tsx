@@ -1,39 +1,40 @@
 import { useRouter } from 'next/router'
 import type { DocsThemeConfig } from 'nextra-theme-docs'
+import { useConfig } from 'nextra-theme-docs'
 
 const config: DocsThemeConfig = {
   logo: <span>gRPCity Doc</span>,
   project: {
     link: 'https://github.com/chakhsu/grpcity',
   },
-  docsRepositoryBase: 'https://github.com/chakhsu/grpcity-doc',
+  docsRepositoryBase: 'https://github.com/chakhsu/grpcity-docs',
+  head: function useHead() {
+    const config = useConfig()
+    const { route } = useRouter()
+
+    const description =
+      config.frontMatter.description ||
+      'gPRCity is a simple, easy-to-use, and advanced gRPC microservices library based on Node.js.'
+    const title = config.title + (route === '/' ? '' : ' - gRPCity Docs')
+
+    return (
+      <>
+        <title>{title}</title>
+        <meta property="og:title" content={title} />
+        <meta name="description" content={description} />
+        <meta property="og:description" content={description} />
+      </>
+    )
+  },
   footer: {
     content: (
-      <p className="nx-text-sm">
+      <p className="_text-sm">
         © {new Date().getFullYear()} The gRPCity Project.
       </p>
     )
   },
-  useNextSeoProps() {
-    const { asPath } = useRouter()
-    if (asPath === '/') {
-      return {
-        titleTemplate: 'gRPCity Doc'
-      }
-    } else {
-      return {
-        titleTemplate: '%s – gRPCity'
-      }
-    }
-  },
   sidebar: {
-    titleComponent({ title, type }) {
-      if (type === 'separator') {
-        return <span className="cursor-default">{title}</span>
-      }
-      return <>{title}</>
-    },
-    defaultMenuCollapseLevel: 1,
+    defaultMenuCollapseLevel: 2,
     toggleButton: true
   },
   toc: {
