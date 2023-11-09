@@ -104,7 +104,7 @@ await loader.init({
     isDev: true,
     packagePrefix: 'test',
     services: {
-        'dev.path.to.serviceA': 'domain.local:9099',
+        'test.path.to.serviceA': 'domain.local:9099',
         'path.to.serviceB': '192.168.32.111:10099'
     },
     appName: 'myApp'
@@ -116,9 +116,9 @@ stage 环境，配置如下:
 ```js
 await loader.init({
     isDev: false,
-    packagePrefix: 'dev',
+    packagePrefix: 'stage',
     services: {
-        'dev.path.to.serviceA': 'domain.local:9099',
+        'stage.path.to.serviceA': 'domain.local:9099',
         'path.to.serviceB': '192.168.32.111:10099'
     },
     appName: 'myApp'
