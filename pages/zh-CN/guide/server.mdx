@@ -4,7 +4,7 @@ Server是`gRPCity`的核心功能之一，提供了服务端生命周期的接�
 
 ### 实例获取
 
-`channelOptions`在 [Config 指南](/guide/config) 里有详细讲解。
+`channelOptions`在 [Config 指南](/zh-CN/guide/config) 里有详细讲解。
 
 ```js
 // 获取 server 实例
@@ -29,7 +29,7 @@ server.removeService(service)
 
 ### 添加中间件
 
-`gRPCity` Server 的特色功能，提供了`implementation` 前后处理的中间件能力，更多详情查看 [Middleware 指南](/guide/middleware)
+`gRPCity` Server 的特色功能，提供了`implementation` 前后处理的中间件能力，更多详情查看 [Middleware 指南](/zh-CN/guide/middleware)
 
 注意: 只有使用了`loader.callbackify()`绑定的`service` rpc 才支持中间件。
 
@@ -59,7 +59,7 @@ await server.listen(addr, credentials)
 // await server.listen({ host: '127.0.0.1', port: 9099 }, credentials)
 ```
 
-另外，可以阅读 [Credentials 指南](/guide/credentials) 来获得更多信息。
+另外，可以阅读 [Credentials 指南](/zh-CN/guide/credentials) 来获得更多信息。
 
 ### 服务退出
 

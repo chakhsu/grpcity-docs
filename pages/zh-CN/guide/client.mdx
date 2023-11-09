@@ -14,7 +14,7 @@ Client是`gRPCity`的核心功能之一，主要是提供获取 service，并进
 
 两者是可以共存的，但是使用`initClients()`之前，需要先执行`init()`.
 
-`channelOptions`参数说明请看 [Config 指南](/guide/config)，示例:
+`channelOptions`参数说明请看 [Config 指南](/zh-CN/guide/config)，示例:
 
 ```js
 await loader.init({
@@ -125,4 +125,4 @@ const b = serviceBClient.call.rpcMethod2({ name: 'youapp' }, (err, result) => {
 
 `callback`的方法提供了`stream`的事件方式的处理能力。
 
-更多关于`stream`的使用，请查看 [Stream](/guide/stream) 和 [Stream v2](/guide/stream-v2) 这两篇指南。
+更多关于`stream`的使用，请查看 [Stream](/zh-CN/guide/stream) 和 [Stream v2](/zh-CN/guide/stream-v2) 这两篇指南。
