@@ -126,3 +126,15 @@ const b = serviceBClient.call.rpcMethod2({ name: 'youapp' }, (err, result) => {
 `callback`的方法提供了`stream`的事件方式的处理能力。
 
 更多关于`stream`的使用，请查看 [Stream](/zh-CN/guide/stream) 和 [Stream v2](/zh-CN/guide/stream-v2) 这两篇指南。
+
+
+### 关闭连接
+
+在版本`0.10`之后，`grpcity`库提供了相关接口用于支持关闭所有客户端的连接，用于在服务退出时进行资源释放，保证系统的稳定性。
+
+执行下面的方法，即可完成客户端主动关闭连接。
+```js
+loader.closeClients()
+```
+
+如果需要与服务端再次建联，则需要再次执行`initClients`。

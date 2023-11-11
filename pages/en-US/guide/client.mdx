@@ -125,3 +125,14 @@ const b = serviceBClient.call.rpcMethod2({ name: 'youapp' }, (err, result) => {
 The `callback` method provides the capability to handle events in a streaming fashion.
 
 For more information on using streams, please refer to the [Stream](/en-US/guide/stream) and [Stream v2](/en-US/guide/stream-v2) guides.
+
+### Close Clients
+
+Starting from version `0.10`, the `grpcity` library provides relevant interfaces to support closing all client connections. This is useful for releasing resources and ensuring system stability when the service exits.
+
+To actively close the client connections, simply execute the following method:
+```js
+loader.closeClients()
+```
+
+If you need to reconnect to the server, you will need to execute `initClients` again.
