@@ -1,15 +1,15 @@
 # Stream
 
-The `gRPCity` library provides complete stream processing capabilities, allowing you to implement business scenarios such as file uploads, event mechanisms, task monitoring, metric reporting and etc.
-Currently, there are three types of streaming RPCs: `client-stream to server`, `client to server-stream`, and `client-stream to server-stream`.
+`gRPCity` 库提供了完整的 Stream 处理能力，流式 rpc 可以满足文件上传，事件机制，任务监听，指标回播等业务场景。
+目前流式 rpc 有三种情况，以`client - server`模式举例，分别是`client stream - server`、`client - server stream` 和 `client stream - server stream`。
 
-Here, we'll demonstrate how to work with streams using callbacks and event mechanisms. We will use the `proxy.call` methods of the client.
+这里展示的使用`callback`和事件机制来完成流处理工作。使用的是`client`的`proxy`的`call`里的方法。
 
-If you need to learn about working with `async streams`, you can refer to the [Stream v2](/en-US/guide/stream-v2) guide.
+如果需要获取`async stream`的用法，可以查看 [Stream v2](/zh/guide/stream-v2) 指南。
 
-### Prerequisites
+### 前置工作
 
-In our proto file, the RPCs in the `service` must be clearly marked as using `stream`. Here is an example:
+我们的 proto 文件里的 `service` 的`rpc`，需要标记清楚 使用了`stream`，如下所示:
 
 ```proto filename="stream.proto"
 syntax="proto3";
@@ -27,18 +27,19 @@ message Message {
 }
 ```
 
-- `ClientStreamHello`: Indicates that only the client uses Stream.
-- `ServerStreamHello`: Indicates that only the server uses Stream.
-- `MutualStreamHello`: Indicates that both the client and the server use Stream.
+- `ClientStreamHello`: 表示只有客户端使用了 Stream;
+- `ServerStreamHello`: 表示只有服务端使用了 Stream;
+- `MutualStreamHello`: 表示客户端和服务端都是使用了 Stream;
 
-Write `loader.js` to complete proto loading:
 
-```javascript filename="./loader.js"
+编写 `loader.js`，完成 proto 加载。
+
+```js filename="./loader.js"
 import GrpcLoader from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// Get the directory path of this file
+// get this file dir path
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default new GrpcLoader({
@@ -47,11 +48,11 @@ export default new GrpcLoader({
 })
 ```
 
-### Server
+### 服务端
 
-Write the `Stream` class, which provides three server streaming functions: `clientStreamHello()`, `serverStreamHello()`, and `mutualStreamHello()`.
+完成`Stream`类的编写，提供了三种流式的服务端执行函数。分别是`clientStreamHello()`,`serverStreamHello()`,`mutualStreamHello()`。
 
-```javascript filename="./server.js"
+```js filename="./server.js"
 class Stream {
   constructor (loader) {
     this._loader = loader
@@ -65,7 +66,7 @@ class Stream {
     )
   }
 
-  // client stream to server
+  // client stream - server
   clientStreamHello (call, callback) {
     call.on('data', (chunk) => {
       console.log(chunk.message)
@@ -75,15 +76,15 @@ class Stream {
     })
   }
 
-  // client to server stream
+  // client - server stream
   serverStreamHello (call) {
     console.log(call.request.message)
-    call.write({ message: 'Hello! I got your message.' })
+    call.write({ message: 'Hello! I got you message.' })
     call.write({ message: "I'm fine, thank you" })
     call.end()
   }
 
-  // client stream to server stream
+  // client stream - server stream
   mutualStreamHello (call) {
     call.on('data', (chunk) => {
       console.log(chunk.message)
@@ -92,7 +93,7 @@ class Stream {
       } else if (chunk.message === 'How are you?') {
         call.write({ message: "I'm fine, thank you" })
       } else {
-        call.write({ message: 'Pardon?' })
+        call.write({ message: 'pardon?' })
       }
     })
     call.on('end', (chunk) => {
@@ -102,9 +103,9 @@ class Stream {
 }
 ```
 
-Continue with service initialization and startup:
+继续完成服务初始化和启动。
 
-```javascript filename="./server.js"
+```js filename="./server.js"
 async function start (addr) {
   await loader.init()
 
@@ -120,11 +121,11 @@ async function start (addr) {
 start('localhost:9097')
 ```
 
-### Client
+### 客户端
 
-To call the server using the `Stream` client, you need to use the functions inside `.call.`. Here's an example:
+客户端使用`Stream`调用服务端，需要使用`.call.`里的函数才可以。示例如下:
 
-```javascript filename="./client.js"
+```js filename="./client.js"
 async function start (addr) {
     await loader.init()
 
@@ -142,7 +143,7 @@ async function start (addr) {
         'x-timestamp-client': 'begin=' + new Date().toISOString()
     })
 
-    // client stream to server
+    // stream client to server
     const clientStreamHelloCall = client.call.clientStreamHello(meta, (err, response) => {
         if (err) {
             console.log(err)
@@ -154,22 +155,22 @@ async function start (addr) {
     clientStreamHelloCall.write({ message: 'How are you?' })
     clientStreamHelloCall.end()
 
-    // client to server stream
+    // client to stream server
     const serverStreamHelloCall = client.call.serverStreamHello({ message: 'Hello! How are you?' })
     serverStreamHelloCall.on('data', (chunk) => {
         console.log(chunk.message)
     })
     serverStreamHelloCall.on('end', () => {
-        console.log('Server call end.')
+        console.log('server call end.')
     })
 
-    // client stream to server stream
+    // stream client to stream server
     const mutualStreamHelloCall = client.call.mutualStreamHello()
     mutualStreamHelloCall.on('data', (chunk) => {
         console.log(chunk.message)
     })
     mutualStreamHelloCall.on('end', () => {
-        console.log('Server call end.')
+        console.log('server call end.')
     })
     mutualStreamHelloCall.write({ message: 'Hello!' })
     mutualStreamHelloCall.write({ message: 'How are you?' })
@@ -179,48 +180,48 @@ async function start (addr) {
 start('localhost:9097')
 ```
 
-### Testing
+### 联调
 
-- `client stream to server`: We only execute the client's `clientStreamHello()` function, and the result is as follows:
+`client stream - server`: 我们只执行客户端的`clientStreamHello()`，执行结果如下:
 
-Server:
+服务端:
 ```bash filename="Terminal"
 Hello!
 How are you?
 ```
 
-Client:
+客户端:
 ```bash filename="Terminal"
 { message: "Hello! I'm fine, thank you!" }
 ```
 
-- `client to server stream`: We only execute the client's `serverStreamHello()`, and the result is as follows:
+`client - server stream`: 我们只执行客户端的`serverStreamHello`，执行结果如下:
 
-Server:
+服务端:
 ```bash filename="Terminal"
 Hello! How are you?
 ```
 
-Client:
+客户端:
 ```bash filename="Terminal"
-Hello! I got your message.
+Hello! I got you message.
 I'm fine, thank you
-Server call end.
+server call end.
 ```
 
-- `client stream to server stream`: We only execute the client's `mutualStreamHello()`, and the result is as follows:
 
-Server:
+`client stream - server stream`: 我们只执行客户端的`mutualStreamHello`，执行结果如下:
+
+
+服务端:
 ```bash filename="Terminal"
 Hello!
 How are you?
 ```
 
-Client:
+客户端:
 ```bash filename="Terminal"
 Hello!
 I'm fine, thank you
-Server call end.
+server call end.
 ```
-
-This demonstrates the use of different stream types between the client and server in gRPC.

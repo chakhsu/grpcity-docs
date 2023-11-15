@@ -90,7 +90,7 @@ await loader.client('path.to.serviceName', { host, port, timeout, channelOptions
 ```
 
 **Description:**
-- Obtains a client instance corresponding to `'path.to.serviceName'` defined in the proto, using `proxy`, **caches** the client instance, and you can see more usage APIs in [Client Proxy](/en-US/apis/client-proxy).
+- Obtains a client instance corresponding to `'path.to.serviceName'` defined in the proto, using `proxy`, **caches** the client instance, and you can see more usage APIs in [Client Proxy](/en/apis/client-proxy).
 
 **Parameters:**
 - `name`: (required) proto-defined service, package path + service name;
@@ -110,7 +110,7 @@ await loader.clientWithoutCache('path.to.serviceName', { host, port, timeout, cr
 ```
 
 **Description:**
-- Obtains a client instance corresponding to `'path.to.serviceName'` defined in the proto, using `proxy`, **does not cache**, and you can see more usage APIs in [Client Proxy](/en-US/apis/client-proxy).
+- Obtains a client instance corresponding to `'path.to.serviceName'` defined in the proto, using `proxy`, **does not cache**, and you can see more usage APIs in [Client Proxy](/en/apis/client-proxy).
 
 **Parameters:**
 - `name`: (required) proto-defined service, package path + service name;
@@ -191,13 +191,13 @@ const server = loader.initServer(channelOptions)
 ```
 
 **Description:**
-- Creates a gRPC server instance and provides a series of server APIs. For more related APIs, please refer to [Server](/en-US/apis/server).
+- Creates a gRPC server instance and provides a series of server APIs. For more related APIs, please refer to [Server](/en/apis/server).
 
 **Parameters:**
 - `channelOptions`: (optional) proto channel options;
 
 **Return Value:**
-- Returns a `Server` instance, for more APIs, please refer to [Server](/en-US/apis/server).
+- Returns a `Server` instance, for more APIs, please refer to [Server](/en/apis/server).
 
 ### service()
 

@@ -44,8 +44,8 @@ const config: DocsThemeConfig = {
     backToTop: true
   },
   i18n: [
-    { locale: 'en-US', name: 'English' },
-    { locale: 'zh-CN', name: '简体中文' }
+    { locale: 'en', name: 'English' },
+    { locale: 'zh', name: '简体中文' }
   ]
 }
 

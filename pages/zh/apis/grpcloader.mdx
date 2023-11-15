@@ -90,7 +90,7 @@ await loader.client('path.to.serviceName', { host, port, timeout, channelOptions
 ```
 
 **功能说明:**
-- 获取`'path.to.serviceName'`对应的 proto 定义的 service 客户端实例，走`proxy`, **会缓存**，可以查看 [Client Proxy](/zh-CN/apis/client-proxy) 获取更多使用API。
+- 获取`'path.to.serviceName'`对应的 proto 定义的 service 客户端实例，走`proxy`, **会缓存**，可以查看 [Client Proxy](/zh/apis/client-proxy) 获取更多使用API。
 
 **参数说明:**
 - `name`: (必选) proto 定义的 service，包路径 + service name；
@@ -110,7 +110,7 @@ await loader.clientWithoutCache('path.to.serviceName', { host, port, timeout, cr
 ```
 
 **功能说明:**
-- 获取`'path.to.serviceName'`对应的 proto 定义的 service 客户端实例，走`proxy`, **不缓存**，可以查看 [Client Proxy](/zh-CN/apis/client-proxy) 获取更多使用API。
+- 获取`'path.to.serviceName'`对应的 proto 定义的 service 客户端实例，走`proxy`, **不缓存**，可以查看 [Client Proxy](/zh/apis/client-proxy) 获取更多使用API。
 
 **参数说明:**
 - `name`: (必选) proto 定义的 service，包路径 + service name；
@@ -189,13 +189,13 @@ const server = loader.initServer(channelOptions)
 ```
 
 **功能说明:**
-- 创建 gRPC server 实例，并提供一些列 server API。更多相关 API 请查看 [Server](/zh-CN/apis/server)
+- 创建 gRPC server 实例，并提供一些列 server API。更多相关 API 请查看 [Server](/zh/apis/server)
 
 **参数说明:**
 - `channelOptions`: (可选) proto channel options；
 
 **返回值:**
-- 返回 `Server` 实例，可以查看 [Server](/zh-CN/apis/server) 获取更多 API。
+- 返回 `Server` 实例，可以查看 [Server](/zh/apis/server) 获取更多 API。
 
 ### service()
 

@@ -1,14 +1,14 @@
 # Stream v2
 
-在`0.9`版本之后，`gRPCity`提供了`client`调用`stream rpc`的全部`promisify`的能力，这意味着我们能使用`async/await`的语法进行`stream`处理。
+Starting from version 0.9, `gRPCity` provides full `promisify` capabilities for calling streaming RPCs from the client, allowing you to use `async/await` syntax for stream processing.
 
-下面我们将会展示如何使用`Stream v2`的能力。在这里也建议先看一遍 [Stream](/zh-CN/guide/stream)，该文会有一些相似的地方在本文出现。
+Here, we will demonstrate how to use the capabilities of `Stream v2`. We recommend reading the [Stream](/en/guide/stream) guide first, as there will be some similarities in this guide.
 
-注意: 本篇的服务端延用了 [Stream](/zh-CN/guide/stream) 里的服务端。
+Note: The server used in this guide is based on the server defined in [Stream](/en/guide/stream).
 
-### 定义 proto
+### Define Proto
 
-该 `proto` 定义了三个 `rpc`，正好对应了客户端与服务端的三种流对接方式，分别是流对点、点对流和流对流。
+The `proto` file defines three RPCs, each corresponding to one of the three ways to connect the client and server: client-stream, client-server-stream, and bidirectional-stream.
 
 ```proto filename="stream.proto"
 syntax="proto3";
@@ -26,9 +26,9 @@ message Message {
 }
 ```
 
-### 加载 proto
+### Load Proto
 
-```js filename="./loader.js"
+```javascript filename="./loader.js"
 import GrpcLoader from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -42,11 +42,11 @@ export default new GrpcLoader({
 })
 ```
 
-### 客户端
+### Client
 
-客户端的一些前期工作，如加载 `proto`，初始化客户端，创建新的 `metadata`.
+Some preliminary work on the client, such as loading the `proto`, initializing the client, and creating new `metadata`.
 
-```js filename="./client.js"
+```javascript filename="./client.js"
 const GrpcLoader = require('../../index.js')
 const path = require('path')
 
@@ -73,13 +73,13 @@ const start = async (addr) => {
 }
 ```
 
-#### 流对点
+#### Client-Stream
 
-流对点，指`client stream request` -> `server response`。
+Client-stream means `client stream request` -> `server response`.
 
-我们继续在`start`方法里流对点的流程:
+We continue the process of client-stream within the `start` method:
 
-```js
+```javascript filename="./client.js"
 const start = async (addr) => {
 
     // ...
@@ -100,7 +100,7 @@ const start = async (addr) => {
 }
 ```
 
-运行结果如下，我们看到`writeEnd()`返回了这次调用服务端的返回结果`{ status, metadata, response }`，同时也把`stream message`发送到了服务端。
+The running result is as follows. We see that `writeEnd()` returns the server response for this call: `{ status, metadata, response }`. At the same time, the `stream message` has been sent to the server.
 
 ```bash filename="Terminal"
 // client
@@ -131,13 +131,13 @@ const start = async (addr) => {
 { message: 'How are you?' }
 ```
 
-#### 点对流
+#### Server-Stream
 
-点对流，指`client request -> server stream response`。
+Server-stream means `client request -> server stream response`.
 
-我们继续在`start`方法里点对流的流程:
+We continue the process of server-stream within the `start` method:
 
-```js
+```javascript filename="./client.js"
 const start = async (addr) => {
 
     // ...
@@ -154,11 +154,9 @@ const start = async (addr) => {
 }
 ```
 
-运行结果如下:
+The running result is as follows:
 
-我们看到`readAll()`返回了一个`asyncIterator`，需要我们使用`for await`获取服务端返回的逐条`stream message`结果。
-而`readEnd()`返回了`{ status, metadata }`，同时也看到服务端的打印记录，也接收到了客户端发送的`message`。
-
+We see that `readAll()` returns an `asyncIterator`, which requires us to use `for await` to obtain the results of individual `stream messages` returned by the server. The `readEnd()` returns `{ status, metadata }`. We also see the server's log records, and we received the `message` sent by the client.
 
 ```bash filename="Terminal"
 // client
@@ -189,13 +187,13 @@ const start = async (addr) => {
 { message: 'Hello! How are you?' }
 ```
 
-#### 流对流
+#### Bidirectional-Stream
 
-流对流，指`client stream request -> server stream response`。
+Bidirectional-stream means `client stream request` -> `server stream response`.
 
-我们继续在`start`方法里流对流的流程。我们先调用`writeAll()`发送3条消息，然后再调用`write()`发送1条消息，最后调用`readAll()`获取服务端返回的结果。
+We continue the process of bidirectional-stream within the `start` method. First, we call `writeAll()` to send 3 messages, then we call `write()` to send 1 message, and finally, we call `readAll()` to get the results returned by the server.
 
-```js
+```javascript filename="./client.js"
 const start = async (addr) => {
 
     // ...
@@ -219,8 +217,7 @@ const start = async (addr) => {
 }
 ```
 
-运行结果如下，我们看到我们是先客户端发送消息完给服务端后，调用`readAll()`，获取`asyncIterator`，需要我们使用`for await`获取服务端返回的逐条`stream message`结果。
-最后，调用`readEnd()`获取服务端结束流信息返回的`{ status, metadata }`。
+The running result is as follows. We see that we first send messages from the client to the server, and then we call `readAll()` to get an `asyncIterator`, which requires us to use `for await` to obtain the results of individual `stream messages` returned by the server. Finally, we call `readEnd()` to get the server's end stream information, returned as `{ status, metadata }`.
 
 ```bash filename="Terminal"
 // client
@@ -258,3 +255,5 @@ other thing x
 maybe
 client call end.
 ```
+
+This demonstrates how to work with different types of streams between the client and server in gRPC using the Stream v2 feature.
