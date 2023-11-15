@@ -197,24 +197,6 @@ const server = loader.initServer(channelOptions)
 **返回值:**
 - 返回 `Server` 实例，可以查看 [Server](/zh-CN/apis/server) 获取更多 API。
 
-### callbackify()
-
-```js
-const methods = loader.callbackify(target, { exclude , inherit })
-```
-
-**功能说明:**
-- 主要是搭配`server.addService()`使用，将`async func`转换为`callback func`，使得`server rpc`与`target`绑定。
-
-**参数说明:**
-- `target`: (必选) 包含`rpc func`本身的对象或者实例。
-- `object`: (可选) 对象:
-    - `exclude`: (可选) 字符串数组，排除`target`中不需要参与`service rpc`绑定的方法；
-    - `inherit`: (可选) 如果 `target` 通过继承的方式获得的`func`也要参与绑定，则需要把继承的对象也要传参；
-
-**返回值:**
-- `callbackify methods`对象，可以给 `server.addService()` 使用，不会报错。
-
 ### service()
 
 ```js

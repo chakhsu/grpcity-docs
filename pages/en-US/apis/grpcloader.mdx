@@ -199,24 +199,6 @@ const server = loader.initServer(channelOptions)
 **Return Value:**
 - Returns a `Server` instance, for more APIs, please refer to [Server](/en-US/apis/server).
 
-### callbackify()
-
-```js
-const methods = loader.callbackify(target, { exclude , inherit })
-```
-
-**Description:**
-- Mainly used with `server.addService()`, it converts `async func` to `callback func` for binding `service rpc` to `target`.
-
-**Parameters:**
-- `target`: (required) an object or instance containing the `rpc func` itself.
-- `object`: (optional) an object:
-    - `exclude`: (optional) an array of strings, excluding methods in `target` that do not need to participate in `service rpc` binding;
-    - `inherit`: (optional) if `target` is obtained through inheritance and the inherited methods should also be bound to `service rpc`, the inherited object needs to be passed as well;
-
-**Return Value:**
-- A `callbackify methods` object that can be used with `server.addService()`, without error.
-
 ### service()
 
 ```js

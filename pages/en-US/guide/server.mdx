@@ -16,16 +16,19 @@ Once you have the `server` instance, it offers a series of interfaces to help yo
 
 ### Service Binding
 
-Service binding requires two parameters: `service` and `implementation`.
+Service binding requires three parameters: `service`, `implementation` and `options`.
 
-- `service`: (required) Obtain the specified `service` from the proto file using `loader.service(name)`.
-- `implementation`: (required) An object or class that carries the methods defined by the service RPC. You need to `async`ify it using `loader.callbackify()` and add support for middleware.
+- `name`: (required) specifies the routing of the `proto` file, which is the location of the `service`;
+- `implementation`: (required) An object or class with the methods defined by the service rpc.
+- `options`: (optional) an object:
+    - `exclude`: (optional) an array of strings, excluding methods in `implementation` that do not need to participate in `service rpc` binding;
+    - `inherit`: (optional) if `implementation` is obtained through inheritance and the inherited methods should also be bound to `service rpc`, the inherited object needs to be passed as well;
 
 ```javascript
 // Bind service RPC
-server.addService(service, implementation)
+server.addService(name, implementation, options)
 // Unbind service RPC
-server.removeService(service)
+server.removeService(name)
 ```
 
 ### Adding Middleware

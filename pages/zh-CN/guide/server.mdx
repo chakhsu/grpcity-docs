@@ -15,16 +15,19 @@ const server = loader.initServer(channelOptions)
 
 ### 服务绑定
 
-服务绑定需要两个参数，一个是`service`，另外一个是`implementation`。
+服务绑定可以传三个参数，分别是`service`，`implementation` 和`options`。
 
-- `service`: (必填) 需要通过`loader.service(name)`来获取 proto 里指定的`service`；
-- `implementation`: (必填) 携带 service rpc 定义好的方法的对象或者类，需要通过`loader.callbackify()`来`async`化，并支持中间件；
+- `name`: (必填) 指 `proto` 文件路由，具体是到 `service` 的位置；
+- `implementation`: (必填) 携带 service rpc 定义好的方法的对象或者类；
+- `options`: (可选) object：
+    - `exclude`: (可选) 字符串数组，排除`implementation`中不需要参与`service rpc`绑定的方法；
+    - `inherit`: (可选) 如果 `implementation` 通过继承的方式获得的`func`，父类也要参与绑定，把父类传入该参数即可；
 
 ```js
 // service rpc 绑定
-server.addService(service, implementation)
+server.addService(name, implementation, options)
 // service rpc 解绑
-server.removeService(service)
+server.removeService(name)
 ```
 
 ### 添加中间件

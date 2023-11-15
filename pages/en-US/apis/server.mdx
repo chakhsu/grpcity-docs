@@ -9,15 +9,18 @@ const server = await loader.initServer(channelOptions)
 ### addService()
 
 ```js
-server.addService(service, implementation)
+server.addService(name, implementation, options)
 ```
 
 **Description:**
 - Binds the `proto service rpc` definition to a specific execution implementation.
 
 **Parameters:**
-- `service`: (required) The `service` specified in the proto, obtained through `loader.service(name)`;
-- `implementation`: (required) An object or class with the methods defined by the service rpc, which needs to be made `async` using `loader.callbackify()` and supports middleware.
+- `name`: (required) specifies the routing of the `proto` file, which is the location of the `service`;
+- `implementation`: (required) An object or class with the methods defined by the service rpc.
+- `options`: (optional) an object:
+    - `exclude`: (optional) an array of strings, excluding methods in `implementation` that do not need to participate in `service rpc` binding;
+    - `inherit`: (optional) if `implementation` is obtained through inheritance and the inherited methods should also be bound to `service rpc`, the inherited object needs to be passed as well;
 
 **Return Value:**
 - void: No return value.
