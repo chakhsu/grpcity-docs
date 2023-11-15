@@ -37,9 +37,7 @@ import loader from "./loader.js"
 
 ```js filename="./server.js"
 class Greeter {
-    // 在创建类时需要传入loader
-    constructor(loader) {
-        this._loader = loader
+    constructor() {
         this.count = 0
     }
 
