@@ -3,7 +3,7 @@ import type { DocsThemeConfig } from 'nextra-theme-docs'
 import { LocaleSwitch, useConfig } from 'nextra-theme-docs'
 
 const config: DocsThemeConfig = {
-  logo: <span>gRPCity Doc</span>,
+  logo: <span style={{ fontWeight: 500 }}>gRPCity Docs</span>,
   project: {
     link: 'https://github.com/chakhsu/grpcity',
   },
@@ -15,7 +15,7 @@ const config: DocsThemeConfig = {
     const description =
       config.frontMatter.description ||
       'gPRCity is a simple, easy-to-use, and advanced gRPC microservices library based on Node.js.'
-    const title = config.title + (route === '/' ? '' : ' - gRPCity Docs')
+    const title = config.title + (route === '/' || route === '/en' || route === '/zh' ? '' : ' - gRPCity Docs')
 
     return (
       <>
@@ -34,7 +34,7 @@ const config: DocsThemeConfig = {
     )
   },
   sidebar: {
-    defaultMenuCollapseLevel: 2,
+    defaultMenuCollapseLevel: 1,
     toggleButton: true
   },
   navbar: {
