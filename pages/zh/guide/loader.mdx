@@ -11,7 +11,7 @@ const loader = new GrpcLoader({ location, files })
 - `location`是指 proto 文件目录，包含 service 引用的 proto，如`model.proto`、`empty.proto`等等这些被独立引用的文件。
 - `files`是指具体的`service.proto`文件，告诉底层 service 的定义来自这些文件，是具体的服务体现。
 
-**带来的好处: **
+**带来的好处:**
 - service 加载非常清晰，知道是哪些 service 会被使用
 - proto 的目录结构，可以自定义，不影响加载
 
