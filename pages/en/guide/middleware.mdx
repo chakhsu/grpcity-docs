@@ -20,16 +20,21 @@ exit A
 
 ### Usage
 
-`gRPCity` server provides two methods to support middleware: `server.addMiddleware(fn)` and `server.addMiddlewares(fns)`.
+`gRPCity server` provides the `server.addMiddleware()` method to add middleware. *Note*: Currently, only `async` methods support middleware, while `stream` and `callback` methods do not.
 
-The difference between the two methods is that one can only pass a single middleware, while the other can accept multiple middlewares, as follows:
+Here's how you can use it:
 
 ```js
-server.addMiddleware(a)
-server.addMiddleware(b)
-server.addMiddleware(c)
-// Equivalent to
-server.addMiddleware([a, b, c])
+// Add middleware one by one
+server.addMiddleware(f1)
+server.addMiddleware(f2)
+server.addMiddleware(f3)
+
+// Add multiple middleware by passing them as arguments
+server.addMiddleware(f1, f2, f3)
+
+// Add middleware using an array
+server.addMiddleware([f1, f2, f3])
 ```
 
 You can add middleware after initializing the server with `initServer()` and before calling `listen()`.

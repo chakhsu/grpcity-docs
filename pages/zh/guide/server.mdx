@@ -34,12 +34,18 @@ server.removeService(name)
 
 `gRPCity` Server 的特色功能，提供了`implementation` 前后处理的中间件能力，更多详情查看 [Middleware 指南](/zh/guide/middleware)
 
-注意: 只有使用了`loader.callbackify()`绑定的`service` rpc 才支持中间件。
+注意: 当前版本只有 `async` 的方法支持中间件，`stream` 和 `callback` 暂不支持。
 
 ```js
 // implementation 中间件支持
-server.addMiddleware(fn)
-server.addMiddlewares(fns)
+// 逐个添加
+server.addMiddleware(f1)
+server.addMiddleware(f2)
+server.addMiddleware(f3)
+// 传入多个参数添加
+server.addMiddleware(f1, f2, f3)
+// 使用数组添加
+server.addMiddleware([f1, f2, f3])
 ```
 
 ### 证书与启动
@@ -74,4 +80,3 @@ await server.shutdown()
 // 服务强制退出
 server.forceShutdown()
 ```
-

@@ -65,29 +65,14 @@ const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkC
 ### addMiddleware()
 
 ```js
-server.addMiddleware(fn)
+server.addMiddleware(args)
 ```
 
 **功能说明:**
 - 添加一个处理 rpc 前后逻辑的中间件。
 
 **参数说明:**
-- `fn`: (必选) 中间件函数，一般为`async (ctx, next) => { await next() }`
-
-**返回值:**
-- void: 空。
-
-### addMiddlewares()
-
-```js
-server.addMiddlewares(fns)
-```
-
-**功能说明:**
-- 添加多个处理 rpc 前后逻辑的中间件。
-
-**参数说明:**
-- `fns`: (必选) 中间件函数数组，一般为`[ async (ctx, next) => { await next() } ]`
+- `args`: (必选), 支持一个或多个函数，也支持函数数组。中间件函数一般为`async (ctx, next) => { await next() }`
 
 **返回值:**
 - void: 空。

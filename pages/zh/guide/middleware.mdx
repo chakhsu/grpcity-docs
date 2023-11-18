@@ -22,16 +22,21 @@ exit  a
 
 ### 用法
 
-`gRPCity` server 提供了两个方法去支持中间件，分别是`server.addMiddleware(fn)`和`server.addMiddlewares(fns)`。
+`gRPCity server` 提供了`server.addMiddleware()`的方法用于添加中间件。注意: 当前版本只有 `async` 的方法支持中间件，`stream` 和 `callback` 暂不支持。
 
-两个方法区别就是一个只能传入一个中间件，另外一个可以传入多个中间件，如:
+使用方法如下:
 
 ```js
-server.addMiddleware(a)
-server.addMiddleware(b)
-server.addMiddleware(c)
-// 等于
-server.addMiddleware([a, b, c])
+// 逐个添加
+server.addMiddleware(f1)
+server.addMiddleware(f2)
+server.addMiddleware(f3)
+
+// 传入多个参数添加
+server.addMiddleware(f1, f2, f3)
+
+// 使用数组添加
+server.addMiddleware([f1, f2, f3])
 ```
 
 添加中间件的使用位置在`initServer()`之后，在`listen()`之前。

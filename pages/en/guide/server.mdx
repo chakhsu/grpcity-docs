@@ -35,12 +35,21 @@ server.removeService(name)
 
 A distinctive feature of `gRPCity` Server is that it provides middleware capabilities for pre- and post-processing of `implementation`. For more details, see the [Middleware guide](/en/guide/middleware).
 
-Note: Only service RPCs bound using `loader.callbackify()` support middleware.
+*Note*: Currently, only `async` methods support middleware, while `stream` and `callback` methods do not.
 
-```javascript
+```js
 // Middleware support for implementation
-server.addMiddleware(fn)
-server.addMiddlewares(fns)
+
+// Add middleware one by one
+server.addMiddleware(f1)
+server.addMiddleware(f2)
+server.addMiddleware(f3)
+
+// Add multiple middleware by passing them as arguments
+server.addMiddleware(f1, f2, f3)
+
+// Add middleware using an array
+server.addMiddleware([f1, f2, f3])
 ```
 
 ### Certificates and Startup

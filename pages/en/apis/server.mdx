@@ -65,29 +65,14 @@ There are two scenarios:
 ### addMiddleware()
 
 ```js
-server.addMiddleware(fn)
+server.addMiddleware(args)
 ```
 
 **Description:**
 - Adds middleware to handle logic before and after the RPC.
 
 **Parameters:**
-- `fn`: (required) Middleware function, typically an `async (ctx, next) => { await next() }`.
-
-**Return Value:**
-- void: No return value.
-
-### addMiddlewares()
-
-```js
-server.addMiddlewares(fns)
-```
-
-**Description:**
-- Adds multiple middlewares to handle logic before and after the RPC.
-
-**Parameters:**
-- `fns`: (required) Array of middleware functions, typically `[async (ctx, next) => { await next() }]`.
+- `args`: (required) Supports one or more functions, as well as function arrays, typically an `async (ctx, next) => { await next() }`.
 
 **Return Value:**
 - void: No return value.
