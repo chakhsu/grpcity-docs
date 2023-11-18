@@ -35,6 +35,28 @@ figcaption {
   margin-top: 0.5rem;
 }
 
+nav a span.logo {
+  font-weight: 500;
+  -webkit-mask-image: -webkit-linear-gradient(30deg,black 25%,rgba(0,0,0,.2)50%,black 75%);
+  mask-image: -webkit-linear-gradient(30deg,black 25%,rgba(0,0,0,.2)50%,black 75%);
+  mask-image: -moz-linear-gradient(30deg,black 25%,rgba(0,0,0,.2)50%,black 75%);
+  mask-image: -o-linear-gradient(30deg,black 25%,rgba(0,0,0,.2)50%,black 75%);
+  mask-image: linear-gradient(60deg,black 25%,rgba(0,0,0,.2)50%,black 75%);
+  -webkit-mask-size: 400%;
+  mask-size: 400%;
+  -webkit-mask-position: 0%;
+  mask-position: 0%
+}
+
+nav a span.logo:hover {
+  -webkit-mask-position: 100%;
+  mask-position: 100%;
+  -webkit-transition: mask-position 1s ease,-webkit-mask-position 1s ease;
+  -moz-transition: mask-position 1s ease,-webkit-mask-position 1s ease;
+  -o-transition: mask-position 1s ease,-webkit-mask-position 1s ease;
+  transition: mask-position 1s ease,-webkit-mask-position 1s ease
+}
+
 .nextra-code {
   font-size: .8rem;
 }

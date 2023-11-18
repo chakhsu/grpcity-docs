@@ -3,7 +3,7 @@ import type { DocsThemeConfig } from 'nextra-theme-docs'
 import { LocaleSwitch, useConfig } from 'nextra-theme-docs'
 
 const config: DocsThemeConfig = {
-  logo: <span style={{ fontWeight: 500 }}>gRPCity Docs</span>,
+  logo: <span className='logo'>gRPCity Docs</span>,
   project: {
     link: 'https://github.com/chakhsu/grpcity',
   },
