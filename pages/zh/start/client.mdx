@@ -51,7 +51,7 @@ const start = async (server1Addr, server2Addr) => {
 
 `client`发起请求后，收到的结果包含了三个值，分别是`status`、`metadata`和`response`。
 - `status`: 服务端处理执行后的状态；
-- `metadata`: 客户端发送和服务端返回的 metadata 信息；
+- `metadata`: 服务端返回的 metadata 信息；
 - `response`: 服务端处理完成后响应的结果；
 
 ```js filename="./client.js"
