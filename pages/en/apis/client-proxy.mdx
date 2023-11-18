@@ -173,12 +173,25 @@ clientDuplexStreamCall.writeAll([request])
 ```
 
 **Description:**
-- The client
-
- sends multiple data entries in bulk.
+- The client sends multiple data entries in bulk.
 
 **Parameters:**
 - `request` (Request Data): This is an object containing the request data. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service.
+
+**Return Value:**
+- void: No return value.
+
+#### writeEnd()
+
+```js
+clientDuplexStreamCall.writeEnd()
+```
+
+**Description:**
+- The client sends a stream termination signal.
+
+**Parameters:**
+- void: No return value.
 
 **Return Value:**
 - void: No return value.
