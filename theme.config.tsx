@@ -46,7 +46,15 @@ const config: DocsThemeConfig = {
   i18n: [
     { locale: 'en', name: 'English' },
     { locale: 'zh', name: '简体中文' }
-  ]
+  ],
+  banner: {
+    key: '1.0-release',
+    content: (
+      <a href="https://github.com/chakhsu/grpcity/releases" target="_blank">
+        🎉 gRPCity 1.0 is released. Read more →
+      </a>
+    )
+  }
 }
 
 export default config
