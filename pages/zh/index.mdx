@@ -10,9 +10,15 @@ gPRCity: 一套简单、易用和高级的基于 Node.js 的 gRPC 微服务库�
 
 ### 是什么？
 
-`gRPCity` 是一个运行在 Node.js 的 gRPC 微服务库，结合了 `proto-loader` 和 `grpc-js`，提供了非常简易的方式去加载 proto 文件，简化了很多难以理解的技术概念，只需要几个函数就可以轻松实现客户端和服务端，同时也提供非常多高级的功能满足大多数开发需求场景。
+`gRPCity` 是一个运行在 Node.js 的 gRPC 微服务库，结合了 `proto-loader` 和 `grpc-js`，提供了非常简易的方式去加载 proto 文件，简化了很多难以理解的技术概念，只需要几个函数就可以轻松实现客户端和服务端，同时也提供非常多高级的功能满足大多数开发场景。
 
-> 名字来源于: gRPC + City = gRPCity，寄托了作者希望这个库能支撑了业务城市的建设，以技术底座的视角，让大家聚焦业务，更好地支撑交付。在这里给大家推荐一款游戏，叫《城市: 天际线2》，这是一款城市模拟类游戏，让玩家切身体会从创造到维持一座真正的城市的兴奋和艰辛。
+> 名字来源于: gRPC + City = gRPCity，寄托了作者希望这个库能支撑了业务城市的建设，以技术底座的视角，让大家聚焦业务，更好地支撑交付。
+
+### 起源
+
+`gRPCity` 的第一行代码最早写在2019年10月28日，并由 [Kamuel](https://github.com/k7) 贡献了 `proto load` 和 `client proxy` 能力，这部分的代码版本为`0.5`。
+`0.5`版本之后，[Chakhsu](https://github.com/chakhsu) 继续完善功能，逐步支持了`multi proto load`、`full client proxy`、`server call proxy` 和 `full stream support`，使得该库功能逐渐齐全。
+目前该库已投入到生产中，使用该库的实例数有上百个。欢迎各位试用。
 
 ### 仓库
 
