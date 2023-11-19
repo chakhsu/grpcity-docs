@@ -1,10 +1,12 @@
 # Server API
 
-To obtain a `server` instance, call `loader.initServer()`, which provides a set of APIs to facilitate gRPC Server development.
+To obtain a `server` instance, call `loader.initServer()`. The instance exposes a series of APIs, facilitating gRPC server development.
 
 ```js
 const server = await loader.initServer(channelOptions)
 ```
+
+## server
 
 ### addService()
 
@@ -13,17 +15,18 @@ server.addService(name, implementation, options)
 ```
 
 **Description:**
-- Binds the `proto service rpc` definition to a specific execution implementation.
+- Binds the `proto service rpc` definition with the concrete execution implementation.
 
 **Parameters:**
-- `name`: (required) specifies the routing of the `proto` file, which is the location of the `service`;
-- `implementation`: (required) An object or class with the methods defined by the service rpc.
-- `options`: (optional) an object:
-    - `exclude`: (optional) an array of strings, excluding methods in `implementation` that do not need to participate in `service rpc` binding;
-    - `inherit`: (optional) if `implementation` is obtained through inheritance and the inherited methods should also be bound to `service rpc`, the inherited object needs to be passed as well;
+- `name`: (Required) Specifies the route in the `proto` file, indicating the location within the `service`.
+- `implementation`: (Required) Object or class carrying methods defined in the service rpc.
+- `options`: (Optional) Object:
+    - `exclude`: (Optional) Array of strings, excludes methods in `implementation` from participating in `service rpc` binding.
+    - `inherit`: (Optional) If `implementation` obtains `func` through inheritance, include the parent class in this parameter.
 
 **Return Value:**
 - void: No return value.
+
 
 ### removeService()
 
@@ -32,13 +35,14 @@ server.removeService(service)
 ```
 
 **Description:**
-- Unbinds a previously bound `service`.
+- Unbinds an already bound `service`.
 
 **Parameters:**
-- `service`: (required) The `service` specified in the proto, obtained through `loader.service(name)`.
+- `service`: (Required) Should be obtained through `loader.service(name)` to specify the `service` in the proto file.
 
 **Return Value:**
 - void: No return value.
+
 
 ### makeServerCredentials()
 
@@ -47,20 +51,20 @@ const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkC
 ```
 
 **Description:**
-- 1
+- - Creates certificates for server use.
 
 **Parameters:**
-- `rootCerts`: (optional) Buffer, typically the CA file;
-- `keyCertPairs`: Certificate pairs, key and crt, must be an array;
-    - `private_key`: (optional) Buffer, typically the key file;
-    - `cert_chain`: (optional) Buffer, typically the crt file;
-- `checkClientCertificate`: (optional) Whether to check the client certificate;
+- `rootCerts`: (Optional) Buffer, usually the CA file.
+- `keyCertPairs`: Certificate pair, an array of key and crt.
+    - `private_key`: (Optional) Buffer, usually the key file.
+    - `cert_chain`: (Optional) Buffer, usually the crt file.
+- `checkClientCertificate`: (Optional) Whether to check the client certificate.
 
-**Return Value:**
+**Returns:**
 
 There are two scenarios:
-- If all parameters are provided, it returns:`grpc.ServerCredentials.createSsl()`;
-- If no parameters are provided, it returns: `grpc.ServerCredentials.createInsecure()`.
+- If there are complete parameters, it returns: `grpc.ServerCredentials.createSsl()`.
+- If there are no parameters, it returns: `grpc.ServerCredentials.createInsecure()`.
 
 ### addMiddleware()
 
@@ -69,13 +73,14 @@ server.addMiddleware(args)
 ```
 
 **Description:**
-- Adds middleware to handle logic before and after the RPC.
+- Adds middleware functions to handle logic before and after the rpc.
 
 **Parameters:**
-- `args`: (required) Supports one or more functions, as well as function arrays, typically an `async (ctx, next) => { await next() }`.
+- `args`: (Required) Supports one or more middleware functions or an array of middleware functions. Middleware functions are generally of the form `async (ctx, next) => { await next() }`.
 
 **Return Value:**
 - void: No return value.
+
 
 ### listen()
 
@@ -84,18 +89,19 @@ await server.listen(addr, credentials)
 ```
 
 **Description:**
-- Listens on an address and port to start the gRPC service.
+- Listens on the specified address and port, starting the gRPC service.
 
 **Parameters:**
-- `addr`: (required) The address and port to listen to for service startup. Supported types include:
-    - string: in the format of ip+port, like `127.0.0.1:9099`;
-    - object: `{ host, port }`;
-        - host: a string that supports both IP and domain names;
-        - port: a number, with a minimum value of 0 and a maximum value of 65535;
-- `credentials`: (optional) Generated using `makeServerCredentials` and passed to the `listen` call;
+- `addr`: (Required) Address and port to listen for service startup. Supports the following types, choose one:
+    - string: in the format ip+port, e.g., `127.0.0.1:9099`.
+    - object: `{ host, port }`.
+        - host: a string, supporting both IP and domain names.
+        - port: a number, ranging from 0 to 65535.
+- `credentials`: (Optional) Generated using `makeServerCredentials` and given to the `listen` call.
 
 **Return Value:**
 - void: No return value.
+
 
 ### shutdown()
 
@@ -112,6 +118,7 @@ await server.shutdown()
 **Return Value:**
 - void: No return value.
 
+
 ### forceShutdown()
 
 ```js
@@ -119,7 +126,186 @@ server.forceShutdown()
 ```
 
 **Description:**
-- Forcefully shuts down the gRPC service.
+- Forces the gRPC service to shut down.
+
+**Parameters:**
+- void: No parameters.
+
+**Return Value:**
+- void: No return value.
+
+
+## method[callProxy]
+
+### unary call
+
+```js
+async unaryMethod(call) {}
+```
+
+#### sendMetadata()
+
+```js
+const metadata = call.metadata.clone()
+metadata.add(keyString, value)
+call.sendMetadata(metadata)
+```
+
+**Description:**
+- `call.metadata.clone()`: Receives `metadata` from the client and clones it.
+- `metadata.add(keyString, value)`: Adds a key-value pair to `metadata`.
+- `call.sendMetadata(metadata)`: Sends `metadata` from the server to the client.
+
+### client stream call
+
+```js
+async clientStreamMethod(call) {}
+```
+
+#### readAll()
+
+```js
+for await (const data of call.readAll()) {}
+```
+
+**Description:**
+- Receives a stream of information from the client.
+
+**Parameters:**
+- void: No parameters.
+
+**Returns:**
+- `asyncIterator`: Returns an `asyncIterator` object. We need to use `for await` to retrieve results for each `stream message`.
+
+#### end()
+
+```js
+call.end()
+```
+
+**Description:**
+- Ends processing of stream information on the server and communicates it to the client.
+
+**Parameters:**
+- void: No parameters.
+
+**Return Value:**
+- void: No return value.
+
+
+### server stream call
+
+```js
+async serverStreamMethod(call) {}
+```
+
+#### write()
+
+```js
+call.write(request)
+```
+
+**Description:**
+- Sends a stream of information from the server.
+
+**Parameters:**
+- `request` (Request Data): This is an object containing request data. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service.
+
+**Return Value:**
+- `Boolean`: Boolean value, typically `true`.
+
+#### writeAll()
+
+```js
+call.writeAll([ request ])
+```
+
+**Description:**
+- Sends multiple stream information from the server.
+
+**Parameters:**
+- `request` (Request Data): This is an object containing request data. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service.
+
+**Return Value:**
+- void: No return value.
+
+
+#### end()
+
+```js
+call.end()
+```
+
+**Description:**
+- Ends processing of stream information on the server and communicates it to the client.
+
+**Parameters:**
+- void: No parameters.
+
+**Return Value:**
+- void: No return value.
+
+
+### duplex stream call
+
+```js
+async duplexStreamMethod(call) {}
+```
+
+#### write()
+
+```js
+call.write(request)
+```
+
+**Description:**
+- Sends a stream of information from the server.
+
+**Parameters:**
+- `request` (Request Data): This is an object containing request data. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service.
+
+**Return Value:**
+- `Boolean`: Boolean value, typically `true`.
+
+#### writeAll()
+
+```js
+call.writeAll([ request ])
+```
+
+**Description:**
+- Sends multiple stream information from the server.
+
+**Parameters:**
+- `request` (Request Data): This is an object containing request data. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service.
+
+**Return Value:**
+- void: No return value.
+
+
+#### readAll()
+
+```js
+for await (const data of call.readAll()) {}
+```
+
+**Description:**
+- Receives a stream of information from the client.
+
+**Parameters:**
+- void: No parameters.
+
+**Returns:**
+- `asyncIterator`: Returns an `asyncIterator` object. We need to use `for await` to retrieve results for each `stream message`.
+
+#### end()
+
+```js
+call.end()
+```
+
+**Description:**
+- Ends processing of stream information on the server and communicates it to the client.
 
 **Parameters:**
 - void: No parameters.

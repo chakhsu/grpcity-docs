@@ -8,7 +8,7 @@ Below, we will demonstrate how to use the capabilities of `Stream v2`. It is rec
 
 ### Define proto
 
-This `proto` defines three `rpc` methods, corresponding to the three ways of connecting streams between the client and the server: client-stream, server-stream, and bidirectional-stream.
+This `proto` defines three `rpc` methods, corresponding to the three ways of connecting streams between the client and the server: client-stream, server-stream, and duplex-stream.
 
 ```proto filename="stream.proto"
 syntax="proto3";
@@ -140,7 +140,7 @@ const start = async (addr) => {
   // ...
 
   const serverStreamHelloCall = client.serverStreamHello({ message: 'Hello! How are you?' }, meta)
-  const serverReadAllResult = await serverStreamHelloCall.readAll()
+  const serverReadAllResult = serverStreamHelloCall.readAll()
   for await (const data of serverReadAllResult) {
       console.log(data)
   }
@@ -185,11 +185,11 @@ We see that `readAll()` returned an `asyncIterator`, and we need to use `for awa
 { message: 'Hello! How are you?' }
 ```
 
-#### Bidirectional-Stream
+#### Duplex-Stream
 
-Bidirectional-stream means `client stream request -> server stream response`.
+Duplex-stream means `client stream request -> server stream response`.
 
-Let's continue the bidirectional-stream process in the `start` method. We first call `writeAll()` to send 3 messages, then call `write()` to send 1 message, and finally call `readAll()` to get the server's response.
+Let's continue the duplex-stream process in the `start` method. We first call `writeAll()` to send 3 messages, then call `write()` to send 1 message, and finally call `readAll()` to get the server's response.
 
 ```js
 const start = async (addr) => {
@@ -207,9 +207,7 @@ const start = async (addr) => {
   for await (const data of mutualReadAllResult) {
     if (data.message === 'delay 1s') {
       mutualStreamHelloCall.write({ message: 'ok, I known you delay 1s' })
-      mutual
-
-StreamHelloCall.writeEnd()
+      mutualStreamHelloCall.writeEnd()
     }
     console.log(data)
   }
@@ -334,9 +332,9 @@ class Stream {
 }
 ```
 
-#### Bidirectional-Stream
+#### Duplex-Stream
 
-For bidirectional-stream, both the client and the server use stream communication.
+For duplex-stream, both the client and the server use stream communication.
 `call.write()`, `call.writeAll()`, `call.readAll()`, and `call.end()` provide the functionality for the server to complete sending stream information.
 
 - `call.write()`: Sends a message to the client;
@@ -380,4 +378,4 @@ class Stream {
 Note:
 - `async stream` supports middleware;
 - `call proxy`'s `readAll()`, `writeAll()`, and `writeEnd()` need to be `async func`;
-- Pay attention to whether it is client-stream, server-stream, or bidirectional-stream.
+- Pay attention to whether it is client-stream, server-stream, or duplex-stream.

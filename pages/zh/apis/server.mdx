@@ -49,7 +49,7 @@ const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkC
 ```
 
 **功能说明:**
-- 1
+- 生成可供服务端使用的证书实例。
 
 **参数说明:**
 - `rootCerts`: (可选) Buffer, 一般为 ca 文件；
@@ -131,30 +131,174 @@ server.forceShutdown()
 
 ## method[callProxy]
 
-### unary
+### unary call
+
+```js
+async unaryMethod(call) {}
+```
 
 #### sendMetadata()
 
-### client stream
+```js
+const metadata = call.metadata.clone()
+metadata.add(keyString, value)
+call.sendMetadata(metadata)
+```
+
+**功能说明:**
+- `call.metadata.clone()`: 接收来自客户端的 `metadata`，并克隆;
+- `metadata.add(keyString, value)`: `metadata` 新增 kv 对;
+- `call.sendMetadata(metadata)`: 服务端发送 `metadata` 给客户端;
+
+### client stream call
+
+```js
+async clientStreamMethod(call) {}
+```
 
 #### readAll()
 
+```js
+for await (const data of call.readAll()) {}
+```
+
+**功能说明:**
+- 接收来自客户端的流信息。
+
+**参数说明:**
+- void: 空。
+
+**返回值:**
+- `asyncIterator`: 返回的一个`asyncIterator`对象，需要我们使用`for await`逐条获取`stream message`结果；
+
 #### end()
 
-### server stream
+```js
+call.end()
+```
+
+**功能说明:**
+- 服务端结束流信息处理，并通过客户端。
+
+**参数说明:**
+- void: 空。
+
+**返回值:**
+- void: 空。
+
+### server stream call
+
+```js
+async serverStreamMethod(call) {}
+```
 
 #### write()
 
+```js
+call.write(request)
+```
+
+**功能说明:**
+- 服务端端发送一条流信息。
+
+**参数说明:**
+- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
+
+**返回值:**
+- `Boolean`: 布尔值，一般为`true`;
+
 #### writeAll()
+
+```js
+call.writeAll([ request ])
+```
+
+**功能说明:**
+- 服务端批量发送多条流信息。
+
+**参数说明:**
+- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
+
+**返回值:**
+- void: 空。
 
 #### end()
 
-### duplex stream
+```js
+call.end()
+```
+
+**功能说明:**
+- 服务端结束流信息处理，并通过客户端。
+
+**参数说明:**
+- void: 空。
+
+**返回值:**
+- void: 空。
+
+### duplex stream call
+
+```js
+async duplexStreamMethod(call) {}
+```
 
 #### write()
 
+```js
+call.write(request)
+```
+
+**功能说明:**
+- 服务端端发送一条流信息。
+
+**参数说明:**
+- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
+
+**返回值:**
+- `Boolean`: 布尔值，一般为`true`;
+
 #### writeAll()
 
-#### writeEnd()
+```js
+call.writeAll([ request ])
+```
+
+**功能说明:**
+- 服务端批量发送多条流信息。
+
+**参数说明:**
+- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
+
+**返回值:**
+- void: 空。
+
+#### readAll()
+
+```js
+for await (const data of call.readAll()) {}
+```
+
+**功能说明:**
+- 接收来自客户端的流信息。
+
+**参数说明:**
+- void: 空。
+
+**返回值:**
+- `asyncIterator`: 返回的一个`asyncIterator`对象，需要我们使用`for await`逐条获取`stream message`结果；
 
 #### end()
+
+```js
+call.end()
+```
+
+**功能说明:**
+- 服务端结束流信息处理，并通过客户端。
+
+**参数说明:**
+- void: 空。
+
+**返回值:**
+- void: 空。
