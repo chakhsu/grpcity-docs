@@ -47,8 +47,7 @@ export default new GrpcLoader({
 客户端的一些前期工作，如加载 `proto`，初始化客户端，创建新的 `metadata`.
 
 ```js filename="./client.js"
-const GrpcLoader = require('../../index.js')
-const path = require('path')
+import loader from "./loader.js"
 
 const start = async (addr) => {
   const loader = new GrpcLoader({
@@ -71,6 +70,8 @@ const start = async (addr) => {
     'x-timestamp-client': 'begin=' + new Date().toISOString()
   })
 }
+
+start('localhost:9097')
 ```
 
 #### 流对点
@@ -264,7 +265,9 @@ client call end.
 
 我们在这里依次实现服务端 `stream` 的交互功能。下面是我们的服务端启动函数，我们只需要使用 `gRPCity` 提供了新能力实现 `Stream` 类的方法即可。
 
-```js
+```js filename="./server.js"
+import loader from "./loader.js"
+
 const start = async (addr) => {
   const loader = new GrpcLoader({
     location: path.resolve(__dirname, './'),

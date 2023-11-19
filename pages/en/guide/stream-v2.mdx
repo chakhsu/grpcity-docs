@@ -47,14 +47,9 @@ export default new GrpcLoader({
 Some preliminary work on the client side, such as loading the `proto`, initializing the client, and creating new `metadata`.
 
 ```js filename="./client.js"
-const GrpcLoader = require('../../index.js')
-const path = require('path')
+import loader from "./loader.js"
 
 const start = async (addr) => {
-  const loader = new GrpcLoader({
-    location: path.resolve(__dirname, './'),
-    files: ['stream.proto']
-  })
   await loader.init()
 
   await loader.initClients({
@@ -71,6 +66,8 @@ const start = async (addr) => {
     'x-timestamp-client': 'begin=' + new Date().toISOString()
   })
 }
+
+start('localhost:9097')
 ```
 
 #### Client-Stream
@@ -262,7 +259,9 @@ client call end.
 
 Here, we sequentially implement the server-side stream interaction functions. Below is our server startup function, where we only need to use the new capabilities provided by `gRPCity` to implement the methods of the `Stream` class.
 
-```js
+```js filename="./server.js"
+import loader from "./loader.js"
+
 const start = async (addr) => {
   const loader = new GrpcLoader({
     location: path.resolve(__dirname, './'),

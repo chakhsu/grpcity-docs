@@ -53,16 +53,8 @@ Write the `Stream` class, which provides three server streaming functions: `clie
 
 ```javascript filename="./server.js"
 class Stream {
-  constructor (loader) {
-    this._loader = loader
+  constructor () {
     this.count = 0
-  }
-
-  async init (server) {
-    server.addService(
-      this._loader.service('stream.Hellor'),
-      this._loader.callbackify(this, { exclude: ['init'] })
-    )
   }
 
   // client stream to server
@@ -109,9 +101,7 @@ async function start (addr) {
   await loader.init()
 
   const server = loader.initServer()
-
-  const servicers = [new Stream(loader)]
-  await Promise.all(servicers.map(async s => s.init(server)))
+  server.addService('stream.Hellor', new Stream())
 
   await server.listen(addr)
   console.log('start:', addr)
