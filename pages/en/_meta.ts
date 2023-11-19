@@ -1,5 +1,5 @@
 export default {
-  "index": "Home",
+  "index": "Intro",
   "start": "Get Started",
   "guide": "User Guide",
   "apis": "API",

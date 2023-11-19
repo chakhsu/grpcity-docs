@@ -1,5 +1,5 @@
 export default {
-  "index": "首页",
+  "index": "介绍",
   "start": "快速开始",
   "guide": "用户指南",
   "apis": "API",
