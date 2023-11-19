@@ -8,7 +8,7 @@ const config: DocsThemeConfig = {
     link: 'https://github.com/chakhsu/grpcity',
   },
   docsRepositoryBase: 'https://github.com/chakhsu/grpcity-docs',
-  head: function useHead() {
+  head: () => {
     const config = useConfig()
     const { route } = useRouter()
 
@@ -38,7 +38,9 @@ const config: DocsThemeConfig = {
     toggleButton: true
   },
   navbar: {
-    extraContent: LocaleSwitch
+    extraContent: () => {
+      return LocaleSwitch({ lite: true })
+    }
   },
   toc: {
     backToTop: true

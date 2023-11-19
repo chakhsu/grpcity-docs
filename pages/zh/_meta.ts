@@ -4,7 +4,7 @@ export default {
   guide: "用户指南",
   apis: "API",
   changelog: {
-    title: "更新日志",
+    title: "更新日志 ↗",
     href: "https://github.com/chakhsu/grpcity/releases",
     newWindow: true,
   },

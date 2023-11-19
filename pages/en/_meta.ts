@@ -4,7 +4,7 @@ export default {
   guide: "User Guide",
   apis: "API",
   changelog: {
-    title: "Change Log",
+    title: "Change Log ↗",
     href: "https://github.com/chakhsu/grpcity/releases",
     newWindow: true,
   },
