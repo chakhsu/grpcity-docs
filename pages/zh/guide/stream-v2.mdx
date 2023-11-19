@@ -50,10 +50,6 @@ export default new GrpcLoader({
 import loader from "./loader.js"
 
 const start = async (addr) => {
-  const loader = new GrpcLoader({
-    location: path.resolve(__dirname, './'),
-    files: ['stream.proto']
-  })
   await loader.init()
 
   await loader.initClients({
@@ -269,10 +265,6 @@ client call end.
 import loader from "./loader.js"
 
 const start = async (addr) => {
-  const loader = new GrpcLoader({
-    location: path.resolve(__dirname, './'),
-    files: ['stream.proto']
-  })
   await loader.init()
 
   const server = loader.initServer()
