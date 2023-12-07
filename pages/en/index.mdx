@@ -31,12 +31,19 @@ Currently, the library has been deployed in production, with instances using the
 - GitHub: https://github.com/chakhsu/grpcity
 - npm: https://www.npmjs.com/package/grpcity
 
-### Target
+### Desgin
 
-Committed to providing a comprehensive Node.js-based, gRPC-based microservices development experience. Offering the Node.js community and developers an additional choice for microservices libraries with enhanced features.
-Building two foundations: a microservices library technical foundation and a business support foundation.
+The intrinsic execution design of `gRPCity` is very clear, as shown below.
 
-![gPRCity foundation](/img/grpcity-foundation.svg)
+`.proto` -> `this._packagePrefix` -> `this._types`:
+![gPRCity loader](/img/grpcity-loader.svg)
+
+`init clients` -> `get clinet` -> `client proxy` -> `rpc method call` -> `do`:
+![gPRCity client](/img/grpcity-client.svg)
+
+`init server` -> `instance` -> `call proxy`:
+![gPRCity server](/img/grpcity-server.svg)
+
 
 ### Principle
 

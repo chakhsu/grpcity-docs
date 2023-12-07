@@ -31,11 +31,18 @@ gPRCity: 一套简单、易用和高级的基于 Node.js 的 gRPC 微服务库�
 - GitHub: https://github.com/chakhsu/grpcity
 - npm: https://www.npmjs.com/package/grpcity
 
-### 目标
+### 设计
 
-致力于提供完整的基于 Node.js 的、基于 gRPC 的微服务开发体验。基于更丰富的特性，给 Node.js 社区和开发者提供多一种微服务库的选择。做好两个底座，微服务库技术底座和业务支持底座。
+`gRPCity` 内在执行设计是非常清晰的，如下所示。
 
-![gPRCity foundation](/img/grpcity-foundation.svg)
+`.proto` -> `this._packagePrefix` -> `this._types`:
+![gPRCity loader](/img/grpcity-loader.svg)
+
+`init clients` -> `get clinet` -> `client proxy` -> `rpc method call` -> `do`:
+![gPRCity client](/img/grpcity-client.svg)
+
+`init server` -> `instance` -> `call proxy`:
+![gPRCity server](/img/grpcity-server.svg)
 
 ### 原则
 
