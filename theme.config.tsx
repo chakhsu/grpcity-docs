@@ -131,7 +131,7 @@ const config: DocsThemeConfig = {
     key: '1.0-release',
     content: (
       <a href="https://github.com/chakhsu/grpcity/releases" target="_blank">
-        🎉 gRPCity 1.0 is released. Read more →
+        🎉 gRPCity 2.0 is released. Read more →
       </a>
     )
   }
