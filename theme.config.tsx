@@ -69,8 +69,7 @@ const config: DocsThemeConfig = {
   logo: () => {
     return (
       <>
-        <Logo className="logo"/>
-        <span className='logo'>gRPCity</span>
+        <span className='logo'><Logo /> gRPCity</span>
       </>
     )
   },

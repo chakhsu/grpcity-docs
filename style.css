@@ -33,11 +33,12 @@ figcaption {
   margin-top: 0.5rem;
 }
 
-nav a svg.logo {
+nav a .logo svg {
   height: 24px;
 }
 
 nav a span.logo {
+  display: flex;
   font-weight: 500;
   -webkit-mask-image: -webkit-linear-gradient(30deg,black 25%,rgba(0,0,0,.2)50%,black 75%);
   mask-image: -webkit-linear-gradient(30deg,black 25%,rgba(0,0,0,.2)50%,black 75%);
