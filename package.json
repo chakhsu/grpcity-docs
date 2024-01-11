@@ -16,17 +16,18 @@
     "url": "git+https://github.com/chakhsu/grpcity-docs.git"
   },
   "dependencies": {
+    "@vercel/speed-insights": "^1.0.2",
     "next": "^13.5.6",
-    "nextra": "3.0.0-alpha.10",
-    "nextra-theme-docs": "3.0.0-alpha.10",
+    "nextra": "3.0.0-alpha.11",
+    "nextra-theme-docs": "3.0.0-alpha.11",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/node": "20.8.9",
-    "typescript": "^5.2.2",
-    "@types/react": "^18.2.33",
-    "postcss": "^8.4.31",
-    "tailwindcss": "^3.3.3"
+    "@types/node": "20.11.0",
+    "@types/react": "^18.2.47",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3"
   }
 }
