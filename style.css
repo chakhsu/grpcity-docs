@@ -35,6 +35,7 @@ figcaption {
 
 nav a .logo svg {
   height: 24px;
+  padding-right: 8px;
 }
 
 nav a span.logo {
