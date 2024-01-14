@@ -34,13 +34,14 @@ figcaption {
 }
 
 nav a .logo svg {
-  height: 24px;
+  height: 30px;
   padding-right: 8px;
 }
 
 nav a span.logo {
   display: flex;
   font-weight: 500;
+  font-size: 20px;
   -webkit-mask-image: -webkit-linear-gradient(30deg,black 25%,rgba(0,0,0,.2)50%,black 75%);
   mask-image: -webkit-linear-gradient(30deg,black 25%,rgba(0,0,0,.2)50%,black 75%);
   mask-image: -moz-linear-gradient(30deg,black 25%,rgba(0,0,0,.2)50%,black 75%);
@@ -59,6 +60,15 @@ nav a span.logo:hover {
   -moz-transition: mask-position 1s ease,-webkit-mask-position 1s ease;
   -o-transition: mask-position 1s ease,-webkit-mask-position 1s ease;
   transition: mask-position 1s ease,-webkit-mask-position 1s ease
+}
+
+.button-switch svg{
+  height: 14px;
+  width: 14px;
+}
+
+.theme-switch span {
+  display: none;
 }
 
 .nextra-code {

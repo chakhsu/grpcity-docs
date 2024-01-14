@@ -1,12 +1,12 @@
-# gRPCity Docs  
+# gRPCity Docs
 
 ## Usage
 
 ```
-npm i
+pnpm i
 
 // for dev
-npm run dev
+pnpm dev
 ```
 
 ## License

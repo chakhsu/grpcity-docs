@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import type { DocsThemeConfig } from 'nextra-theme-docs'
-import { LocaleSwitch, useConfig } from 'nextra-theme-docs'
+import { LocaleSwitch, useConfig, ThemeSwitch } from 'nextra-theme-docs'
 import type { ComponentProps, ReactElement } from 'react'
 
 export const Logo = (props: ComponentProps<'svg'>): ReactElement => (
@@ -106,7 +106,7 @@ const config: DocsThemeConfig = {
   footer: {
     content: (
       <p className="_text-sm">
-        © {new Date().getFullYear()} - gRPCity by Chakhsu.
+        © {new Date().getFullYear()} gRPCity & Built by Chakhsu.
       </p>
     )
   },
@@ -116,7 +116,12 @@ const config: DocsThemeConfig = {
   },
   navbar: {
     extraContent: () => {
-      return LocaleSwitch({ lite: true })
+      return (
+        <>
+          {ThemeSwitch({ lite: true, className: 'button-switch theme-switch' })}
+          {LocaleSwitch({ lite: true, className: 'button-switch' })}
+        </>
+      )
     }
   },
   toc: {
