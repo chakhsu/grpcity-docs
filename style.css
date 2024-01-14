@@ -71,6 +71,12 @@ nav a span.logo:hover {
   display: none;
 }
 
+@media (max-width: 650px) {
+  .button-switch {
+    display: none;
+  }
+}
+
 .nextra-code {
   font-size: .8rem;
 }
