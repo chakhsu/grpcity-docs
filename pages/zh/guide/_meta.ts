@@ -4,11 +4,9 @@ export default {
   "server": "Server",
   "client": "Client",
   "metadata": "Metadata",
-  "stream-v2": "Stream v2",
+  "async-stream": "Async Stream",
   "stream": "Stream",
   "credentials": "Credentials",
   "status": "Status",
-  "error": "Error",
-  "middleware": "Middleware",
-  "proto": "Proto"
+  "error": "Error"
 }

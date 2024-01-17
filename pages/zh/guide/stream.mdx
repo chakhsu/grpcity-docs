@@ -5,7 +5,7 @@
 
 这里展示的使用`callback`和事件机制来完成流处理工作。使用的是`client`的`proxy`的`call`里的方法。
 
-如果需要获取`async stream`的用法，可以查看 [Stream v2](/zh/guide/stream-v2) 指南。
+如果需要获取`async stream`的用法，可以查看 [Stream v2](/zh/guide/async-stream) 指南。
 
 ### 前置工作
 
@@ -31,18 +31,17 @@ message Message {
 - `ServerStreamHello`: 表示只有服务端使用了 Stream;
 - `MutualStreamHello`: 表示客户端和服务端都是使用了 Stream;
 
-
 编写 `loader.js`，完成 proto 加载。
 
 ```js filename="./loader.js"
-import GrpcLoader from 'grpcity'
+import { ProtoLoader } from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// get this file dir path
+// __dirname for esm
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-export default new GrpcLoader({
+export default new ProtoLoader({
     location: path.resolve(__dirname, './'),
     files: ['stream.proto']
 })
@@ -101,8 +100,8 @@ class Stream {
 async function start (addr) {
   await loader.init()
 
-  const server = loader.initServer()
-  server.addService('stream.Hellor', new Stream())
+  const server = await loader.initServer()
+  server.add('stream.Hellor', new Stream())
 
   await server.listen(addr)
   console.log('start:', addr)
@@ -119,13 +118,13 @@ start('localhost:9097')
 async function start (addr) {
     await loader.init()
 
-    await loader.initClients({
+    const clients = await loader.initClients({
         services: {
             'stream.Hellor': addr
         }
     })
 
-    const client = loader.client('stream.Hellor')
+    const client = clients.get('stream.Hellor')
 
     const meta = loader.makeMetadata({
         'x-cache-control': 'max-age=100',

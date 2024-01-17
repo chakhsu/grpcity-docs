@@ -1,59 +1,75 @@
+import { Callout } from 'nextra/components'
+
 # Client
 
-Client是`gRPCity`的核心功能之一，主要是提供获取 service，并进行 rpc 调用。
+Client 是`gRPCity`的核心功能之一，主要是提供获取 service，并进行 rpc 调用。
 
 ### 初始化
 
-初始化有两种方式，`init()`和`initClients()`，这两个方法有场景上的使用注意事项:
-
-- `init()`: 支持传入`services`和`channelOptions`参数，就自动在内部创建好`client`，将`service`与rpc进行绑定，但是不支持证书;
-- `initClients()`: 支持传入`services`、`channelOptions`和`credentials`参数，支持证书;
-
-`init()`更多适合希望在一个统一的位置，就做好了客户端的初始化，其他位置的调用就不用那么麻烦了，
-而`initClients()`适合更准精细化控制，例如有些服务端有证书有些没有，有些位置的只需要较少的调用等等场景。
-
-两者是可以共存的，但是使用`initClients()`之前，需要先执行`init()`.
-
-`channelOptions`参数说明请看 [Config 指南](/zh/guide/config)，示例:
-
 ```js
-await loader.init({
-    services: {
-        'dev.path.to.serviceA': 'domain.local:9099',
-        'path.to.serviceB': '192.168.32.111:10099'
-    },
-    channelOptions
-})
+const clients = await loader.initClients({ services, channelOptions, credentials })
 ```
 
-或者
+参数说明:
+- `services`: 必须，`{ [service name]: address }`
+    - `[service name]`: 含包名的 service 名称；
+    - `address`: 服务端通信地址，有两种格式支持，如：`host:port`或者`{ host, port }`
+- `channelOptions`: 可选，通信配置规则；
+- `credentials`: 可选，客户端端证书；
+
+完整示例如下：
 
 ```js
-await loader.init()
 const credentials = loader.makeCredentials(rootCerts, privateKey, certChain, verifyOptions)
-await loader.initClients(
+const clients = await loader.initClients(
     services: {
         'dev.path.to.serviceA': 'domain.local:9099',
-        'path.to.serviceB': '192.168.32.111:10099'
+        'path.to.serviceB': {
+            host: '192.168.32.111',
+            port: 10099
+        }
     },
     channelOptions,
+    credentials,
 )
 ```
 
-### 获取实例
+### 添加中间件
 
-这里获取实例的方式相对简单，直接调用`client()`即可，注意需要传入完整的`service name`，包括了包名。
+`clients.use()`提供了`call method`前后处理的中间件能力，更多详情查看 [Middleware 指南](/zh/advanced/client-middleware)
 
 ```js
-const serviceAClient = loader.client('dev.path.to.serviceA')
-const serviceBClient = loader.client('path.to.serviceB')
+// implementation 中间件支持
+// 逐个添加
+clients.use(f1)
+clients.use(f2)
+clients.use(f3)
+// 传入多个参数添加
+clients.use(f1, f2, f3)
+// 使用数组添加
+clients.use([f1, f2, f3])
 ```
 
-注意: `client()`会缓存客户端，保证每次获取相同的客户端的时候，不会重复创建，减少内存消耗。
+<Callout type="warning">
+注意: 当前版本只有 `async` 的方法支持中间件，`callback` 暂不支持。
+</Callout>
+
+### 获取实例
+
+这里获取实例的方式相对简单，直接调用`get(name)`即可，注意需要传入完整的`service name`，包括了包名。
+
+```js
+const serviceAClient = clients.get('dev.path.to.serviceA')
+const serviceBClient = clients.get('path.to.serviceB')
+```
+
+<Callout>
+注意: `get()`会缓存客户端，保证每次获取相同的客户端的时候，不会重复创建，减少消耗。`getReal()`提供获取没有缓存的客户端。
+</Callout>
 
 ### 调用 rpc
 
-调用 rpc 有两种方法，分别是`async`和`callback`，习惯上，我们更多是使用`async`语法，支持了`promise`。
+调用 rpc 有两种方法，分别是`async`和`callback`，正常情况下，我们更多是使用`async`语法。
 
 #### async
 
@@ -66,16 +82,17 @@ const result = await serviceAClient.rpcMethod(request, metadata, options)
 - `rpcMethod`（请求方法）: 这是一个执行请求的方法。请求方法取决于定义的 gRPC 服务的`.proto`文件中的`rpc`，有4种形式，分别是点对点、流对点、点对流，流对流；
 - `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
 - `metadata`（元数据）: 这是一个可选参数，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据；
-- `options`（选项）: 这是一个可选参数，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入`deadline`的方式修改超时时间；
+- `options`（选项）: 这是一个可选参数，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入`timeout`的方式修改超时时间；
 
 这里展示的是点对点的例子:
+
 ```js
 const meta = loader.makeMetadata({
     'x-business-id': ['grpcity', 'testing'],
     'x-timestamp-client': 'begin=' + new Date().toISOString()
 })
 const options = {
-    deadline: new Date(Date.now() + 5000) // 表示在当前时间的 5 秒后超时。
+    timeout:  5000 // 表示在当前时间的 5 秒后超时。
 }
 
 const a = await serviceAClient.rpcMethod1({ name: 'myapp' }, meta, options)
@@ -87,20 +104,20 @@ const b = await serviceBClient.rpcMethod2({ name: 'youapp' }, meta, options)
 - `metadata`: 服务端返回的 metadata 信息；
 - `response`: 服务端处理完成后响应的结果；
 
-我们打印一下返回的结果:
+返回的结果示例:
 
 ```js
 {
-  metadata: Metadata {
-    internalRepr: Map(2) { 'content-type' => [Array], 'date' => [Array] },
-    options: {}
-  },
-  response: { message: 'hello greeter by Greeter in server1', count: 1 },
   status: {
     code: 0,
     details: 'OK',
     metadata: Metadata { internalRepr: Map(0) {}, options: {} }
-  }
+  },
+  metadata: Metadata {
+    internalRepr: Map(2) { 'content-type' => [Array], 'date' => [Array] },
+    options: {}
+  },
+  response: { message: 'hello greeter by Greeter in server1', count: 1 }
 }
 ```
 
@@ -122,19 +139,3 @@ const b = serviceBClient.call.rpcMethod2({ name: 'youapp' }, (err, result) => {
     return result
 })
 ```
-
-`callback`的方法提供了`stream`的事件方式的处理能力。
-
-更多关于`stream`的使用，请查看 [Stream](/zh/guide/stream) 和 [Stream v2](/zh/guide/stream-v2) 这两篇指南。
-
-
-### 关闭连接
-
-在版本`0.10`之后，`grpcity`库提供了相关接口用于支持关闭所有客户端的连接，用于在服务退出时进行资源释放，保证系统的稳定性。
-
-执行下面的方法，即可完成客户端主动关闭连接。
-```js
-loader.closeClients()
-```
-
-如果需要与服务端再次建联，则需要再次执行`initClients`。

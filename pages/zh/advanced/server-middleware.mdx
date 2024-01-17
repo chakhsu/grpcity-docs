@@ -1,0 +1,137 @@
+import { Callout } from 'nextra/components'
+
+# Server Middleware
+
+`gRPCity` 提供服务端执行处理的中间件机制，它让我们能够在 rpc 执行之前和之后中间件代码。它与客户端的中间件的区别在上下文。
+
+像统一调用日志打印，监控指标采集，鉴权，修改传参，修改结果，延时和重试等业务场景中，中间件发挥非常便利的作用，使得我们处理业务能够提升开发效率。
+
+### 原理
+
+`gRPCity`的中间件实现是基于`koa-compose`库，它提供了洋葱模型的工作机制，方便我们去执行中间件。
+
+假如我们有 a、b、c 这三个中间件，中间件执行的顺序是`a → b → c`，如下所示:
+
+```
+enter a
+  enter b
+    enter c
+      rpc-method()
+    exit  c
+  exit  b
+exit  a
+```
+
+### 用法
+
+`gRPCity server` 提供了`server.use()`的方法用于添加中间件。
+
+<Callout type="warning">
+当前版本只有 `async unary` 和 `async stream` 的方法支持中间件，`stream` 和 `callback` 暂不支持。
+</Callout>
+
+使用方法如下:
+
+```js
+const server = await loader.initServer()
+
+// 逐个添加
+server.use(f1)
+server.use(f2)
+server.use(f3)
+
+// 传入多个参数添加
+server.use(f1, f2, f3)
+
+// 使用数组添加
+server.use([f1, f2, f3])
+```
+
+添加中间件的使用位置在`initServer()`之后，在`listen()`之前。
+
+### 上下文
+
+```js
+const middleware = async (ctx, next) => {
+  console.log(ctx)
+  await next()
+  console.log(ctx)
+}
+```
+
+第一个打印的上下文，可以看到包含了 `path`、`method`、`request`、`metadata`、`peer`，这些都是进行服务器处理之前获取的，可以对其进行修改。
+其中`method`包含了调用的类型和请求的`metadata`和`options`参数。
+
+```bash filename="Terminal"
+{
+  path: '/helloworld.Greeter/SayGreet',
+  method: {
+    requestStream: false,
+    responseStream: false
+  },
+  request: { name: 'greeter' },
+  metadata: Metadata {
+    internalRepr: Map(3) {
+      'x-client-hostname' => [Array],
+      'x-service-path' => [Array],
+      'user-agent' => [Array]
+    },
+    options: {}
+  },
+  peer: '127.0.0.1:64929'
+}
+```
+
+第二个打印上下文，额外`response`，是执行后添加的，可以修改，最终响应的是修改好的结果。
+
+```bash filename="Terminal" {14}
+{
+  path: '/helloworld.Greeter/SayGreet',
+  method: {
+    requestStream: false,
+    responseStream: false
+  },
+  request: { name: 'greeter' },
+  metadata: Metadata {
+    internalRepr: Map(3) {
+      'x-client-hostname' => [Array],
+      'x-service-path' => [Array],
+      'user-agent' => [Array]
+    },
+    options: {}
+  },
+  peer: '127.0.0.1:64929',
+  response: { message: 'hello greeter by Greeter', count: 1 }
+}
+```
+
+### 完整例子
+
+```js filename="log.js"
+const log = async (ctx, next) => {
+  const startTime = Date.now()
+  await next()
+  const responseTimeMs = Date.now() - startTime
+
+  console.log({
+      path: ctx.path,
+      peer: ctx.peer,
+      request: ctx.request,
+      responseTimeMs
+  })
+}
+
+export default log
+```
+
+添加中间件
+
+```js filename="server.js"
+import log from './log.js'
+
+// other...
+
+server.use(log)
+```
+
+至此，我们完成了服务端中间件的编写与使用。

@@ -4,10 +4,20 @@
 
 ### 获取 Status
 
+**内置 `Status` 获取:**
+
+```js
+import { Status } from 'grpcity'
+
+console.log(Status.OK)
+```
+
+**客户端获取服务端的 `Status`:**
+
 客户端获取服务端返回的`status`的方式，非常简单，如下所示。
 
 ```js
-const client = loader.client('path.to.service')
+const client = clients.get('path.to.service')
 const { status } = await client.rpcMethod()
 console.log(status)
 

@@ -7,7 +7,7 @@ MetaData 功能在 gRPC 里是非常重要。有些场景，我们需要像`http
 客户端发送`metadata`，需要调用`loader.makeMetadata()`，使用方式如下:
 
 ```js
-const client = loader.client('test.helloworld.Greeter')
+const client = clients.get('test.helloworld.Greeter')
 
 const meta = loader.makeMetadata({
     'x-cache-control': 'max-age=100',
@@ -37,14 +37,11 @@ Metadata {
 }
 ```
 
-注意，`metadata`会有一些默认情况，如下:
-
-`gRPCity` Client 默认发送以下的 metadata:
+客户端默认发送以下的 metadata:
 
 - `x-client-hostname`: 值为操作系统的`hostname`;
-- `x-client-app-name`: 值为`loader`初始化时使用到的 `appName`;
 
-`gRPCity` Server 默认发送以下的 metadata:
+服务端默认发送以下的 metadata:
 
 - `content-type`: 值一般为`application/grpc+proto`;
 - `user-agent`: 值一般为`grpc-node-js/1.9.7`;
@@ -52,12 +49,11 @@ Metadata {
 
 ### 服务端接收
 
-服务端接收`metadata`的位置在 `call.metadata` 里，如果要使用需要先`clone()`出来，然后根据`key`去`get(key)`值。
+服务端接收`metadata`的位置在 `call.metadata` 里，使用之前需要先`clone()`出来，然后根据`key`去`get(key)`值。
 
-```js
+```js {5, 8-10}
 async sayGreet(call) {
     const { name } = call.request
-    this.count++
 
     // 获取 call 里的 metadata 信息
     const metadata = call.metadata.clone()
@@ -73,8 +69,7 @@ async sayGreet(call) {
     console.log(clientTimestamp)
 
     return {
-        message: `hello ${name || "world"} by Greeter in server1`,
-        count: this.count
+        message: `hello ${name || "world"} by Greeter in server1`
     }
 }
 ```
@@ -91,7 +86,7 @@ async sayGreet(call) {
 
 有时候，我们也需要服务端把`metadata`信息发送返回给客户端的情况，方法如下:
 
-```js
+```js {4}
 async SayHello (call) {
     const metadata = call.metadata.clone()
     metadata.add('x-timestamp-server', 'received=' + new Date().toISOString())

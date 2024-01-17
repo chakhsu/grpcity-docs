@@ -1,10 +1,16 @@
 # Config
 
 `gRPCity`关于proto有两个非常重要的配置，分别是`loadOptions`和`channelOptions`。
-其中，`init()`两个都使用到，而`initClients()`和`initServer()`只使用了`channelOptions`。
+其中，`init()`用到`loadOptions`，而`initClients()`和`initServer()`用到`channelOptions`。
 
-- `loadOptions`: 对应的是`proto`文件加载时的规则配置；
-- `channelOptions`: 对应的是服务端与客户端通信直接的规则配置；
+- `loadOptions`: 对应的是`proto`文件加载时的配置规则；
+- `channelOptions`: 对应的是服务端与客户端通信之间的配置规则；
+
+## 获取默认配置
+
+```js
+import { defaultLoadOptions, defaultChannelOptions } from 'grpcity'
+```
 
 ## loadOptions
 
@@ -75,4 +81,3 @@ loadOptions 包含的字段，详情如下:
   })
 }
 ```
-

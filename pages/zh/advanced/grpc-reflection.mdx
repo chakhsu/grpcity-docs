@@ -1,0 +1,62 @@
+# gRPC Reflection
+
+`gRPCity` 服务端支持[`GRPC Server Reflection Protocol`](https://github.com/grpc/grpc/blob/master/doc/server-reflection.md)。
+这个功能允许一些第三方客户端，如 Postman，从运行中的服务端动态加载获取 API 规范，无需手动传递和加载 `proto`。
+
+### 用法
+
+先从`loader`中获取`reflection`，再在`server`中注入该`reflection`，就完成了集成。
+
+```js {3,4}
+const server = await loader.initServer()
+
+const reflection  = await loader.initReflection()
+server.inject(reflection)
+```
+
+### Unary Call
+
+我们使用 `gRPCity` 里的 `example/reflection/helloworldServer.js` 作为 `Unary Call` 例子。
+
+```bash filename="Terminal"
+node example/reflection/helloworldServer.js
+start: localhost:9098
+```
+
+服务启动后就可以使用postman进行接入测试，演示如下:
+
+<video controls className="_mt-6">
+    <source src="/video/reflection-unary-call.mp4" type="video/mp4"/>
+</video>
+
+### Async Stream
+
+我们使用 `gRPCity` 里的 `example/reflection/asyncStreamServer.js` 作为 `Async Stream` 例子。
+
+```bash filename="Terminal"
+node example/reflection/asyncStreamServer.js
+start: localhost:9097
+```
+
+服务启动后就可以使用postman进行接入测试，演示如下:
+
+**Client Stream**
+
+<video controls className="_mt-6">
+    <source src="/video/reflection-client-stream.mp4" type="video/mp4"/>
+</video>
+
+
+**Server Stream**
+
+<video controls className="_mt-6">
+    <source src="/video/reflection-server-stream.mp4" type="video/mp4"/>
+</video>
+
+
+**Bidi Stream**
+
+<video controls className="_mt-6">
+    <source src="/video/reflection-bidi-stream.mp4" type="video/mp4"/>
+</video>
+

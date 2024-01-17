@@ -1,52 +1,72 @@
+import { Callout } from 'nextra/components'
+
 # Server
 
-Server是`gRPCity`的核心功能之一，提供了服务端生命周期的接管能力。通过一系列的接口函数，提供了从证书导入、服务绑定、中间件支持，服务启动和服务退出等，全周期的管理。
+Server 是`gRPCity`的核心功能之一，提供了服务端生命周期的接管能力。通过一系列的接口函数，
+提供了从证书导入、服务绑定、中间件支持，服务启动和服务退出等全周期的管理API。
 
 ### 实例获取
 
-`channelOptions`在 [Config 指南](/zh/guide/config) 里有详细讲解。
-
 ```js
 // 获取 server 实例
-const server = loader.initServer(channelOptions)
+const server = await loader.initServer(serverOptions)
 ```
 
-得到`server`实例后，实例会有一系列的接口来帮助我们开发服务。
+`serverOptions` 说明，包含如下参数:
+- `channelOptions`: 可选，通信配置规则；
+- `credentials`: 可选，服务端证书；
+
+<Callout>
+`channelOptions`在 [Config 指南](/zh/guide/config) 里有详细讲解。
+</Callout>
+
+<Callout>
+`credentials`在 [Credentials 指南](/zh/guide/credentials) 里有详细讲解。
+</Callout>
 
 ### 服务绑定
 
-服务绑定可以传三个参数，分别是`service`，`implementation` 和`options`。
+```js
+// service rpc 绑定
+server.add(name, implementation, options)
+```
 
+参数说明：
 - `name`: (必填) 指 `proto` 文件路由，具体是到 `service` 的位置；
 - `implementation`: (必填) 携带 service rpc 定义好的方法的对象或者类；
 - `options`: (可选) object：
     - `exclude`: (可选) 字符串数组，排除`implementation`中不需要参与`service rpc`绑定的方法；
     - `inherit`: (可选) 如果 `implementation` 通过继承的方式获得的`func`，父类也要参与绑定，把父类传入该参数即可；
 
+### 服务解绑
+
 ```js
-// service rpc 绑定
-server.addService(name, implementation, options)
 // service rpc 解绑
-server.removeService(name)
+server.remove(name)
 ```
+
+参数说明：
+- `name`: (必填) 指 `proto` 文件路由，具体是到 `service` 的位置；
 
 ### 添加中间件
 
-`gRPCity` Server 的特色功能，提供了`implementation` 前后处理的中间件能力，更多详情查看 [Middleware 指南](/zh/guide/middleware)
-
-注意: 当前版本只有 `async` 的方法支持中间件，`callback` 暂不支持。
+`server.use()`提供了`implementation` 前后处理的中间件能力，更多详情查看 [Middleware 指南](/zh/advanced/server-middleware)
 
 ```js
 // implementation 中间件支持
 // 逐个添加
-server.addMiddleware(f1)
-server.addMiddleware(f2)
-server.addMiddleware(f3)
+server.use(f1)
+server.use(f2)
+server.use(f3)
 // 传入多个参数添加
-server.addMiddleware(f1, f2, f3)
+server.use(f1, f2, f3)
 // 使用数组添加
-server.addMiddleware([f1, f2, f3])
+server.use([f1, f2, f3])
 ```
+
+<Callout type="warning">
+注意: 当前版本只有 `async` 的方法支持中间件，`callback` 暂不支持。
+</Callout>
 
 ### 证书与启动
 
@@ -57,18 +77,21 @@ server.addMiddleware([f1, f2, f3])
     - object: `{ host, port }`；
         - host: 字符串，支持 ip 和域名；
         - port: 数字，最小值为0，最大值为65535；
-- `credentials`: (可选) 使用`makeServerCredentials`来生成，并给`listen`调用；
+- `credentials`: (可选) 使用`loader.makeServerCredentials()`来生成，并给`listen`调用；
 
 ```js
 // 服务端证书
 const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkClientCertificate)
 // 服务启动
 await server.listen(addr, credentials)
+// or
 // await server.listen('127.0.0.1:9099', credentials)
 // await server.listen({ host: '127.0.0.1', port: 9099 }, credentials)
 ```
 
-另外，可以阅读 [Credentials 指南](/zh/guide/credentials) 来获得更多信息。
+<Callout type="warning">
+`credentials`的优先级：`listen()`里的最高，其次是`initServer()`，最后是默认。
+</Callout>
 
 ### 服务退出
 

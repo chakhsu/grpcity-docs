@@ -1,0 +1,143 @@
+import { Callout } from 'nextra/components'
+
+# Client Middleware
+
+`gRPCity` 提供了客户端调用的中间件机制，它让我们能够在 rpc 执行之前和之后中间件代码。
+
+像统一调用日志打印，监控指标采集，鉴权，修改传参，修改结果，延时和重试等业务场景中，中间件发挥非常便利的作用，使得我们处理业务能够提升开发效率。
+
+### 原理
+
+`gRPCity`的中间件实现是基于洋葱模型的工作机制，方便我们去执行中间件。
+
+假如我们有 a、b、c 这三个中间件，中间件执行的顺序是`a → b → c`，如下所示:
+
+```
+enter a
+  enter b
+    enter c
+      rpc-method()
+    exit  c
+  exit  b
+exit  a
+```
+
+### 用法
+
+`gRPCity Client` 提供了`clients.use()`的方法用于添加中间件。
+
+<Callout type="warning">
+当前版本只有 `async unary` 和 `async stream` 的方法支持中间件，`stream` 和 `callback` 暂不支持。
+</Callout>
+
+使用方法如下:
+
+```js
+const clients = await loader.initClients()
+
+// 逐个添加
+clients.use(f1)
+clients.use(f2)
+clients.use(f3)
+
+// 传入多个参数添加
+clients.use(f1, f2, f3)
+
+// 使用数组添加
+clients.use([f1, f2, f3])
+```
+
+### 上下文
+
+```js
+const middleware = async (ctx, next) => {
+  console.log(ctx)
+  await next()
+  console.log(ctx)
+}
+```
+
+第一个打印的上下文，可以看到包含了 `path`、`method`、`request`，这些都是在调用服务端前补充的，可以对其进行修改。
+其中`method`包含了调用的类型和请求的`metadata`和`options`参数。
+
+```bash filename="Terminal"
+{
+  path: '/helloworld.Greeter/SayGreet',
+  method: {
+    requestStream: false,
+    responseStream: false,
+    metadata: Metadata { internalRepr: [Map], options: {} },
+    options: { deadline: 2024-01-16T16:22:11.836Z }
+  },
+  request: { name: 'greeter' }
+}
+```
+
+第二个打印上下文，额外增加了`peer`、`status`、`metadata` 和 `response`，都是执行后添加的，都可以修改，最终响应的是修改好的结果。
+
+```bash filename="Terminal"
+{
+  path: '/helloworld.Greeter/SayGreet',
+  method: {
+    requestStream: false,
+    responseStream: false,
+    metadata: Metadata { internalRepr: [Map], options: {} },
+    options: { deadline: 2024-01-16T16:22:11.836Z }
+  },
+  request: { name: 'greeter' },
+  metadata: Metadata {
+    internalRepr: Map(9) {
+      'content-type' => [Array],
+      'x-cache-control' => [Array],
+      'x-business-id' => [Array],
+      'x-timestamp-client' => [Array],
+      'x-client-hostname' => [Array],
+      'x-service-path' => [Array],
+      'user-agent' => [Array],
+      'x-timestamp-server' => [Array],
+      'date' => [Array]
+    },
+    options: {}
+  },
+  response: { message: 'hello, greeter' },
+  status: {
+    code: 0,
+    details: 'OK',
+    metadata: Metadata { internalRepr: Map(0) {}, options: {} }
+  },
+  peer: '::1:9099'
+}
+```
+
+### 完整例子
+
+以调用日志打印作为例子：
+
+```js filename="log.js"
+const log = async (ctx, next) => {
+    const startTime = Date.now()
+    await next()
+    const responseTimeMs = Date.now() - startTime
+
+    console.log({
+        path: ctx.path,
+        peer: ctx.peer,
+        responseTimeMs
+    })
+  }
+}
+
+export default log
+```
+
+添加中间件
+
+```js filename="client.js"
+import log from './log.js'
+
+// other...
+
+clients.use(log)
+```
+
+至此，我们完成了客户端中间件的编写与使用。

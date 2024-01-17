@@ -1,7 +1,7 @@
-# Proto
+# Handle Proto
 
 有时候，我们需要得到处理 proto 内容的能力，`gRPCity`库就提供了这样的能力，同时这些能力中在内部也会被调用。
-例如: `addService(serviceName, implementation)`，就需要获取 proto 文件里定义的 service name。
+例如: `add(serviceName, implementation)`，就需要获取 proto 文件里定义的 service name。
 
 好处是多做了一层校验，保证服务的正确性。
 
@@ -20,12 +20,12 @@ service Greeter {
 我们需要先完成 proto 的加载。
 
 ```js
-import GrpcLoader from 'grpcity'
+import { ProtoLoader } from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const loader = new GrpcLoader({
+const loader = new ProtoLoader({
     location: path.resolve(__dirname, 'protos'),
     files: ['test/helloworld/helloworld.proto']
 })
@@ -35,15 +35,31 @@ const loader = new GrpcLoader({
 })()
 ```
 
+### Package Prefix
+
+有些场景，我们需要对proto 的包名进行前缀补充，使用下面的方式：
+
+```js
+await loader.init({
+  isDev: true,
+  packagePrefix: 'stage.dev'
+})
+```
+
+使用了`packagePrefix`，在加载后会修改 `proto` 定义，所有的 `path` 都会有这个前缀。
+
 ### service(name)
 
-`name`参数，指 proto 文件路由，具体是到 service 的位置。
+`name`参数，指 `proto` 文件路由，具体是到 `service` 的位置。
 
 ```js
 const serviceDefinition = loader.service('test.helloworld.Greeter')
 console.log(serviceDefinition)
+```
 
-// log
+打印结果：
+
+```bash filename="Terminal"
 {
   SayHello: {
     path: '/stage.dev.test.helloworld.Greeter/SayHello',
@@ -90,15 +106,18 @@ console.log(serviceDefinition)
 
 ### type(name)
 
-`name`参数指 proto 文件的路由，包名到service，或到model，或到message。
+`name`参数指 proto 文件的路由，包名到service，或到model，或到message。`type()`的能力包含了`service()`。
 
-`type()`的能力包含了`service()`。
+`type('test')` 例子：
 
 ```js
 const typePkg = loader.type('test')
 console.log(typePkg)
+```
 
-// log
+打印结果：
+
+```bash filename="Terminal"
 {
   helloworld: {
     Greeter: [class ServiceClientImpl extends Client] {
@@ -114,11 +133,18 @@ console.log(typePkg)
 }
 ```
 
+----
+
+`type('test.helloworld')` 例子：
+
 ```js
 const typePkg = loader.type('test.helloworld')
 console.log(typePkg)
+```
 
-// log
+打印结果：
+
+```bash filename="Terminal"
 {
   Greeter: [class ServiceClientImpl extends Client] {
     service: { SayHello: [Object], SayHello2: [Object] },
@@ -142,40 +168,3 @@ console.log(typePkg)
   }
 }
 ```
-
-### message(name)
-
-`name`参数是指 proto 文件的路由，具体是指路由 message 的链条名。
-
-```js
-const HelloRequest = loader.message('test.helloworld.model.HelloRequest')
-console.log(HelloRequest)
-
-// log
-<ref *1> Type {
-  options: undefined,
-  parsedOptions: null,
-  name: 'HelloRequest',
-  ...
-}
-```
-
-#### 编码和解码
-
-```js
-const HelloRequest = loader.message('test.helloworld.model.HelloRequest')
-const jsonData = { name: 'test' }
-// 编码
-const buffer = HelloRequest.encode(jsonData).finish()
-// 解码
-const decoded = HelloRequest.decode(buffer)
-
-// 验证解码与编码是否一致
-if (decoded.name === jsonData.name) {
-    console.log(true)
-}
-```
-
-### 注意
-
-我们一般只需要关心 `service()` 和 `message()` 的用法就可以了，`type()`对外使用的情况很少。

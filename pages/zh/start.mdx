@@ -1,32 +1,299 @@
-import { Cards } from 'nextra/components'
+import { Steps } from 'nextra/components'
+import { Callout } from 'nextra/components'
 
 # Get Started
 
-我们假设你已经入门了 gRPC、Node.js 和 JavaScript，有一个基础的认知。官方文档是最好的老师，关于基础 gPRC 入门推荐: [link](https://github.com/grpc/grpc-node/tree/master/examples/helloworld/dynamic_codegen) 。
+在此之前，我希望你对`gRPC`和`prorobuf`有所了解，这是最好的，当然，也可以通过这里来熟悉。
+在这里我们将以一个简单例子来进行快速入门，分为四个步骤，分别是项目初始化，加载 proto，实现服务端和实现客户端。
 
-快速入门教程将会分成 3 篇，最终带你们完成一个完整的基于 gRPCity 的微服务服务端开发与客户端调用。
+<Callout>
+通过访问与阅读来进一步了解: [gRPC](https://grpc.io/docs/what-is-grpc/introduction/) & [proto3](https://protobuf.dev/programming-guides/proto3/)
+</Callout>
 
-入门教程对应的项目代码已经放到了GitHub: [link](https://github.com/chakhsu/grpcity-basic-demo) 。
+## 项目初始化
 
----
+<Steps>
+### 创建项目
 
-<Cards>
-  <Cards.Card
-    title="Proto Loader →"
-    href="/zh/start/proto-loader"
-  />
-  <Cards.Card
-    title="Server Side →"
-    href="/zh/start/server"
-  />
-  <Cards.Card
-    title="Client Side →"
-    href="/zh/start/client"
-  />
-</Cards>
+创建 demo 项目并进入:
+```bash filename="Terminal"
+mkdir demo && cd demo
+```
 
----
+初始化和安装依赖
+```bash filename="Terminal" sh npm2yarn
+npm init -y
+npm i grpcity
+```
 
-下面是一张图带你入门`gRPCity`:
+<Callout type="warning">
+注意: 我们需要在`package.json`里补上`"type": "module"`，用于激活 ESM。
+</Callout>
 
-![gPRCity example](/img/grpcity-example.svg)
+### 项目目录
+
+我们需要创建一系列的目录和文件，最终项目目录与文件结构如下，其中高亮部分是需要我们手动提前创建:
+
+```bash filename="Terminal" {2,3,9,10,11}
+.
+├── client.js
+├── loader.js
+├── package-lock.json
+├── package.json
+├── proto
+│   └── helloworld
+│       ├── model
+│       │   └── message.proto
+│       └── service.proto
+└── server.js
+```
+
+</Steps>
+
+## 加载 proto
+
+<Steps>
+
+### 定义 proto
+
+我们定义两个 service，分别是 `Greeter` 和 `Hellor`，同时把 `message` 拆分到 `model` 里。
+
+对`service.proto`输入如下内容:
+
+```proto filename="./proto/helloworld/service.proto"
+syntax = "proto3";
+
+package helloworld;
+
+import "helloworld/model/message.proto";
+
+service Greeter {
+  rpc SayGreet(HelloRequest) returns (HelloReply) {}
+}
+
+service Hellor {
+  rpc SayHello(HelloRequest) returns (HelloReply) {}
+}
+
+```
+
+对`message.proto`输入如下内容:
+
+```proto filename="./proto/helloworld/model/message.proto"
+syntax = "proto3";
+
+package helloworld.model;
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloReply {
+  string message   = 1;
+  int32 count = 2;
+}
+```
+
+### 实现 loader
+
+对`./loader.js`输入如下内容:
+
+```js filename="./loader.js"
+import { ProtoLoader } from 'grpcity'
+import path from 'node:path'
+
+// __dirname for esm
+import { fileURLToPath } from 'node:url'
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+export default new ProtoLoader({
+    location: path.join(__dirname, './proto'),
+    files: [
+        'helloworld/service.proto'
+    ]
+})
+```
+
+<Callout>
+`ProtoLoader`中`location`和`files`含义分别表示 proto 目录和 service proto 文件。
+</Callout>
+
+至此，我们完成了 proto 文件的加载工作，并得到了`loader.js`。
+这样我们就可以随处引入该文件，并支持我们去开发实现客户端或实现服务端。
+
+</Steps>
+
+## 实现服务端
+
+这里的所有步骤将会在`./server.js`文件里进行。
+
+<Steps>
+
+### 导入 loader
+
+```js filename="./server.js"
+import loader from "./loader.js"
+```
+
+### 实现 Greeter
+
+创建`Greeter`，并实现`sayGreet`方法:
+
+```js filename="./server.js"
+class Greeter {
+    constructor() {
+        this.count = 0
+    }
+
+    async sayGreet(call) {
+        const { name } = call.request
+        this.count++
+        return {
+            message: `hello ${name || "world"} by Greeter`,
+            count: this.count
+        }
+    }
+}
+```
+
+### 实现 Hellor
+
+继续用同样的方式实现`Hellor`
+
+```js filename="./server.js"
+class Hellor {
+    async sayHello(call) {
+        const { name } = call.request
+        return { message: `hello ${name || "world"} by Hellor` }
+    }
+}
+```
+
+### 绑定和启动
+
+```js filename="./server.js"
+const start = async (addr) => {
+    // loader 初始化
+    await loader.init()
+
+    // server 初始化并获取实例
+    const server = await loader.initServer()
+
+    // 类方法与 service 进行绑定
+    server.add('helloworld.Greeter', new Greeter())
+    server.add('helloworld.Hellor', new Hellor())
+
+    // 监听
+    await server.listen(addr)
+    console.log('helloworld server is started: ', addr)
+}
+
+// 启动
+start('127.0.0.1:9098')
+```
+
+</Steps>
+
+## 实现客户端
+
+<Steps>
+
+### 导入 loader
+
+```js filename="./client.js"
+import loader from "./loader.js"
+```
+
+### 获取客户端
+
+创建 `start` 方法，完成获取客户端。
+
+```js filename="./client.js"
+const start = async (addr) => {
+    await loader.init()
+
+    const clients = await loader.initClients({
+        services: {
+            'helloworld.Greeter': addr,
+            'helloworld.Hellor': addr
+        }
+    })
+}
+```
+
+### 调用和启动
+
+我们接着在 `start` 方法里补充客户端调用服务端的逻辑，并打印调用结果。
+
+```js filename="./client.js"
+const start = async (addr) => {
+
+    // ...
+    // loader init
+    // clients init
+    // ....
+
+    // greeter client
+    const greeterClient = clients.get('helloworld.Greeter')
+    const greeterResult = await greeterClient.sayGreet({ name: 'grpcity' })
+    console.log('greeterClient.sayGreet', greeterResult.response)
+
+    // hellor client
+    const hellorClient = clients.get('helloworld.Hellor')
+    const hellorResult = await hellorClient.sayHello({ name: 'grpcity' })
+    console.log('hellorClient.sayHello', hellorResult.response)
+}
+
+// 执行
+start('127.0.0.1:9098')
+```
+
+<Callout>
+`client`发起调用后收到的结果包含了三个值，分别是`status`、`metadata`和`response`。在这里，我们只需要打印出`response`即可。
+</Callout>
+
+</Steps>
+
+## 联调
+
+我们需要两个终端窗口，分别用于执行服务端和客户端。
+
+<Steps>
+
+### 启动服务端
+
+```bash filename="Terminal"
+node ./server.js
+helloworld server is started:  127.0.0.1:9098
+```
+
+启动后，我们的客户端就可以连上相应的地址。
+
+### 启动客户端
+
+启动客户端，与服务端进行建联，并执行调用。在这里，我们会执行两次客户端。
+
+第一次执行结果如下:
+
+```bash filename="Terminal"
+node ./client.js
+greeterClient.sayGreet { message: 'hello grpcity by Greeter', count: 1 }
+hellorClient.sayHello { message: 'hello grpcity by Hellor' }
+```
+
+第二次执行结果如下:
+
+```bash filename="Terminal"
+node ./client.js
+greeterClient.sayGreet { message: 'hello grpcity by Greeter', count: 2 }
+hellorClient.sayHello { message: 'hello grpcity by Hellor' }
+```
+
+我们能看到两次结果都是正常返回，其中`sayGreet`中的`count`，在第二次执行后累加为2，
+符合预期，也说明这次客户端调用服务端的闭环完成了。
+
+</Steps>
+
+快速入门教程就此结束了，是不是感到简单和易用。如果需要更多了解，欢迎去往**用户指南**进行更多了解。
+
+本篇的代码，将存放于 [GitHub](https://github.com/chakhsu/grpcity-basic-demo) 上，欢迎访问。

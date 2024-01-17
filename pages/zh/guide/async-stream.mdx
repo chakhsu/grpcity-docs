@@ -1,10 +1,6 @@
-# Stream v2
+# Async Stream
 
-在`0.9`版本之后，`gRPCity` 提供了 `client` 侧 `stream rpc` 的全部 `promisify` 的能力，这意味着我们能使用`async/await`的语法进行**客户端**的 `stream` 交互。
-
-在`1.0`版本之后，`gRPCity` 提供了 `server` 侧 `stream rpc` 的全部 `promisify` 的能力，这意味着我们能使用`async/await`的语法进行**服务端**的 `stream` 交互。
-
-下面我们将会展示如何使用`Stream v2`的能力。在这里也建议先看一遍 [Stream](/zh/guide/stream)，该文会有一些相似的地方在本文出现。
+下面我们将会展示如何使用`async stream`的能力。在这里也建议先看一遍 [Stream](/zh/guide/stream)，该文会有一些相似的地方在本文出现。
 
 ### 定义 proto
 
@@ -29,14 +25,14 @@ message Message {
 ### 加载 proto
 
 ```js filename="./loader.js"
-import GrpcLoader from 'grpcity'
+import { ProtoLoader } from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// get this file dir path
+// __dirname for esm
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-export default new GrpcLoader({
+export default new ProtoLoader({
   location: path.resolve(__dirname, './'),
   files: ['stream.proto']
 })
@@ -52,13 +48,13 @@ import loader from "./loader.js"
 const start = async (addr) => {
   await loader.init()
 
-  await loader.initClients({
+  const clients = await loader.initClients({
     services: {
       'stream.Hellor': addr
     }
   })
 
-  const client = loader.client('stream.Hellor')
+  const client = clients.get('stream.Hellor')
 
   const meta = loader.makeMetadata({
     'x-cache-control': 'max-age=100',
@@ -81,7 +77,7 @@ const start = async (addr) => {
   // ...
 
   // stream client to server
-  const clientStreamHelloCall = client.clientStreamHello(meta)
+  const clientStreamHelloCall = await client.clientStreamHello(meta)
 
   // send stream message to server
   clientStreamHelloCall.write({ message: 'Hello!' })
@@ -136,12 +132,12 @@ const start = async (addr) => {
 const start = async (addr) => {
   // ...
 
-  const serverStreamHelloCall = client.serverStreamHello({ message: 'Hello! How are you?' }, meta)
+  const serverStreamHelloCall = await client.serverStreamHello({ message: 'Hello! How are you?' }, meta)
   const serverReadAllResult = serverStreamHelloCall.readAll()
   for await (const data of serverReadAllResult) {
       console.log(data)
   }
-  const serverReadEndResult = serverStreamHelloCall.readEnd()
+  const serverReadEndResult = await serverStreamHelloCall.readEnd()
   console.log(serverReadEndResult)
 
   // ...
@@ -193,7 +189,7 @@ const start = async (addr) => {
 const start = async (addr) => {
   // ...
 
-  const mutualStreamHelloCall = client.mutualStreamHello(meta)
+  const mutualStreamHelloCall = await client.mutualStreamHello(meta)
   mutualStreamHelloCall.writeAll([
     { message: 'Hello!' },
     { message: 'How are you?' },
@@ -210,7 +206,7 @@ const start = async (addr) => {
     console.log(data)
   }
 
-  const mutualReadEndResult = mutualStreamHelloCall.readEnd()
+  const mutualReadEndResult = await mutualStreamHelloCall.readEnd()
   console.log(mutualReadEndResult)
 
   // ..

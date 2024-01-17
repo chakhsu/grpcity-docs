@@ -1,5 +1,5 @@
 export default {
-  "grpcloader": "gRPC Loader",
+  "proto-loader": "Proto Loader",
   "server": "Server",
-  "client-proxy": "Client Proxy"
+  "client": "Client"
 }
