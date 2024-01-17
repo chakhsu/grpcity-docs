@@ -18,5 +18,19 @@ export default {
     title: "Changelog ↗",
     href: "https://github.com/chakhsu/grpcity/releases",
     newWindow: true,
+  },
+  "-- Recommend": {
+    type: "separator",
+    title: "Recommend",
+  },
+  cacheProxyPlus: {
+    title: "Cache Proxy Plus ↗",
+    href: "https://github.com/chakhsu/cache-proxy-plus",
+    newWindow: true,
+  },
+  syncDefer: {
+    title: "Sync Defer ↗",
+    href: "https://github.com/chakhsu/sync-defer",
+    newWindow: true,
   }
 }
