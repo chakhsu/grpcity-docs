@@ -23,8 +23,8 @@ const loader = new ProtoLoader(protoFileOptions)
 
 <OptionTable
   options={[
-    ['location', 'Path String', `必选，如: path.join(__dirname, './proto')`],
-    ['files', 'Path String Array', `必选，如: ['path/to/service-a.proto', 'path/to/service-b.proto']`]
+    ['location', 'Path String', `必填，如: path.join(__dirname, './proto')`],
+    ['files', 'Path String Array', `必填，如: ['path/to/service-a.proto', 'path/to/service-b.proto']`]
   ]}
 />
 
@@ -63,7 +63,7 @@ const clients = await loader.initClients({ services, channelOptions, credentials
 **参数说明:**
 <OptionTable
   options={[
-    ['services', 'Object', `必选，service 和地址`],
+    ['services', 'Object', `必填，service 和地址`],
     ['channelOptions', 'ChannelOptions', `可选，proto channel options，默认使用内置 channelOptions`],
     ['credentials', 'ChannelCredentials', '可选，证书链，使用 `loader.makeCredentials()` 获取']
   ]}
@@ -189,7 +189,7 @@ const service = loader.service(name)
 **参数说明:**
 <OptionTable
   options={[
-    ['name', 'String', '必选，指 `proto` 文件路由，具体是到 `service` 的位置'],
+    ['name', 'String', '必填，指 `proto` 文件路由，具体是到 `service` 的位置'],
   ]}
 />
 - `name`: ;
@@ -210,7 +210,7 @@ const type = loader.type(name)
 **参数说明:**
 <OptionTable
   options={[
-    ['name', 'String', '必选，指 `proto` 文件路由，包名到`service`，或到`model`，或到`message`'],
+    ['name', 'String', '必填，指 `proto` 文件路由，包名到`service`，或到`model`，或到`message`'],
   ]}
 />
 

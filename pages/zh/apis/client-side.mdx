@@ -2,7 +2,7 @@ import OptionTable from '@components/optionTable'
 
 # Client Side API
 
-这里的 API 指通过 `loader.initClients()` 获取得到的实例中的。
+通过 `loader.initClients()` 获取 `clients`实例，下面将展示其 API 详情。
 
 ## Clients
 
@@ -17,7 +17,7 @@ const client = clients.get(name, options)
 
 <OptionTable
   options={[
-    ['name', 'String', `必选，包含包名的 service name`],
+    ['name', 'String', `必填，包含包名的 service name`],
     ['options', 'Object', `可选，{ url, channelOptions, credentials, timeout }`]
   ]}
 />
@@ -47,7 +47,7 @@ const client = clients.getReal(name, options)
 
 <OptionTable
   options={[
-    ['name', 'String', `必选，包含包名的 service name`],
+    ['name', 'String', `必填，包含包名的 service name`],
     ['options', 'Object', `可选，{ url, channelOptions, credentials, timeout }`]
   ]}
 />
@@ -86,7 +86,6 @@ clients.use(fn, fn1, fn2)
 
 **返回值:**
 - `void`: 空。
-
 
 ### clear()
 
@@ -373,7 +372,7 @@ const callInstance = client.call.rpcMethod(request, metadata, options, callback)
     ['request', 'Object', '可选，一个包含请求参数的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型'],
     ['metadata', 'Metadata', '可选，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据'],
     ['options', 'Object', '可选，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入 `timeout` 的方式修改超时时间'],
-    ['callback', 'Function', '必选，回调函数，用来接收并处理服务端返回错误信息和结果']
+    ['callback', 'Function', '必填，回调函数，用来接收并处理服务端返回错误信息和结果']
   ]}
 />
 
@@ -392,8 +391,8 @@ callInstance.on('eventName', callback)
 **参数说明:**
 <OptionTable
   options={[
-    ['eventName', 'String', '必选，事件名，有：`data`, `end`, `status`, `metadata`和`error`'],
-    ['callback', 'Function', '必选，回调函数，用来接收并处理服务端返回错误信息和结果']
+    ['eventName', 'String', '必填，事件名，有：`data`, `end`, `status`, `metadata`和`error`'],
+    ['callback', 'Function', '必填，回调函数，用来接收并处理服务端返回错误信息和结果']
   ]}
 />
 

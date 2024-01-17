@@ -1,106 +1,86 @@
+import OptionTable from '@components/optionTable'
+
 # Server Side API
 
-## Server
+通过调用`loader.initServer()`获取 `server` 实例，下面将展示其 API 详情。
 
+## Server
 
 ### add()
 
-### remove()
-
-### inject()
-
-
-### use()
-
-
-### listen()
-
-
-### shutdown()
-
-
-### forceShutdown()
-
-
-
-通过调用`loader.initServer()`获取`server`实例，实例挂着一系列 API，方便我们去支持 gRPC Server 开发。
-
 ```js
-const server = await loader.initServer(channelOptions)
-```
-
-## Server
-
-### addService()
-
-```js
-server.addService(name, implementation, options)
+server.add(name, implementation, options)
 ```
 
 **功能说明:**
 - 将`proto service rpc`定义与具体的执行实现进行绑定。
 
 **参数说明:**
-- `name`: (必填) 指 `proto` 文件路由，具体是到 `service` 的位置；
-- `implementation`: (必填) 携带 service rpc 定义好的方法的对象或者类；
-- `options`: (可选) object：
-    - `exclude`: (可选) 字符串数组，排除`implementation`中不需要参与`service rpc`绑定的方法；
-    - `inherit`: (可选) 如果 `implementation` 通过继承的方式获得的`func`，父类也要参与绑定，把父类传入该参数即可；
+<OptionTable
+  options={[
+    ['name', 'String', '必填，包含包名的 service name'],
+    ['implementation', 'Object', '必填，携带 service rpc 定义好的方法的对象或者类'],
+    ['options', 'Object', `可选，{ exclude, inherit }`]
+  ]}
+/>
+
+其中 `options` 详情如下：
+
+<OptionTable
+  options={[
+    ['exclude', 'String[]', '可选，排除`implementation`中不需要参与`service rpc`绑定的方法'],
+    ['inherit', 'Class', '可选，如果 `implementation` 通过继承的方式获得的`func`，父类也要参与绑定，把父类传入该参数即可'],
+  ]}
+/>
 
 **返回值:**
-- void: 空。
+- `void`: 空。
 
-### removeService()
+
+### remove()
 
 ```js
-server.removeService(service)
+server.remove(name)
 ```
 
 **功能说明:**
 - 对已经绑定的`service`进行解绑。
 
 **参数说明:**
-- `service`: (必填) 需要通过`loader.service(name)`来获取 proto 里指定的`service`；
+<OptionTable
+  options={[
+    ['name', 'String', '必填，包含包名的 service name'],
+  ]}
+/>
 
 **返回值:**
-- void: 空。
+- `void`: 空。
 
-### makeServerCredentials()
+### inject()
 
-```js
-const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkClientCertificate)
-```
 
-**功能说明:**
-- 生成可供服务端使用的证书实例。
-
-**参数说明:**
-- `rootCerts`: (可选) Buffer, 一般为 ca 文件；
-- `keyCertPairs`: 证书对，key和crt，必须数组；
-    - `private_key`: (可选) Buffer, 一般为 key 文件；
-    - `cert_chain`: (可选) Buffer, 一般为 crt 文件；
-- `checkClientCertificate`: (可选) 是否检查客户端证书；
-
-**返回值:**
-
-存在两种情况:
-- 如果有完整的参数，则返回:`grpc.ServerCredentials.createSsl()`；
-- 如果没有参数，则返回: `grpc.ServerCredentials.createInsecure()`；
-
-### addMiddleware()
+### use()
 
 ```js
-server.addMiddleware(args)
+server.use(fn)
+server.use([fn, fn1])
+server.use(fn, fn1, fn2)
 ```
 
 **功能说明:**
 - 添加一个处理 rpc 前后逻辑的中间件。
 
 **参数说明:**
-- `args`: (必选) 支持一个或多个中间件函数，也支持中间件函数数组。中间件函数一般为`async (ctx, next) => { await next() }`
+<OptionTable
+  options={[
+    ['single', 'MiddlewareFunction', '中间件函数，一般为 `async (ctx, next) => { await next() }'],
+    ['array', 'MiddlewareFunction[]', '中间件函数数组'],
+    ['mutli', '...MiddlewareFunction', '多个中间件函数']
+  ]}
+/>
 
 **返回值:**
-- void: 空。
+- `void`: 空。
 
 ### listen()
 
@@ -112,15 +92,15 @@ await server.listen(addr, credentials)
 - 监听地址与端口，启动 gRPC 服务。
 
 **参数说明:**
-- `addr`: (必选) 服务启动需要监听的地址和端口，支持类型如下，任选一个:
-    - string: ip+port 格式，如 `127.0.0.1:9099`；
-    - object: `{ host, port }`；
-        - host: 字符串，支持 ip 和域名；
-        - port: 数字，最小值为0，最大值为65535；
-- `credentials`: (可选) 使用`makeServerCredentials`来生成，并给`listen`调用；
+<OptionTable
+  options={[
+    ['addr', 'String / { host, port }', '必填, ip/domain + port 格式，或，{ host, port } 格式'],
+    ['credentials', 'ServerCredentials', '可选，证书链，使用 `loader.makeServerCredentials()` 获取'],
+  ]}
+/>
 
 **返回值:**
-- void: 空。
+- `void`: 空。
 
 ### shutdown()
 
@@ -132,10 +112,10 @@ await server.shutdown()
 - gRPC 服务优雅退出。
 
 **参数说明:**
-- void: 空。
+- `void`: 空。
 
 **返回值:**
-- void: 空。
+- `void`: 空。
 
 ### forceShutdown()
 
@@ -147,10 +127,10 @@ server.forceShutdown()
 - gRPC 服务强制退出。
 
 **参数说明:**
-- void: 空。
+- `void`: 空。
 
 **返回值:**
-- void: 空。
+- `void`: 空。
 
 ## method[callProxy]
 
@@ -189,7 +169,7 @@ for await (const data of call.readAll()) {}
 - 接收来自客户端的流信息。
 
 **参数说明:**
-- void: 空。
+- `void`: 空。
 
 **返回值:**
 - `asyncIterator`: 返回的一个`asyncIterator`对象，需要我们使用`for await`逐条获取`stream message`结果；
@@ -204,10 +184,10 @@ call.end()
 - 服务端结束流信息处理，并通过客户端。
 
 **参数说明:**
-- void: 空。
+- `void`: 空。
 
 **返回值:**
-- void: 空。
+- `void`: 空。
 
 ### server stream call
 
@@ -225,10 +205,14 @@ call.write(request)
 - 服务端端发送一条流信息。
 
 **参数说明:**
-- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
+<OptionTable
+  options={[
+    ['request', 'Object', '可选，一个包含请求参数的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型'],
+  ]}
+/>
 
 **返回值:**
-- `Boolean`: 布尔值，一般为`true`;
+- `Boolean`: 布尔值，一般为`true`，用于表示是否发送成功;
 
 #### writeAll()
 
@@ -240,10 +224,14 @@ call.writeAll([ request ])
 - 服务端批量发送多条流信息。
 
 **参数说明:**
-- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
+<OptionTable
+  options={[
+    ['request', 'Object', '可选，一个包含请求参数的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型'],
+  ]}
+/>
 
 **返回值:**
-- void: 空。
+- `void`: 空。
 
 #### end()
 
@@ -255,10 +243,10 @@ call.end()
 - 服务端结束流信息处理，并通过客户端。
 
 **参数说明:**
-- void: 空。
+- `void`: 空。
 
 **返回值:**
-- void: 空。
+- `void`: 空。
 
 ### duplex stream call
 
@@ -276,10 +264,14 @@ call.write(request)
 - 服务端端发送一条流信息。
 
 **参数说明:**
-- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
+<OptionTable
+  options={[
+    ['request', 'Object', '可选，一个包含请求参数的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型'],
+  ]}
+/>
 
 **返回值:**
-- `Boolean`: 布尔值，一般为`true`;
+- `Boolean`: 布尔值，一般为`true`，用于表示是否发送成功;
 
 #### writeAll()
 
@@ -291,10 +283,14 @@ call.writeAll([ request ])
 - 服务端批量发送多条流信息。
 
 **参数说明:**
-- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
+<OptionTable
+  options={[
+    ['request', 'Object', '可选，一个包含请求参数的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型'],
+  ]}
+/>
 
 **返回值:**
-- void: 空。
+- `void`: 空。
 
 #### readAll()
 
@@ -306,7 +302,7 @@ for await (const data of call.readAll()) {}
 - 接收来自客户端的流信息。
 
 **参数说明:**
-- void: 空。
+- `void`: 空。
 
 **返回值:**
 - `asyncIterator`: 返回的一个`asyncIterator`对象，需要我们使用`for await`逐条获取`stream message`结果；
@@ -321,7 +317,7 @@ call.end()
 - 服务端结束流信息处理，并通过客户端。
 
 **参数说明:**
-- void: 空。
+- `void`: 空。
 
 **返回值:**
-- void: 空。
+- `void`: 空。
