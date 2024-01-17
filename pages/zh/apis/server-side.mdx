@@ -58,6 +58,12 @@ server.remove(name)
 
 ### inject()
 
+```
+server.inject(customService)
+```
+
+**功能说明:**
+- 给当前 `server` 注入一个自定义的 `service`。目前仅支持 `loader.initReflection()` 的注入。
 
 ### use()
 
