@@ -21,7 +21,7 @@ Example:
 
 ```js
 const credentials = loader.makeCredentials(rootCerts, privateKey, certChain, verifyOptions)
-const clients = await loader.initClients(
+const clients = await loader.initClients({
     services: {
         'dev.path.to.serviceA': 'domain.local:9099',
         'path.to.serviceB': {
@@ -31,7 +31,7 @@ const clients = await loader.initClients(
     },
     channelOptions,
     credentials,
-)
+})
 ```
 
 ### Middleware
@@ -140,3 +140,37 @@ const b = serviceBClient.call.rpcMethod2({ name: 'youapp' }, (err, result) => {
     return result
 })
 ```
+
+### Reinitialization
+
+There are some scenarios that require us to reinitialize `clients`, for example: when the server's access address changes. The provided solution here is to first execute `clear()`, and then execute `init()`.
+
+The principle is to clear all caches from the previous client initialization, then reexecute the initialization to generate new cache info. The complete example is as follows:
+
+```js
+const clients = await loader.initClients({
+    services: {
+        'dev.path.to.serviceA': 'domain.local:9099',
+        'path.to.serviceB': {
+            host: '192.168.32.111',
+            port: 10099
+        }
+    }
+})
+
+clients.clear()
+
+clients.init({
+    services: {
+        'dev.path.to.serviceA': 'domain.local:9088',
+        'path.to.serviceB': {
+            host: '192.168.32.112',
+            port: 10099
+        }
+    }
+})
+```
+
+<Callout type="warning">
+Note: `clear()` must be executed before `init()`, otherwise it will not take effect.
+</Callout>

@@ -101,6 +101,35 @@ clients.clear(fn)
 **Returns:**
 - `void`: Empty.
 
+### init()
+
+```js
+clients.init(options)
+```
+
+**Description:**
+- Reinitialization requires the prior execution of `clear()` to take effect.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['services', 'Object', `Required, service and address`],
+    ['channelOptions', 'ChannelOptions', `Optional, proto channel options, default uses built-in channelOptions`],
+    ['credentials', 'ChannelCredentials', 'Optional, certificate chain, use `loader.makeCredentials()` to get`']
+  ]}
+/>
+
+<OptionTable
+  options={[
+    ['services.key', 'String', `service name, including the complete package name, e.g., 'test.helloworld.Greeter'`],
+    ['services.value', 'String', `ip/domain + port format, e.g., '192.168.1.33:5001'`],
+    ['services.value', 'Object', '{ host, port } format, `host`: string, supports IP and domain; `port`: number, minimum value is 0, maximum value is 65535']
+  ]}
+/>
+
+**Returns:**
+- `void`: Empty.
+
 ## proxy[method]
 
 ### unary call

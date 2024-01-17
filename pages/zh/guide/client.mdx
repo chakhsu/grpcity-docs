@@ -21,7 +21,7 @@ const clients = await loader.initClients({ services, channelOptions, credentials
 
 ```js
 const credentials = loader.makeCredentials(rootCerts, privateKey, certChain, verifyOptions)
-const clients = await loader.initClients(
+const clients = await loader.initClients({
     services: {
         'dev.path.to.serviceA': 'domain.local:9099',
         'path.to.serviceB': {
@@ -31,7 +31,7 @@ const clients = await loader.initClients(
     },
     channelOptions,
     credentials,
-)
+})
 ```
 
 ### 添加中间件
@@ -140,3 +140,37 @@ const b = serviceBClient.call.rpcMethod2({ name: 'youapp' }, (err, result) => {
     return result
 })
 ```
+
+### 重新初始化
+
+有一些业务场景是需要我们对 `clients` 进行重新初始化，例如:服务端的访问地址变更。这里提供的解决方法是先执行 `clear()`，在执行 `init()`。
+
+原理是清除上一次的客户端初始化时的所有缓存，再重新执行初始化，生成新的缓存信息。完整示例如下：
+
+```js
+const clients = await loader.initClients({
+    services: {
+        'dev.path.to.serviceA': 'domain.local:9099',
+        'path.to.serviceB': {
+            host: '192.168.32.111',
+            port: 10099
+        }
+    }
+})
+
+clients.clear()
+
+clients.init({
+    services: {
+        'dev.path.to.serviceA': 'domain.local:9088',
+        'path.to.serviceB': {
+            host: '192.168.32.112',
+            port: 10099
+        }
+    }
+})
+```
+
+<Callout type="warning">
+注意: `init()`之前需要先执行`clear()`，否则会不生效。
+</Callout>

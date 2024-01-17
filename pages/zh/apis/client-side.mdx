@@ -101,6 +101,35 @@ clients.clear(fn)
 **返回值:**
 - `void`: 空。
 
+### init()
+
+```js
+clients.init(options)
+```
+
+**功能说明:**
+- 重新进行初始化，需要先执行`clear()`才会生效。
+
+**参数说明:**
+<OptionTable
+  options={[
+    ['services', 'Object', `必填，service 和地址`],
+    ['channelOptions', 'ChannelOptions', `可选，proto channel options，默认使用内置 channelOptions`],
+    ['credentials', 'ChannelCredentials', '可选，证书链，使用 `loader.makeCredentials()` 获取']
+  ]}
+/>
+
+<OptionTable
+  options={[
+    ['services.key', 'String', `service name, 包含完整的包名, 如 'test.helloworld.Greeter'`],
+    ['services.value', 'String', `ip/domain + port 格式，如 '192.168.1.33:5001'`],
+    ['services.value', 'Object', '{ host, port } 格式，`host`: 字符串，支持 ip 和域名; `port`: 数字，最小值为0，最大值为65535']
+  ]}
+/>
+
+**返回值:**
+- `void`: 空。
+
 ## proxy[method]
 
 ### unary call
