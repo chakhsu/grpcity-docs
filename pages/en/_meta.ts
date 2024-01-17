@@ -2,19 +2,21 @@ export default {
   index: "Intro",
   start: "Get Started",
   guide: "User Guide",
+  advanced: "Advanced",
   apis: "API",
-  "-- usecase": {
-    type: "separator",
-    title: "Use Cases",
-  },
-  "db-service": "DB Service",
   "-- other": {
     type: "separator",
-    title: "Other",
+    title: "Others",
   },
-  changelog: {
-    title: "Change Log ↗",
-    href: "https://github.com/chakhsu/grpcity/releases",
+  "db-service": "DB Service",
+  example: {
+    title: "More Examples ↗",
+    href: "https://github.com/chakhsu/grpcity/tree/main/example",
     newWindow: true,
   },
+  changelog: {
+    title: "Changelog ↗",
+    href: "https://github.com/chakhsu/grpcity/releases",
+    newWindow: true,
+  }
 }

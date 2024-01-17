@@ -33,7 +33,7 @@ The expanded `ERROR` object looks like this:
 The following example shows how the server can proactively trigger an error when the client sends `x-throw-error` metadata,
 and the `sayHello()` method on the server checks for this metadata:
 
-```javascript
+```javascript {6-8}
 async sayHello(call) {
     const metadata = call.metadata.clone()
     metadata.add('x-timestamp-server', 'received=' + new Date().toISOString())

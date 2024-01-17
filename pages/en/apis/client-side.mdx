@@ -1,0 +1,438 @@
+import OptionTable from '@components/optionTable'
+
+# Client Side API
+
+Retrieve the `clients` instance by using `loader.initClients()`. The API details are outlined below.
+
+## Clients
+
+### get()
+
+```js
+const client = clients.get(name, options)
+```
+
+**Description:**
+- Obtain an instance of the service client corresponding to the proto definition of the provided `name`. This client uses a `proxy` and caches the instance.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['name', 'String', `Required, the service name including the package name`],
+    ['options', 'Object', `Optional, { url, channelOptions, credentials, timeout }`]
+  ]}
+/>
+
+Details of the `options` parameter:
+
+<OptionTable
+  options={[
+    ['url', 'String / { host, port }', 'Optional, in the format of ip/domain + port, or { host, port }'],
+    ['channelOptions', 'ChannelOptions', `Optional, proto channel options, default to using built-in channelOptions`],
+    ['credentials', 'ChannelCredentials', 'Optional, certificate chain, obtained using `loader.makeClientCredentials()`'],
+    ['timeout', 'Number', 'Optional, in milliseconds, controlling the timeout for rpc calls']
+  ]}
+/>
+
+**Returns:**
+- Returns an object with the `already proxy method` defined in the `service proto`.
+
+### getReal()
+
+```js
+const client = clients.getReal(name, options)
+```
+
+**Description:**
+- Obtain an instance of the service client corresponding to the proto definition of the provided `name`. This client does not use a `proxy` and does not cache the instance.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['name', 'String', `Required, the service name including the package name`],
+    ['options', 'Object', `Optional, { url, channelOptions, credentials, timeout }`]
+  ]}
+/>
+
+<OptionTable
+  options={[
+    ['url', 'String / { host, port }', 'Optional, in the format of ip/domain + port, or { host, port }'],
+    ['channelOptions', 'ChannelOptions', `Optional, proto channel options, default to using built-in channelOptions`],
+    ['credentials', 'ChannelCredentials', 'Optional, certificate chain, obtained using `loader.makeClientCredentials()`'],
+    ['timeout', 'Number', 'Optional, in milliseconds, controlling the timeout for rpc calls']
+  ]}
+/>
+
+**Returns:**
+- Returns an object with the `callback method` defined in the `service proto`.
+
+### use()
+
+```js
+clients.use(fn)
+clients.use([fn, fn1])
+clients.use(fn, fn1, fn2)
+```
+
+**Description:**
+- Add middleware to handle logic before and after the rpc call.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['single', 'MiddlewareFunction', 'Middleware function, usually `async (ctx, next) => { await next() }'],
+    ['array', 'MiddlewareFunction[]', 'Array of middleware functions'],
+    ['mutli', '...MiddlewareFunction', 'Multiple middleware functions']
+  ]}
+/>
+
+**Returns:**
+- `void`: Empty.
+
+### clear()
+
+```js
+clients.clear(fn)
+```
+
+**Description:**
+- Clear all caches of the `client`.
+
+**Returns:**
+- `void`: Empty.
+
+## proxy[method]
+
+### unary call
+
+```js
+const { status, peer, metadata, response } = await client.rpcUnaryMethod(request, metadata, options)
+```
+
+**Description:**
+- Make a `rpcUnaryMethod` call, point-to-point, and wait for the result to be returned.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
+    ['metadata', 'Metadata', 'Optional, used to pass metadata related to the request. Metadata is represented as key-value pairs and can include information for authentication, authorization, tracking, or other purposes'],
+    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Some available options include timeout, retry strategy, etc. If not passed, the default timeout is set to 10 seconds and can be modified by passing `timeout`']
+  ]}
+/>
+
+**Returns:**
+<OptionTable
+  options={[
+    ['status', 'StatusObject', 'Status after server processing'],
+    ['peer', 'String', 'Address information initiated by the client'],
+    ['metadata', 'Metadata', 'Metadata information returned by the server'],
+    ['response', 'Object', 'Result returned after server processing']
+  ]}
+/>
+
+### client stream
+
+```js
+const clientStreamCall = await client.rpcClientStreamMethod(metadata, options)
+```
+
+**Description:**
+- Handle a `rpcClientStreamMethod` call, providing the ability for the client to send stream information and receive the result of server processing the stream.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['metadata', 'Metadata', 'Optional, used to pass metadata related to the request. Metadata is represented as key-value pairs and can include information for authentication, authorization, tracking, or other purposes'],
+    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Some available options include timeout, retry strategy, etc. If not passed, the default timeout is set to 10 seconds and can be modified by passing `timeout`']
+  ]}
+/>
+
+**Returns:**
+- `client stream call instance`, providing a series of methods to handle client streams.
+
+#### write()
+
+```js
+clientStreamCall.write(request)
+```
+
+**Description:**
+- Client sends a stream message.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
+  ]}
+/>
+
+**Returns:**
+- `Boolean`: Boolean value, usually `true`, indicating whether the sending was successful;
+
+#### writeAll()
+
+```js
+clientStreamCall.writeAll([request])
+```
+
+**Description:**
+- Client batch sends multiple stream messages.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
+  ]}
+/>
+
+**Returns:**
+- `void`: Empty.
+
+#### writeEnd()
+
+```js
+const { status, peer, metadata, response } = await clientStreamCall.writeEnd()
+```
+
+**Description:**
+- Get the result of server processing the stream information.
+
+**Returns:**
+<OptionTable
+  options={[
+    ['status', 'StatusObject', 'Status after server processing'],
+    ['peer', 'String', 'Address information initiated by the client'],
+    ['metadata', 'Metadata', 'Metadata information returned by the server'],
+    ['response', 'Object', 'Result returned after server processing']
+  ]}
+/>
+
+### server stream
+
+```js
+const serverStreamCall = await client.rpcServerStreamMethod(request, metadata, options)
+```
+
+**
+
+Description:**
+- Handle a `rpcServerStreamMethod` call, providing the ability for the client to initiate a call and receive stream information sent by the server.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
+    ['metadata', 'Metadata', 'Optional, used to pass metadata related to the request. Metadata is represented as key-value pairs and can include information for authentication, authorization, tracking, or other purposes'],
+    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Some available options include timeout, retry strategy, etc. If not passed, the default timeout is set to 10 seconds and can be modified by passing `timeout`']
+  ]}
+/>
+
+**Returns:**
+- `server stream call instance`, providing a series of methods to handle client streams.
+
+#### readAll()
+
+```js
+const asyncIterator = await serverStreamCall.readAll()
+```
+
+**Description:**
+- Receive stream information sent by the server.
+
+**Returns:**
+- `asyncIterator`: An `asyncIterator` object returned by the server, and we need to use `for await` to get the results of each `stream message` sent by the server;
+
+#### readEnd()
+
+```js
+const { status, peer, metadata } = await serverStreamCall.readEnd()
+```
+
+**Description:**
+- Receive status, `peer`, and `metadata` information after server processing.
+
+**Returns:**
+<OptionTable
+  options={[
+    ['status', 'StatusObject', 'Status after server processing'],
+    ['peer', 'String', 'Address information initiated by the client'],
+    ['metadata', 'Metadata', 'Metadata information returned by the server']
+  ]}
+/>
+
+### duplex stream
+
+```
+const clientDuplexStreamCall = client.rpcDuplexStreamMethod(metadata, options)
+```
+
+**Description:**
+- Handle a `rpcDuplexStreamMethod` call, providing the ability for the client to send stream information and receive the server's stream information.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['metadata', 'Metadata', 'Optional, used to pass metadata related to the request. Metadata is represented as key-value pairs and can include information for authentication, authorization, tracking, or other purposes'],
+    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Some available options include timeout, retry strategy, etc. If not passed, the default timeout is set to 10 seconds and can be modified by passing `timeout`']
+  ]}
+/>
+
+**Returns:**
+- `duplex stream call instance`, providing a series of methods to handle client streams.
+
+#### write()
+
+```js
+clientDuplexStreamCall.write(request)
+```
+
+**Description:**
+- Client sends a stream message.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
+  ]}
+/>
+
+**Returns:**
+- `Boolean`: Boolean value, usually `true`, indicating whether the sending was successful;
+
+#### writeAll()
+
+```js
+clientDuplexStreamCall.writeAll([request])
+```
+
+**Description:**
+- Client batch sends multiple stream messages.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
+  ]}
+/>
+
+**Returns:**
+- `void`: Empty.
+
+#### writeEnd()
+
+```js
+clientDuplexStreamCall.writeEnd()
+```
+
+**Description:**
+- Signal to the server that the client has finished sending stream information.
+
+**Returns:**
+- `void`: Empty.
+
+#### readAll()
+
+```js
+const asyncIterator = await clientDuplexStreamCall.readAll()
+```
+
+**Description:**
+- Receive stream information sent by the server.
+
+**Returns:**
+- `asyncIterator`: An `asyncIterator` object returned by the server, and we need to use `for await` to get the results of each `stream message` sent by the server;
+
+#### readEnd()
+
+```js
+const { status, peer, metadata } = clientDuplexStreamCall.readEnd()
+```
+
+**Description:**
+- Receive the status and `metadata` information returned by the server.
+
+**Returns:**
+<OptionTable
+  options={[
+    ['status', 'StatusObject', 'Status after server processing'],
+    ['peer', 'String', 'Address information initiated by the client'],
+    ['metadata', 'Metadata', 'Metadata information returned by the server']
+  ]}
+/>
+
+## proxy.call[method]
+
+```js
+const callInstance = client.call.rpcMethod(request, metadata, options, callback)
+```
+
+**Description:**
+- Handle a `call.rpcMethod` call using a callback function and event listening mechanism to process server information.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
+    ['metadata', 'Metadata', 'Optional, used to pass metadata related to the request. Metadata is represented as key-value pairs and can include information for authentication, authorization, tracking, or other purposes'],
+    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Some available options include timeout, retry strategy, etc. If not passed, the default timeout is set to 10 seconds and can be modified by passing `timeout`'],
+    ['callback', 'Function', 'Required, callback function to receive and process server errors and results']
+  ]}
+/>
+
+**Returns:**
+- `call instance`, providing a series of methods to handle the client.
+
+### on()
+
+```js
+callInstance.on('eventName', callback)
+```
+
+**Description:**
+- Listen for server events and process the listening data.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['eventName', 'String', 'Required, event name, including `data`, `end`, `status`, `metadata`, and `error`'],
+    ['callback', 'Function', 'Required, callback function to receive and process server errors and results']
+  ]}
+/>
+
+**Returns:**
+- `void`: Empty.
+
+### write()
+
+```js
+callInstance.write(request)
+```
+
+**Description:**
+- Client sends a stream message.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
+  ]}
+/>
+
+**Returns:**
+- `Boolean`: Boolean value, usually `true`, indicating whether the sending was successful;
+
+### end()
+
+```js
+callInstance.end()
+```
+
+**Description:**
+- Signal to the server that the client has finished sending
+
+**Parameters:**
+- `void`: Empty.
+
+**Returns:**
+- `void`: Empty.

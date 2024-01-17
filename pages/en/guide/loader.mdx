@@ -1,41 +1,43 @@
+import { Callout } from 'nextra/components'
+
 # Loader
 
-When using Proto Loader, you only need to provide parameters when creating an instance.
+When using Proto Loader, we only need to provide parameters when creating an instance.
 
 ```js
-import GrpcLoader from 'grpcity'
-const loader = new GrpcLoader({ location, files })
+import { ProtoLoader } from 'grpcity'
+const loader = new ProtoLoader({ location, files })
 ```
 
 **Why are the parameters `location` and `files` used?**
-- `location` refers to the directory containing the proto files, including the proto files referenced by the services, such as `model.proto` and `empty.proto`.
-- `files` specifies the specific `service.proto` files, indicating where the service definitions are located.
+- `location` refers to the directory containing proto files, including the proto files referenced by services, such as `model.proto`, `empty.proto`, and other independently referenced files.
+- `files` specify the specific `service.proto` files, informing the underlying service that its definition comes from these files.
 
 **Benefits:**
-- Service loading is clear, and you know which services will be used.
-- The directory structure of proto files can be customized without affecting the loading process.
+- Service loading is clear, indicating which services will be used.
+- Proto directory structure is customizable without affecting loading.
 
 ### Directory Retrieval
 
-For ESM module code file directory retrieval, use the following:
+For ESM, use the following:
 
 ```js
-import GrpcLoader from 'grpcity'
+import { ProtoLoader } from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// Get the directory path of this file
+// __dirname for esm
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 ```
 
-If you are using CommonJS module code, `__dirname` is globally available, so you can use it directly where needed.
+For CommonJS, `__dirname` is global, and you can use it directly where needed.
 
-### Loading a Single Directory
+### A Single Directory
 
-In most cases, you only need to load a single proto directory and specify multiple services as shown below:
+In most cases, you only need to load the proto directory once and specify multiple services, as shown below:
 
 ```js
-export default new GrpcLoader({
+export default new ProtoLoader({
     location: path.join(__dirname, './proto'),
     files: [
         'path/to/service-a.proto',
@@ -44,12 +46,12 @@ export default new GrpcLoader({
 })
 ```
 
-### Loading Multiple Directories
+### Multiple Directories
 
-Sometimes, you need to make service calls across different business domains, which may require loading multiple proto directories. Our `gRPCity` already supports loading multiple proto directories as shown below:
+Sometimes, when making service calls across businesses, you may need to load multiple proto directories. Our `gRPCity` already supports loading multiple proto directories, as shown below:
 
 ```js
-export default new GrpcLoader([
+export default new ProtoLoader([
     {
         location: path.join(__dirname, './proto1'),
         files: [
@@ -65,72 +67,49 @@ export default new GrpcLoader([
 ])
 ```
 
-### Initialization with `init()`
+### Initialization
 
-**Why does the loader need `init()`?**
+**Why does the loader need to be initialized with init()?**
 
-`init()` is where the actual proto loading is performed. It also serves as a place for customizing parameters and environment configuration. It can be placed as the first step in the service framework process and only needs to be executed once.
+`init()` is the actual execution of loading proto. It is also the position to customize parameters and environment configurations, making it more independent and can be placed as the first step in the service framework process, requiring only one execution.
 
 ```js
 await loader.init(options)
 ```
 
-### Explanation of Options
+Explanation of `options`, which includes the following parameters:
+- isDev: (optional) Boolean value, indicating whether it is in development mode.
+- packagePrefix: (optional) String, the service name prefix, such as: `dev`, `stage`, etc.
+- loadOptions: (optional) Proto load options.
 
-The `options` parameter includes the following options:
-- `services`: (Optional) Similar to the parameters in `initClient()`. If provided, it allows you to skip `initClient()` and directly complete the initialization of the client. It supports both string and object parameters.
-    - String: IP+port format, such as `127.0.0.1:9099`.
-    - Object: `{ host, port }`.
-        - `host`: A string supporting both IP and domain names.
-        - `port`: A number with a minimum value of 0 and a maximum value of 65535.
-- `isDev`: (Optional) A boolean indicating whether it is in development mode.
-- `packagePrefix`: (Optional) A string representing the package name prefix of the service, e.g., `dev`, `stage`, etc.
-- `loadOptions`: (Optional) Proto load options.
-- `channelOptions`: (Optional) Proto channel options.
-- `appName`: (Optional) A string representing the name of the current application for identification purposes.
+<Callout>
+For more information on `loadOptions`, please refer to this article: [Config](/en/guide/config)
+</Callout>
 
-For more information on `loadOptions` and `channelOptions`, please refer to this guide: [Config](/en/guide/config).
+#### Example
 
-#### Examples
+Note that when using `packagePrefix`, both the server and client need to be consistent.
 
-Note that when using `packagePrefix`, the server and client should be consistent.
-
-For the test environment, the configuration is as follows:
+For the test environment, configure as follows:
 
 ```js
 await loader.init({
     isDev: true,
-    packagePrefix: 'test',
-    services: {
-        'test.path.to.serviceA': 'domain.local:9099',
-        'path.to.serviceB': '192.168.32.111:10099'
-    },
-    appName: 'myApp'
+    packagePrefix: 'test'
 })
 ```
 
-For the stage environment, the configuration is as follows:
+For the stage environment, configure as follows:
 
 ```js
 await loader.init({
-    isDev: false,
-    packagePrefix: 'stage',
-    services: {
-        'stage.path.to.serviceA': 'domain.local:9099',
-        'path.to.serviceB': '192.168.32.111:10099'
-    },
-    appName: 'myApp'
+    isDev: true,
+    packagePrefix: 'stage'
 })
 ```
 
-For the production environment, simply ignore some configuration options, as follows:
+For the production environment, simply ignore these two configuration items, as shown below:
 
 ```js
-await loader.init({
-    services: {
-        'dev.path.to.serviceA': 'domain.local:9099',
-        'path.to.serviceB': '192.168.32.111:10099'
-    },
-    appName: 'myApp'
-})
+await loader.init()
 ```

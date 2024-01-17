@@ -1,86 +1,104 @@
+import { Callout } from 'nextra/components'
+
 # Server
 
-The Server is one of the core features of `gRPCity`, providing the ability to manage the server lifecycle.
-It offers a range of interface functions for managing the entire lifecycle, from importing certificates, binding services, supporting middleware, starting services, and shutting down services.
+Server is one of the core features of `gRPCity`, providing the ability to take over the server-side lifecycle. Through a series of interface functions, it offers full-cycle management APIs for tasks such as certificate import, service binding, middleware support, server startup, and server shutdown.
 
-### Server Instance
+### Initialization
 
-`channelOptions` are explained in detail in the [Config guide](/en/guide/config).
-
-```javascript
-// Get a server instance
-const server = loader.initServer(channelOptions)
+```js
+// Get the server instance
+const server = await loader.initServer(serverOptions)
 ```
 
-Once you have the `server` instance, it offers a series of interfaces to help you develop services.
+`serverOptions` is an object that includes the following parameters:
+- `channelOptions`: Optional, communication configuration rules;
+- `credentials`: Optional, server-side certificate;
+
+<Callout>
+Detailed explanations of `channelOptions` can be found in the [Config Guide](/en/guide/config).
+</Callout>
+
+<Callout>
+Detailed explanations of `credentials` can be found in the [Credentials Guide](/en/guide/credentials).
+</Callout>
 
 ### Service Binding
 
-Service binding requires three parameters: `service`, `implementation` and `options`.
-
-- `name`: (required) specifies the routing of the `proto` file, which is the location of the `service`;
-- `implementation`: (required) An object or class with the methods defined by the service rpc.
-- `options`: (optional) an object:
-    - `exclude`: (optional) an array of strings, excluding methods in `implementation` that do not need to participate in `service rpc` binding;
-    - `inherit`: (optional) if `implementation` is obtained through inheritance and the inherited methods should also be bound to `service rpc`, the inherited object needs to be passed as well;
-
-```javascript
-// Bind service RPC
-server.addService(name, implementation, options)
-// Unbind service RPC
-server.removeService(name)
+```js
+// Service RPC binding
+server.add(name, implementation, options)
 ```
 
-### Adding Middleware
+Parameter explanations:
+- `name`: (Required) Specifies the route in the `proto` file, specifically to the location of the `service`;
+- `implementation`: (Required) An object or class carrying methods defined in the service RPC;
+- `options`: (Optional) Object:
+    - `exclude`: (Optional) Array of strings, excluding methods in `implementation` that do not need to be involved in `service RPC` binding;
+    - `inherit`: (Optional) If `implementation` obtains `func` through inheritance, and the parent class should also be involved in binding, pass the parent class to this parameter;
 
-A distinctive feature of `gRPCity` Server is that it provides middleware capabilities for pre- and post-processing of `implementation`. For more details, see the [Middleware guide](/en/guide/middleware).
+### Service Remove
 
-*Note*: Currently, only `async` methods support middleware, while `callback` methods do not.
+```js
+// Service RPC unbinding
+server.remove(name)
+```
+
+Parameter explanation:
+- `name`: (Required) Specifies the route in the `proto` file, specifically to the location of the `service`;
+
+### Middleware
+
+`server.use()` provides middleware capabilities for pre and post-processing of `implementation`. For more details, see the [Middleware Guide](/en/advanced/server-middleware).
 
 ```js
 // Middleware support for implementation
-
-// Add middleware one by one
-server.addMiddleware(f1)
-server.addMiddleware(f2)
-server.addMiddleware(f3)
-
-// Add multiple middleware by passing them as arguments
-server.addMiddleware(f1, f2, f3)
-
-// Add middleware using an array
-server.addMiddleware([f1, f2, f3])
+// Add one by one
+server.use(f1)
+server.use(f2)
+server.use(f3)
+// Add with multiple parameters
+server.use(f1, f2, f3)
+// Add using an array
+server.use([f1, f2, f3])
 ```
+
+<Callout type="warning">
+Note: Only `async` methods are supported for middleware in the current version; `callback` is not supported yet.
+</Callout>
 
 ### Certificates and Startup
 
-To start the service, the `listen` function supports two parameters: `addr` and `credentials`:
+The `listen` method for server startup supports two parameters: `addr` and `credentials`:
 
-- `addr`: (required) The address and port on which the service needs to listen. You can provide either of the following, either as a string or as an object (choose one):
-    - string: in the format `ip+port`, such as `127.0.0.1:9099`;
-    - object: `{ host, port }`:
-        - host: a string, supports both IP addresses and domain names;
-        - port: a number, with a minimum value of 0 and a maximum value of 65535;
-- `credentials`: (optional) Generated using `makeServerCredentials` and provided to the `listen` call.
+- `addr`: (Required) The address and port that the service startup needs to listen to, supporting either of the following types:
+    - string: in the format of ip+port, such as `127.0.0.1:9099`;
+    - object: `{ host, port }`;
+        - host: string, supports both ip and domain names;
+        - port: number, with a minimum value of 0 and a maximum value of 65535;
+- `credentials`: (Optional) Generated using `loader.makeServerCredentials()` and passed to the `listen` call;
 
-```javascript
-// Server credentials
+```js
+// Server certificate
 const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkClientCertificate)
-// Start the service
+// Server startup
 await server.listen(addr, credentials)
+// or
 // await server.listen('127.0.0.1:9099', credentials)
 // await server.listen({ host: '127.0.0.1', port: 9099 }, credentials)
 ```
 
-For more information, you can read the [Credentials guide](/en/guide/credentials).
+<Callout type="warning">
+Priority of `credentials`: Highest in `listen()`, followed by `initServer()`, and finally the default.
+</Callout>
 
-### Service Shutdown
+### Server Shutdown
 
-Use `shutdown()` with `async` to ensure that it completes asynchronously, while `forceShutdown` doesn't require `async`.
+`shutdown()` needs to use `async` to ensure asynchronous execution completion, while `forceShutdown` does not.
 
-```javascript
-// Graceful service shutdown
+```js
+// Graceful server shutdown
 await server.shutdown()
-// Forceful service shutdown
+// Forceful server shutdown
 server.forceShutdown()
 ```

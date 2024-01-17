@@ -1,10 +1,6 @@
-# Stream v2
+# Async Stream
 
-After version `0.9`, `gRPCity` provides full `promisify` capabilities for client-side `stream rpc`, meaning we can use the `async/await` syntax for **client-side** stream interactions.
-
-After version `1.0`, `gRPCity` provides full `promisify` capabilities for server-side `stream rpc`, meaning we can use the `async/await` syntax for **server-side** stream interactions.
-
-Below, we will demonstrate how to use the capabilities of `Stream v2`. It is recommended to first go through the [Stream](/en/guide/stream) document as there are some similarities between the two.
+Here, we will demonstrate how to utilize the capability of `async stream`. It is recommended to first go through the [Stream](/en/guide/stream) guide, as there are some similarities between the two.
 
 ### Define proto
 
@@ -29,14 +25,14 @@ message Message {
 ### Load proto
 
 ```js filename="./loader.js"
-import GrpcLoader from 'grpcity'
+import { ProtoLoader } from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// get this file dir path
+// __dirname for esm
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-export default new GrpcLoader({
+export default new ProtoLoader({
   location: path.resolve(__dirname, './'),
   files: ['stream.proto']
 })
@@ -52,13 +48,13 @@ import loader from "./loader.js"
 const start = async (addr) => {
   await loader.init()
 
-  await loader.initClients({
+  const clients = await loader.initClients({
     services: {
       'stream.Hellor': addr
     }
   })
 
-  const client = loader.client('stream.Hellor')
+  const client = clients.get('stream.Hellor')
 
   const meta = loader.makeMetadata({
     'x-cache-control': 'max-age=100',
@@ -81,7 +77,7 @@ const start = async (addr) => {
   // ...
 
   // stream client to server
-  const clientStreamHelloCall = client.clientStreamHello(meta)
+  const clientStreamHelloCall = await client.clientStreamHello(meta)
 
   // send stream message to server
   clientStreamHelloCall.write({ message: 'Hello!' })
@@ -95,7 +91,7 @@ const start = async (addr) => {
 }
 ```
 
-The result of running this code is as follows. We see that `writeEnd()` returned the result of the server call `{ status, metadata, response }`, and also sent the `stream message` to the server.
+The result of running this code is as follows. We can see that `writeEnd()` returned the result of the server's response to this call `{ status, metadata, response }`, and the `stream message` was also sent to the server.
 
 ```bash filename="Terminal"
 // client
@@ -136,19 +132,19 @@ Let's continue the point-to-stream process in the `start` method:
 const start = async (addr) => {
   // ...
 
-  const serverStreamHelloCall = client.serverStreamHello({ message: 'Hello! How are you?' }, meta)
+  const serverStreamHelloCall = await client.serverStreamHello({ message: 'Hello! How are you?' }, meta)
   const serverReadAllResult = serverStreamHelloCall.readAll()
   for await (const data of serverReadAllResult) {
       console.log(data)
   }
-  const serverReadEndResult = serverStreamHelloCall.readEnd()
+  const serverReadEndResult = await serverStreamHelloCall.readEnd()
   console.log(serverReadEndResult)
 
   // ...
 }
 ```
 
-The result of running this code is:
+The result of running this code is as follows:
 
 We see that `readAll()` returned an `asyncIterator`, and we need to use `for await` to get the server's response to each `stream message`.
 `readEnd()` returned `{ status, metadata }`, and we also see the server's print record, indicating that it received the `message` sent by the client.
@@ -192,7 +188,7 @@ Let's continue the duplex-stream process in the `start` method. We first call `w
 const start = async (addr) => {
   // ...
 
-  const mutualStreamHelloCall = client.mutualStreamHello(meta)
+  const mutualStreamHelloCall = await client.mutualStreamHello(meta)
   mutualStreamHelloCall.writeAll([
     { message: 'Hello!' },
     { message: 'How are you?' },
@@ -209,7 +205,7 @@ const start = async (addr) => {
     console.log(data)
   }
 
-  const mutualReadEndResult = mutualStreamHelloCall.readEnd()
+  const mutualReadEndResult = await mutualStreamHelloCall.readEnd()
   console.log(mutualReadEndResult)
 
   // ..
@@ -257,20 +253,16 @@ client call end.
 
 ### Server
 
-Here, we sequentially implement the server-side stream interaction functions. Below is our server startup function, where we only need to use the new capabilities provided by `gRPCity` to implement the methods of the `Stream` class.
+Here, we sequentially implement the server's interaction functions for `stream`. Below is our server startup function. We only need to use the new capabilities provided by `gRPCity` to implement the methods of the `Stream` class.
 
 ```js filename="./server.js"
 import loader from "./loader.js"
 
 const start = async (addr) => {
-  const loader = new GrpcLoader({
-    location: path.resolve(__dirname, './'),
-    files: ['stream.proto']
-  })
   await loader.init()
 
-  const server = loader.initServer()
-  server.addService('stream.Hellor', new Stream())
+  const server = await loader.initServer()
+  server.add('stream.Hellor', new Stream())
 
   await server.listen(addr)
   console.log('start:', addr)

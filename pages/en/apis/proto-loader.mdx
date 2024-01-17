@@ -1,0 +1,217 @@
+import OptionTable from '@components/optionTable'
+
+# Proto Loader API
+
+### ProtoLoader
+
+```js
+import { ProtoLoader } from 'grpcity'
+
+const loader = new ProtoLoader(protoFileOptions)
+```
+
+`protoFileOptions` is described as follows:
+
+<OptionTable
+  options={[
+    ['single', 'Object', `{ location, files }`],
+    ['array', 'Object Array', `[ { location, files } ]`]
+  ]}
+/>
+
+Explanation for `{ location, files }`:
+
+<OptionTable
+  options={[
+    ['location', 'Path String', `Required, e.g., path.join(__dirname, './proto')`],
+    ['files', 'Path String Array', `Required, e.g., ['path/to/service-a.proto', 'path/to/service-b.proto']`]
+  ]}
+/>
+
+The following will display the APIs inside the `loader`.
+
+### init()
+
+```js
+await loader.init({ isDev, packagePrefix, loadOptions })
+```
+
+**Description:**
+- Loads the `proto` files and generates `proto` definitions based on the specified parameters.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['isDev', 'Boolean', `Optional, indicates whether it is in development mode, default is false`],
+    ['packagePrefix', 'String', `Optional, package name prefix supplement, e.g., 'dev', 'stage', default is empty`],
+    ['loadOptions', 'LoadOptions', `Optional, proto load options, default uses built-in loadOptions`]
+  ]}
+/>
+
+**Returns:**
+- `void`: Empty.
+
+### initClients()
+
+```js
+const clients = await loader.initClients({ services, channelOptions, credentials })
+```
+
+**Description:**
+- Initializes clients, binds server addresses and `proto` definitions from the `services`, and returns `clients` instances.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['services', 'Object', `Required, service and address`],
+    ['channelOptions', 'ChannelOptions', `Optional, proto channel options, default uses built-in channelOptions`],
+    ['credentials', 'ChannelCredentials', 'Optional, certificate chain, use `loader.makeCredentials()` to get`']
+  ]}
+/>
+
+Detailed explanation of `services`:
+
+```js
+await loader.initClients({
+  services: {
+    'test.path.service': '192.168.1.33:5001',
+    'dev.path.service': { host: '192.168.1.33', port: 5002 }
+  }
+})
+```
+
+<OptionTable
+  options={[
+    ['services.key', 'String', `service name, including the complete package name, e.g., 'test.helloworld.Greeter'`],
+    ['services.value', 'String', `ip/domain + port format, e.g., '192.168.1.33:5001'`],
+    ['services.value', 'Object', '{ host, port } format, `host`: string, supports IP and domain; `port`: number, minimum value is 0, maximum value is 65535']
+  ]}
+/>
+
+**Returns:**
+- `clients`: Includes a series of APIs in `clients`. For more related APIs, please refer to [Client Side](/en/apis/client-side).
+
+### makeClientCredentials()
+
+```js
+const credentials = loader.makeClientCredentials(rootCerts, privateKey, certChain, verifyOptions)
+```
+
+**Description:**
+- Generates certificate instances for client use.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['rootCerts', 'Buffer', 'Optional, generally read ca file'],
+    ['privateKey', 'Buffer', 'Optional, generally read key file'],
+    ['certChain', 'Buffer', 'Optional, generally read crt file'],
+    ['verifyOptions', 'Object', 'Optional, { checkServerIdentity: (hostname, cert) => { } }'],
+  ]}
+/>
+
+**Returns:**
+- If there are complete parameters, returns: `grpc.credentials.createSsl()`;
+- If there are no parameters, returns: `grpc.credentials.createInsecure()`;
+
+### initServer()
+
+```js
+const server = await loader.initServer(channelOptions)
+```
+
+**Description:**
+- Creates a gRPC server instance and provides a series of server APIs.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['channelOptions', 'ChannelOptions', `Optional, proto channel options, default uses built-in channelOptions`],
+    ['credentials', 'ServerCredentials', 'Optional, certificate chain, use `loader.makeServerCredentials()` to get`']
+  ]}
+/>
+
+**Returns:**
+- `Server`: Includes a series of APIs in `server`. For more related APIs, please refer to [Server Side](/en/apis/server-side).
+
+### makeServerCredentials()
+
+```js
+const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkClientCertificate)
+```
+
+**Description:**
+- Generates certificate instances for server use.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['rootCerts', 'Buffer', 'Optional, generally read ca file'],
+    ['keyCertPairs', 'Object[]', 'Optional, { private_key: Buffer, cert_chain: Buffer }, certificate pair, key and crt'],
+    ['checkClientCertificate', 'Boolean', 'Optional, whether to check client certificate'],
+  ]}
+/>
+
+**Returns:**
+- If there are complete parameters, returns: `grpc.ServerCredentials.createSsl()`;
+- If there are no parameters, returns: `grpc.ServerCredentials.createInsecure()`;
+
+### makeMetadata()
+
+```js
+const meta = loader.makeMetadata({ key: value })
+```
+
+**Description:**
+- Creates metadata instances for client use. Parameters can be empty.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['key', 'String', 'key value'],
+    ['value', 'any / any[]', 'Usually a string or string array, non-string cases will be converted to Buffer internally'],
+  ]}
+/>
+
+**Returns:**
+- Metadata instance.
+
+### service()
+
+```js
+const service = loader.service(name)
+```
+
+**Description:**
+- Gets the `service` definition from the `proto`.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['name', 'String', 'Required, indicates the route to the `service` in the `proto` file'],
+  ]}
+/>
+- `name`: ;
+
+**Returns:**
+- `service` definition in `proto`.
+
+### type()
+
+```js
+const type = loader.type(name)
+```
+
+**Description:**
+- Gets the `type` definition from the `proto`;
+- Capabilities include `service()`.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['name', 'String', 'Required, indicates the route to the `proto` file, from package to `service`, `model`, or `message`'],
+  ]}
+/>
+
+**Returns:**
+- `type` definition in `proto`.

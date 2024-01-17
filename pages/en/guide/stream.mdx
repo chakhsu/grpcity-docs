@@ -5,7 +5,7 @@ Currently, there are three types of streaming RPCs: `client-stream to server`, `
 
 Here, we'll demonstrate how to work with streams using callbacks and event mechanisms. We will use the `proxy.call` methods of the client.
 
-If you need to learn about working with `async streams`, you can refer to the [Stream v2](/en/guide/stream-v2) guide.
+If you need to learn about working with `async streams`, you can refer to the [Async Stream](/en/guide/async-stream) guide.
 
 ### Prerequisites
 
@@ -34,14 +34,14 @@ message Message {
 Write `loader.js` to complete proto loading:
 
 ```javascript filename="./loader.js"
-import GrpcLoader from 'grpcity'
+import { ProtoLoader } from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// Get the directory path of this file
+// __dirname for esm
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-export default new GrpcLoader({
+export default new ProtoLoader({
     location: path.resolve(__dirname, './'),
     files: ['stream.proto']
 })
@@ -100,8 +100,8 @@ Continue with service initialization and startup:
 async function start (addr) {
   await loader.init()
 
-  const server = loader.initServer()
-  server.addService('stream.Hellor', new Stream())
+  const server = await loader.initServer()
+  server.add('stream.Hellor', new Stream())
 
   await server.listen(addr)
   console.log('start:', addr)
@@ -118,13 +118,13 @@ To call the server using the `Stream` client, you need to use the functions insi
 async function start (addr) {
     await loader.init()
 
-    await loader.initClients({
+    const clients = await loader.initClients({
         services: {
             'stream.Hellor': addr
         }
     })
 
-    const client = loader.client('stream.Hellor')
+    const client = clients.get('stream.Hellor')
 
     const meta = loader.makeMetadata({
         'x-cache-control': 'max-age=100',
@@ -169,7 +169,7 @@ async function start (addr) {
 start('localhost:9097')
 ```
 
-### Testing
+### Debug
 
 - `client stream to server`: We only execute the client's `clientStreamHello()` function, and the result is as follows:
 
@@ -212,5 +212,3 @@ Hello!
 I'm fine, thank you
 Server call end.
 ```
-
-This demonstrates the use of different stream types between the client and server in gRPC.

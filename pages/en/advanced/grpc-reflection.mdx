@@ -1,0 +1,53 @@
+import Video from '@components/video'
+
+# gRPC Reflection
+
+The `gRPCity` server supports the [`GRPC Server Reflection Protocol`](https://github.com/grpc/grpc/blob/master/doc/server-reflection.md).
+This feature allows some third-party clients, such as Postman, to dynamically load API specifications from a running server without manually passing and loading the `proto` file.
+
+### Usage
+
+First, obtain `reflection` from the `loader`, then inject the `reflection` into the `server` to complete the integration.
+
+```js {3,4}
+const server = await loader.initServer()
+
+const reflection  = await loader.initReflection()
+server.inject(reflection)
+```
+
+### Unary Call
+
+We use the `example/reflection/helloworldServer.js` in `gRPCity` as an example of a `Unary Call`.
+
+```bash filename="Terminal"
+node example/reflection/helloworldServer.js
+start: localhost:9098
+```
+
+After the service starts, you can use Postman for integration testing, as demonstrated below:
+
+<Video src="/video/reflection-unary-call.mp4"/>
+
+### Async Stream
+
+We use the `example/reflection/asyncStreamServer.js` in `gRPCity` as an example of an `Async Stream`.
+
+```bash filename="Terminal"
+node example/reflection/asyncStreamServer.js
+start: localhost:9097
+```
+
+After the service starts, you can use Postman for integration testing, as demonstrated below:
+
+**Client Stream**
+
+<Video src="/video/reflection-client-stream.mp4"/>
+
+**Server Stream**
+
+<Video src="/video/reflection-server-stream.mp4"/>
+
+**Bidi Stream**
+
+<Video src="/video/reflection-bidi-stream.mp4"/>

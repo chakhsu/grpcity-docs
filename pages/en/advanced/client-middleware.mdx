@@ -1,0 +1,142 @@
+import { Callout } from 'nextra/components'
+
+# Client Middleware
+
+`gRPCity` provides a middleware mechanism for client-side calls, allowing us to execute middleware code before and after the RPC.
+
+In various business scenarios such as unified call log printing, monitoring metric collection, authentication, parameter modification, result modification, delay, and retry, middleware plays a very convenient role, enabling us to improve development efficiency in handling business.
+
+### Principles
+
+The implementation of `gRPCity`'s middleware is based on the onion model, making it easy for us to execute middleware.
+
+Suppose we have three middleware functions, a, b, and c. The order of middleware execution is `a → b → c`, as shown below:
+
+```
+enter a
+  enter b
+    enter c
+      rpc-method()
+    exit  c
+  exit  b
+exit  a
+```
+
+### Usage
+
+`gRPCity Client` provides the `clients.use()` method to add middleware.
+
+<Callout type="warning">
+The current version only supports middleware for `async unary` and `async stream` methods; `stream` and `callback` are not yet supported.
+</Callout>
+
+Usage is as follows:
+
+```js
+const clients = await loader.initClients()
+
+// Add one by one
+clients.use(f1)
+clients.use(f2)
+clients.use(f3)
+
+// Add with multiple parameters
+clients.use(f1, f2, f3)
+
+// Add using an array
+clients.use([f1, f2, f3])
+```
+
+### Context
+
+```js
+const middleware = async (ctx, next) => {
+  console.log(ctx)
+  await next()
+  console.log(ctx)
+}
+```
+
+The first printed context includes `path`, `method`, and `request`, which are added before calling the server and can be modified. The `method` includes the type of call and the `metadata` and `options` parameters of the request.
+
+```bash filename="Terminal"
+{
+  path: '/helloworld.Greeter/SayGreet',
+  method: {
+    requestStream: false,
+    responseStream: false,
+    metadata: Metadata { internalRepr: [Map], options: {} },
+    options: { deadline: 2024-01-16T16:22:11.836Z }
+  },
+  request: { name: 'greeter' }
+}
+```
+
+The second printed context adds `peer`, `status`, `metadata`, and `response`, which are added after execution and can be modified. The final response is based on the modified result.
+
+```bash filename="Terminal"
+{
+  path: '/helloworld.Greeter/SayGreet',
+  method: {
+    requestStream: false,
+    responseStream: false,
+    metadata: Metadata { internalRepr: [Map], options: {} },
+    options: { deadline: 2024-01-16T16:22:11.836Z }
+  },
+  request: { name: 'greeter' },
+  metadata: Metadata {
+    internalRepr: Map(9) {
+      'content-type' => [Array],
+      'x-cache-control' => [Array],
+      'x-business-id' => [Array],
+      'x-timestamp-client' => [Array],
+      'x-client-hostname' => [Array],
+      'x-service-path' => [Array],
+      'user-agent' => [Array],
+      'x-timestamp-server' => [Array],
+      'date' => [Array]
+    },
+    options: {}
+  },
+  response: { message: 'hello, greeter' },
+  status: {
+    code: 0,
+    details: 'OK',
+    metadata: Metadata { internalRepr: Map(0) {}, options: {} }
+  },
+  peer: '::1:9099'
+}
+```
+
+### Example
+
+Using call log printing as an example:
+
+```js filename="log.js"
+const log = async (ctx, next) => {
+    const startTime = Date.now()
+    await next()
+    const responseTimeMs = Date.now() - startTime
+
+    console.log({
+        path: ctx.path,
+        peer: ctx.peer,
+        responseTimeMs
+    })
+  }
+}
+
+export default log
+```
+
+Adding middleware:
+
+```js filename="client.js"
+import log from './log.js'
+
+// other...
+
+clients.use(log)
+```
+
+With this, we have completed the writing and usage of client-side middleware.

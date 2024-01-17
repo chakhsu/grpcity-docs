@@ -1,36 +1,295 @@
-import { Cards } from 'nextra/components'
+import { Steps } from 'nextra/components'
+import { Callout } from 'nextra/components'
 
 # Get Started
 
-We assume that you already have a basic understanding of gRPC, Node.js, and JavaScript.
-The official documentation is the best teacher, and for a basic introduction to gRPC,
-we recommend the following [link](https://github.com/grpc/grpc-node/tree/master/examples/helloworld/dynamic_codegen).
+Before this, I hope you have some understanding of `gRPC` and `protobuf`, which is the best, of course, you can also get familiar with it here. Here we will use a simple example for a quick start, divided into four steps, which are project initialization, loading proto, implementing the server, and implementing the client.
 
-The quick start tutorial will be divided into three parts, ultimately guiding you
-through the development of a complete microservices server using gRPCity and client-side invocation.
+<Callout>
+Learn more by visiting and reading: [gRPC](https://grpc.io/docs/what-is-grpc/introduction/) & [proto3](https://protobuf.dev/programming-guides/proto3/)
+</Callout>
 
-The project code corresponding to the introductory tutorial is already available on GitHub. [link](https://github.com/chakhsu/grpcity-basic-demo).
+## Project Initialization
 
----
+<Steps>
 
-<Cards>
-  <Cards.Card
-    title="Proto Loader →"
-    href="/en/start/proto-loader"
-  />
-  <Cards.Card
-    title="Server Side →"
-    href="/en/start/server"
-  />
-  <Cards.Card
-    title="Client Side →"
-    href="/en/start/client"
-  />
-</Cards>
+### Create Project
 
----
+Create a demo project and enter:
+```bash filename="Terminal"
+mkdir demo && cd demo
+```
 
-Here is a picture to get you started with `gRPCity`:
+Initialize and install dependencies
+```bash filename="Terminal" sh npm2yarn
+npm init -y
+npm i grpcity
+```
 
-![gPRCity example](/img/grpcity-example.svg)
+<Callout type="warning">
+Note: We need to add `"type": "module"` in `package.json` to activate ESM.
+</Callout>
 
+### Project Directory
+
+We need to create a series of directories and files. The final project directory and file structure are as follows. The highlighted parts need to be created by us in advance:
+
+```bash filename="Terminal" {2,3,9,10,11}
+.
+├── client.js
+├── loader.js
+├── package-lock.json
+├── package.json
+├── proto
+│   └── helloworld
+│       ├── model
+│       │   └── message.proto
+│       └── service.proto
+└── server.js
+```
+</Steps>
+
+## Load Proto
+
+<Steps>
+
+### Define Proto
+
+We define two services, `Greeter` and `Hellor`, and split `message` into `model`.
+
+Enter the following content for `service.proto`:
+
+```proto filename="./proto/helloworld/service.proto"
+syntax = "proto3";
+
+package helloworld;
+
+import "helloworld/model/message.proto";
+
+service Greeter {
+  rpc SayGreet(HelloRequest) returns (HelloReply) {}
+}
+
+service Hellor {
+  rpc SayHello(HelloRequest) returns (HelloReply) {}
+}
+```
+
+Enter the following content for `message.proto`:
+
+```proto filename="./proto/helloworld/model/message.proto"
+syntax = "proto3";
+
+package helloworld.model;
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloReply {
+  string message   = 1;
+  int32 count = 2;
+}
+```
+
+### Implement Loader
+
+Enter the following content for `./loader.js`:
+
+```js filename="./loader.js"
+import { ProtoLoader } from 'grpcity'
+import path from 'node:path'
+
+// __dirname for esm
+import { fileURLToPath } from 'node:url'
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+export default new ProtoLoader({
+    location: path.join(__dirname, './proto'),
+    files: [
+        'helloworld/service.proto'
+    ]
+})
+```
+
+<Callout>
+In `ProtoLoader`, `location` and `files` respectively represent the proto directory and service proto file.
+</Callout>
+
+So far, we have completed the loading of proto files and got `loader.js`. This way we can import this file anywhere and support us to develop and implement the client or server.
+
+</Steps>
+
+## Implement Server
+
+All the steps here will be done in the `./server.js` file.
+
+<Steps>
+
+### Import Loader
+
+```js filename="./server.js"
+import loader from "./loader.js"
+```
+
+### Implement Greeter
+
+Create `Greeter` and implement the `sayGreet` method:
+
+```js filename="./server.js"
+class Greeter {
+    constructor() {
+        this.count = 0
+    }
+
+    async sayGreet(call) {
+        const { name } = call.request
+        this.count++
+        return {
+            message: `hello ${name || "world"} by Greeter`,
+            count: this.count
+        }
+    }
+}
+```
+
+### Implement Hellor
+
+Continue to implement `Hellor` in the same way
+
+```js filename="./server.js"
+class Hellor {
+    async sayHello(call) {
+        const { name } = call.request
+        return { message: `hello ${name || "world"} by Hellor` }
+    }
+}
+```
+
+### Bind and Start
+
+```js filename="./server.js"
+const start = async (addr) => {
+    // loader initialization
+    await loader.init()
+
+    // server initialization and get instance
+    const server = await loader.initServer()
+
+    // bind class methods with service
+    server.add('helloworld.Greeter', new Greeter())
+    server.add('helloworld.Hellor', new Hellor())
+
+    // listen
+    await server.listen(addr)
+    console.log('helloworld server is started: ', addr)
+}
+
+// start
+start('127.0.0.1:9098')
+```
+
+</Steps>
+
+## Implement Client
+
+<Steps>
+
+### Import Loader
+
+```js filename="./client.js"
+import loader from "./loader.js"
+```
+
+### Get Client
+
+Create `start` method, complete getting client.
+
+```js filename="./client.js"
+const start = async (addr) => {
+    await loader.init()
+
+    const clients = await loader.initClients({
+        services: {
+            'helloworld.Greeter': addr,
+            'helloworld.Hellor': addr
+        }
+    })
+}
+```
+
+### Call and Start
+
+We then supplement the logic of the client calling the server in the `start` method and print the call result.
+
+```js filename="./client.js"
+const start = async (addr) => {
+
+    // ...
+    // loader init
+    // clients init
+    // ....
+
+    // greeter client
+    const greeterClient = clients.get('helloworld.Greeter')
+    const greeterResult = await greeterClient.sayGreet({ name: 'grpcity' })
+    console.log('greeterClient.sayGreet', greeterResult.response)
+
+    // hellor client
+    const hellorClient = clients.get('helloworld.Hellor')
+    const hellorResult = await hellorClient.sayHello({ name: 'grpcity' })
+    console.log('hellorClient.sayHello', hellorResult.response)
+}
+
+// execute
+start('127.0.0.1:9098')
+```
+
+<Callout>
+The result received after the `client` initiates the call includes four values, which are `status`, `peer`, `metadata`, and `response`. Here, we only need to print out `response`.
+</Callout>
+
+</Steps>
+
+## Debug
+
+We need two terminal windows, one for running the server and the other for running the client.
+
+<Steps>
+
+### Start Server
+
+```bash filename="Terminal"
+node ./server.js
+helloworld server is started:  127.0.0.1:9098
+```
+
+After starting, our client can connect to the corresponding address.
+
+### Start Client
+
+Start the client, establish a connection with the server, and execute the call. Here, we will execute the client twice.
+
+The result of the first execution is as follows:
+
+```bash filename="Terminal"
+node ./client.js
+greeterClient.sayGreet { message: 'hello grpcity by Greeter', count: 1 }
+hellorClient.sayHello { message: 'hello grpcity by Hellor' }
+```
+
+The result of the second execution is as follows:
+
+```bash filename="Terminal"
+node ./client.js
+greeterClient.sayGreet { message: 'hello grpcity by Greeter', count: 2 }
+hellorClient.sayHello { message: 'hello grpcity by Hellor' }
+```
+
+We can observe that both executions return as expected. In the `sayGreet` function, the `count` is incremented to 2 after the second run, aligning with our expectations and confirming the successful completion of this client-server interaction loop.
+
+</Steps>
+
+And that wraps up our quick start tutorial, designed to be straightforward and user-friendly. For a deeper understanding, feel free to explore the **User Guide**.
+
+The code for this tutorial is available on [GitHub](https://github.com/chakhsu/grpcity-basic-demo).

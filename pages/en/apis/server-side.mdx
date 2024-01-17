@@ -1,0 +1,326 @@
+import OptionTable from '@components/optionTable'
+
+# Server Side API
+
+Retrieve the `server` instance by calling `loader.initServer()`. The API details are outlined below.
+
+## Server
+
+### add()
+
+```js
+server.add(name, implementation, options)
+```
+
+**Description:**
+- Binds the `proto service rpc` definition with the corresponding execution implementation.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['name', 'String', 'Required, service name including package name'],
+    ['implementation', 'Object', 'Required, object or class containing methods defined in service rpc'],
+    ['options', 'Object', 'Optional, { exclude, inherit }']
+  ]}
+/>
+
+The details for the `options` parameter are as follows:
+
+<OptionTable
+  options={[
+    ['exclude', 'String[]', 'Optional, methods in `implementation` to be excluded from `service rpc` binding'],
+    ['inherit', 'Class', 'Optional, if the `implementation` obtains `func` through inheritance, include the parent class in this parameter'],
+  ]}
+/>
+
+**Returns:**
+- `void`: Empty.
+
+
+### remove()
+
+```js
+server.remove(name)
+```
+
+**Description:**
+- Unbinds an already bound `service`.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['name', 'String', 'Required, service name including package name'],
+  ]}
+/>
+
+**Returns:**
+- `void`: Empty.
+
+### inject()
+
+```
+server.inject(customService)
+```
+
+**Description:**
+- Injects a custom `service` into the current `server`. Currently, only supports injection from `loader.initReflection()`.
+
+### use()
+
+```js
+server.use(fn)
+server.use([fn, fn1])
+server.use(fn, fn1, fn2)
+```
+
+**Description:**
+- Adds middleware for handling logic before and after rpc calls.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['single', 'MiddlewareFunction', 'Middleware function, usually defined as `async (ctx, next) => { await next() }'],
+    ['array', 'MiddlewareFunction[]', 'Array of middleware functions'],
+    ['mutli', '...MiddlewareFunction', 'Multiple middleware functions']
+  ]}
+/>
+
+**Returns:**
+- `void`: Empty.
+
+### listen()
+
+```js
+await server.listen(addr, credentials)
+```
+
+**Description:**
+- Listens on the specified address and port, starting the gRPC service.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['addr', 'String / { host, port }', 'Required, in the format of ip/domain + port, or { host, port } format'],
+    ['credentials', 'ServerCredentials', 'Optional, certificate chain, obtained using `loader.makeServerCredentials()`'],
+  ]}
+/>
+
+**Returns:**
+- `void`: Empty.
+
+### shutdown()
+
+```js
+await server.shutdown()
+```
+
+**Description:**
+- Gracefully shuts down the gRPC service.
+
+**Parameters:**
+- `void`: Empty.
+
+**Returns:**
+- `void`: Empty.
+
+### forceShutdown()
+
+```js
+server.forceShutdown()
+```
+
+**Description:**
+- Forcefully shuts down the gRPC service.
+
+**Parameters:**
+- `void`: Empty.
+
+## method[callProxy]
+
+### unary call
+
+```js
+async unaryMethod(call) {}
+```
+
+#### sendMetadata()
+
+```js
+const metadata = call.metadata.clone()
+metadata.add(keyString, value)
+call.sendMetadata(metadata)
+```
+
+**Description:**
+- `call.metadata.clone()`: Receives `metadata` from the client and clones it;
+- `metadata.add(keyString, value)`: Adds key-value pairs to `metadata`;
+- `call.sendMetadata(metadata)`: Sends `metadata` from the server to the client;
+
+### client stream call
+
+```js
+async clientStreamMethod(call) {}
+```
+
+#### readAll()
+
+```js
+for await (const data of call.readAll()) {}
+```
+
+**Description:**
+- Receives a stream of information from the client.
+
+**Parameters:**
+- `void`: Empty.
+
+**Returns:**
+- `asyncIterator`: Returns an `asyncIterator` object. We need to use `for await` to retrieve each `stream message` result;
+
+#### end()
+
+```js
+call.end()
+```
+
+**Description:**
+- Ends processing of stream information on the server side and sends it to the client.
+
+**Parameters:**
+- `void`: Empty.
+
+**Returns:**
+- `void`: Empty.
+
+### server stream call
+
+```js
+async serverStreamMethod(call) {}
+```
+
+#### write()
+
+```js
+call.write(request)
+```
+
+**Description:**
+- Sends a single stream of information from the server.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
+  ]}
+/>
+
+**Returns:**
+- `Boolean`: Boolean value, generally `true`, indicating whether the sending was successful;
+
+#### writeAll()
+
+```js
+call.writeAll([ request ])
+```
+
+**Description:**
+- Sends multiple streams of information from the server.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
+  ]}
+/>
+
+**Returns:**
+- `void`: Empty.
+
+#### end()
+
+```js
+call.end()
+```
+
+**Description:**
+- Ends processing of stream information on the server side and sends it to the client.
+
+**Parameters:**
+- `void`: Empty.
+
+**Returns:**
+- `void`: Empty.
+
+### duplex stream call
+
+```js
+async duplexStreamMethod(call) {}
+```
+
+#### write()
+
+```js
+call.write(request)
+```
+
+**Description:**
+- Sends a single stream of information from the server.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
+  ]}
+/>
+
+**Returns:**
+- `Boolean`: Boolean value, generally `true`, indicating whether the sending was successful;
+
+#### writeAll()
+
+```js
+call.writeAll([ request ])
+```
+
+**Description:**
+- Sends multiple streams of information from the server.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
+  ]}
+/>
+
+**Returns:**
+- `void`: Empty.
+
+#### readAll()
+
+```js
+for await (const data of call.readAll()) {}
+```
+
+**Description:**
+- Receives a stream of information from the client.
+
+**Parameters:**
+- `void`: Empty.
+
+**Returns:**
+- `asyncIterator`: Returns an `asyncIterator` object. We need to use `for await` to retrieve each `stream message` result;
+
+#### end()
+
+```js
+call.end()
+```
+
+**Description:**
+- Ends processing of stream information on the server side and sends it to the client.
+
+**Parameters:**
+- `void`: Empty.
+
+**Returns:**
+- `void`: Empty.

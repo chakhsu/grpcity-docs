@@ -1,14 +1,14 @@
-# Proto
+# Handle Proto
 
-Sometimes, we need the ability to work with the contents of a proto file. The `gRPCity` library provides these capabilities, which are also called internally. For example, `addService(serviceName, implementation)` requires obtaining the service name defined in the proto file.
+Sometimes, we need the capability to handle `proto` content, and the `gRPCity` library provides such functionality, which is also internally invoked.
 
-The benefit of this is that it adds an additional layer of validation to ensure the correctness of the service.
+For example: `add(serviceName, implementation)` requires obtaining the `service name` defined in the `proto` file.
 
-### Loading Proto Files
+### Load proto
 
-Suppose we have a proto path `protos/test/helloworld/` with the following proto content:
+Suppose our `proto` path is `protos/test/helloworld/`, and the `proto` content is as follows:
 
-```proto
+```proto filename="protos/test/helloworld/helloworld.proto"
 service Greeter {
   // Sends a greeting
   rpc SayHello(model.HelloRequest) returns (model.HelloReply) {}
@@ -16,15 +16,15 @@ service Greeter {
 }
 ```
 
-We first need to load the proto:
+We need to load the proto first.
 
-```javascript
-import GrpcLoader from 'grpcity'
+```js
+import { ProtoLoader } from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const loader = new GrpcLoader({
+const loader = new ProtoLoader({
     location: path.resolve(__dirname, 'protos'),
     files: ['test/helloworld/helloworld.proto']
 })
@@ -34,15 +34,31 @@ const loader = new GrpcLoader({
 })()
 ```
 
+### Package Prefix
+
+In some scenarios, we need to prefix the package name of the `proto`. Use the following approach:
+
+```js
+await loader.init({
+  isDev: true,
+  packagePrefix: 'stage.dev'
+})
+```
+
+When using `packagePrefix`, the loaded `proto` definition will be modified, and all paths will have this prefix.
+
 ### service(name)
 
-The `name` parameter specifies the route of the proto, including the service location.
+The `name` parameter refers to the route in the `proto` file, specifically to the location of the `service`.
 
-```javascript
+```js
 const serviceDefinition = loader.service('test.helloworld.Greeter')
 console.log(serviceDefinition)
+```
 
-// log
+Prints:
+
+```bash filename="Terminal"
 {
   SayHello: {
     path: '/stage.dev.test.helloworld.Greeter/SayHello',
@@ -89,15 +105,18 @@ console.log(serviceDefinition)
 
 ### type(name)
 
-The `name` parameter specifies the route of the proto, including the package, service, model, or message.
+The `name` parameter specifies the route in the `proto` file, from the package to the `service`, `model`, or `message`. The capabilities of `type()` include `service()`.
 
-The `type()` method includes the capabilities of `service()`.
+Example with `type('test')`:
 
-```javascript
+```js
 const typePkg = loader.type('test')
 console.log(typePkg)
+```
 
-// log
+Prints:
+
+```bash filename="Terminal"
 {
   helloworld: {
     Greeter: [class ServiceClientImpl extends Client] {
@@ -113,11 +132,18 @@ console.log(typePkg)
 }
 ```
 
-```javascript
+----
+
+Example with `type('test.helloworld')`:
+
+```js
 const typePkg = loader.type('test.helloworld')
 console.log(typePkg)
+```
 
-// log
+Prints:
+
+```bash filename="Terminal"
 {
   Greeter: [class ServiceClientImpl extends Client] {
     service: { SayHello: [Object], SayHello2: [Object] },
@@ -141,40 +167,3 @@ console.log(typePkg)
   }
 }
 ```
-
-### message(name)
-
-The `name` parameter specifies the route of the proto and the name of the message.
-
-```javascript
-const HelloRequest = loader.message('test.helloworld.model.HelloRequest')
-console.log(HelloRequest)
-
-// log
-<ref *1> Type {
-  options: undefined,
-  parsedOptions: null,
-  name: 'HelloRequest',
-  ...
-}
-```
-
-#### Encoding and Decoding
-
-```javascript
-const HelloRequest = loader.message('test.helloworld.model.HelloRequest')
-const jsonData = { name: 'test' }
-// Encoding
-const buffer = HelloRequest.encode(jsonData).finish()
-// Decoding
-const decoded = HelloRequest.decode(buffer)
-
-// Verify if decoding and encoding match
-if (decoded.name === jsonData.name) {
-    console.log(true)
-}
-```
-
-### Note
-
-In most cases, you only need to be concerned with the usage of `service()` and `message()`. The usage of `type()` is rare.

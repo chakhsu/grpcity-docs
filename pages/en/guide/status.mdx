@@ -2,14 +2,23 @@
 
 The `gRPCity` library provides a convenient way to obtain `status`. In general, you won't need to use it often, but I'll provide a brief overview here.
 
-### Getting Status
+### Get Status
+
+Obtaining the `Status` object by `grpcity`:
+
+```js
+import { Status } from 'grpcity'
+
+console.log(Status.OK)
+```
 
 Obtaining the `status` returned by the server is straightforward for the client, as shown below:
 
 ```javascript
-const client = loader.client('path.to.service')
+const client = clients.get('path.to.service')
 const { status } = await client.rpcMethod()
 console.log(status)
+
 
 // The printed result after execution
 {
