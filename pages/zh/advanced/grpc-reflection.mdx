@@ -1,3 +1,5 @@
+import Video from '@components/video'
+
 # gRPC Reflection
 
 `gRPCity` 服务端支持[`GRPC Server Reflection Protocol`](https://github.com/grpc/grpc/blob/master/doc/server-reflection.md)。
@@ -25,9 +27,7 @@ start: localhost:9098
 
 服务启动后就可以使用postman进行接入测试，演示如下:
 
-<video controls className="_mt-6">
-    <source src="/video/reflection-unary-call.mp4" type="video/mp4"/>
-</video>
+<Video src="/video/reflection-unary-call.mp4"/>
 
 ### Async Stream
 
@@ -42,21 +42,12 @@ start: localhost:9097
 
 **Client Stream**
 
-<video controls className="_mt-6">
-    <source src="/video/reflection-client-stream.mp4" type="video/mp4"/>
-</video>
-
+<Video src="/video/reflection-client-stream.mp4"/>
 
 **Server Stream**
 
-<video controls className="_mt-6">
-    <source src="/video/reflection-server-stream.mp4" type="video/mp4"/>
-</video>
-
+<Video src="/video/reflection-server-stream.mp4"/>
 
 **Bidi Stream**
 
-<video controls className="_mt-6">
-    <source src="/video/reflection-bidi-stream.mp4" type="video/mp4"/>
-</video>
-
+<Video src="/video/reflection-bidi-stream.mp4"/>

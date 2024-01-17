@@ -1,169 +1,161 @@
-# gRPC Loader API
+import OptionTable from '@components/optionTable'
 
-### class GrpcLoader
+# Proto Loader API
+
+### ProtoLoader
 
 ```js
-import GrpcLoader from 'grpcity'
+import { ProtoLoader } from 'grpcity'
 
-const loader = new GrpcLoader([{ location, files  }])
+const loader = new ProtoLoader(protoFileOptions)
 ```
 
-**参数说明:**
-- array: `[ { location, files } ]`, 支持数组对象;
-- single: `{ location, files }`, 支持单对象;
+`protoFileOptions` 说明如下:
 
-其中，`{ location, files }`说明:
-- `location`: (必选) path string, 例如: `path.join(__dirname, './proto')`;
-- `files`: (必选) array string, 例如: `['path/to/service-a.proto', 'path/to/service-b.proto']`
+<OptionTable
+  options={[
+    ['single', 'Object', `{ location, files }`],
+    ['array', 'Object Array', `[ { location, files } ]`]
+  ]}
+/>
 
-**返回值:**
-- 返回已经创建好的 GrpcLoader 实例，包含一系列内部变量、内部方法和外部方法。
+`{ location, files }` 说明如下:
 
----
+<OptionTable
+  options={[
+    ['location', 'Path String', `必选，如: path.join(__dirname, './proto')`],
+    ['files', 'Path String Array', `必选，如: ['path/to/service-a.proto', 'path/to/service-b.proto']`]
+  ]}
+/>
 
-下面将会展示`GrpcLoader`里的 API
+下面将会展示 `loader` 里的 API。
 
 ### init()
 
 ```js
-await loader.init({ services, isDev, packagePrefix, loadOptions, channelOptions, appName })
+await loader.init({ isDev, packagePrefix, loadOptions })
 ```
 
 **功能说明:**
-- 初始化，可以初始化所有客户端，实现 service proto 定义与服务端地址绑定，同时支持环境配置。
+- 执行加载 `proto` 文件，并参数规则生成 `proto` 定义。
 
 **参数说明:**
-- `services`: (任选一) 跟`initClient()`里的参数一样，如果有这个参数，则可以跳过`initClient`，直接完成client的初始化。同时支持字符串和对象参数；
-    - `string`: (任一) ip+port 格式，如 `127.0.0.1:9099`；
-    - `object`: (任一) `{ host, port }`；
-        - `host`: 字符串，支持 ip 和域名；
-        - `port`: 数字，最小值为0，最大值为65535；
-- `isDev`: (可选) 布尔值，是否为开发模式；
-- `packagePrefix`: (可选) 字符串，service name 包前缀，如: `dev`, `stage`等等；
-- `loadOptions`: (可选) proto load options；
-- `channelOptions`: (可选) proto channel options；
-- `appName`: (可选) 字符串，当前应用的应用名，用来标记；
+<OptionTable
+  options={[
+    ['isDev', 'Boolean', `可选，是否为开发模式，默认为 false`],
+    ['packagePrefix', 'String', `可选，包名前缀补充，如: 'dev', 'stage'，默认为空`],
+    ['loadOptions', 'LoadOptiobs', `可选，proto load options，默认使用内置 loadOptions`]
+  ]}
+/>
 
 **返回值:**
-- void: 空。
+- `void`: 空。
 
 ### initClients()
 
 ```js
-await loader.initClients({ services, channelOptions, credentials })
+const clients = await loader.initClients({ services, channelOptions, credentials })
 ```
 
 **功能说明:**
-- 初始化所有客户端，实现 service proto 定义与服务端地址绑定。
+- 初始化客户端，绑定 `services` 里的服务端地址与 `proto` 定义，并返回 `clients` 实例。
 
 **参数说明:**
-- `services`: (任选一) 跟`initClient()`里的参数一样，如果有这个参数，则可以跳过`initClient`，直接完成client的初始化。同时支持字符串和对象参数；
-    - `string`: (任一) ip+port 格式，如 `127.0.0.1:9099`；
-    - `object`: (任一) `{ host, port }`；
-        - `host`: 字符串，支持 ip 和域名；
-        - `port`: 数字，最小值为0，最大值为65535；
-- `channelOptions`: (可选) proto channel options；
-- `credentials`: (可选) 证书链，使用`makeCredentials()`获取；
+<OptionTable
+  options={[
+    ['services', 'Object', `必选，service 和地址`],
+    ['channelOptions', 'ChannelOptions', `可选，proto channel options，默认使用内置 channelOptions`],
+    ['credentials', 'ChannelCredentials', '可选，证书链，使用 `loader.makeCredentials()` 获取']
+  ]}
+/>
 
-**返回值:**
-- void: 空。
-
-### closeClients()
+`services`详细说明：
 
 ```js
-loader.closeClients()
+await loader.initClients({
+  services: {
+    'test.path.service': '192.168.1.33:5001',
+    'dev.path.service': { host: '192.168.1.33', port: 5002 }
+  }
+})
 ```
 
-**功能说明:**
-- 主动关闭所有客户端与服务端的连接。
-
-**参数说明:**
-- void: 空。
-
-**返回值:**
-- void: 空。
-
-### client()
-
-```js
-await loader.client('path.to.serviceName', { host, port, timeout, channelOptions, credentials })
-```
-
-**功能说明:**
-- 获取`'path.to.serviceName'`对应的 proto 定义的 service 客户端实例，走`proxy`, **会缓存**，可以查看 [Client Proxy](/zh/apis/client-proxy) 获取更多使用API。
-
-**参数说明:**
-- `name`: (必选) proto 定义的 service，包路径 + service name；
-- `host`: (可选) 字符串，支持 ip 和域名；
-- `port`: (可选) 数字，最小值为0，最大值为65535；
-- `timeout`: (可选) 数字，单位是毫秒，rpc 调用控制超时时间；
-- `credentials`: (可选) 证书链，使用`makeCredentials()`获取；
-- `channelOptions`: (可选) proto channel options；
+<OptionTable
+  options={[
+    ['services.key', 'String', `service name, 包含完整的包名, 如 'test.helloworld.Greeter'`],
+    ['services.value', 'String', `ip/doname + port 格式，如 '192.168.1.33:5001'`],
+    ['services.value', 'Object', '{ host, port } 格式，`host`: 字符串，支持 ip 和域名; `port`: 数字，最小值为0，最大值为65535']
+  ]}
+/>
 
 **返回值:**
-- void: 空。
+- `clients`: 包含 `clients` 一系列的 API。更多相关 API 请查看 [Client Side](/zh/apis/client-side)。
 
-### clientWithoutCache()
-
-```js
-await loader.clientWithoutCache('path.to.serviceName', { host, port, timeout, credentials, channelOptions })
-```
-
-**功能说明:**
-- 获取`'path.to.serviceName'`对应的 proto 定义的 service 客户端实例，走`proxy`, **不缓存**，可以查看 [Client Proxy](/zh/apis/client-proxy) 获取更多使用API。
-
-**参数说明:**
-- `name`: (必选) proto 定义的 service，包路径 + service name；
-- `host`: (可选) 字符串，支持 ip 和域名；
-- `port`: (可选) 数字，最小值为0，最大值为65535；
-- `timeout`: (可选) 数字，单位是毫秒，rpc 调用控制超时时间；
-- `credentials`: (可选) 证书链，使用`makeCredentials()`获取；
-- `channelOptions`: (可选) proto channel options；
-
-**返回值:**
-- void: 空。
-
-### realClient()
+### makeClientCredentials()
 
 ```js
-await loader.realClient('path.to.serviceName', { host, port, timeout, credentials, channelOptions })
-```
-
-**功能说明:**
-- 获取`'path.to.serviceName'`对应的 proto 定义的 service 客户端实例，不走`proxy`, **不缓存**，返回不经过处理的 client 实例。
-
-**参数说明:**
-- `name`: (必选) proto 定义的 service，包路径 + service name；
-- `host`: (可选) 字符串，支持 ip 和域名；
-- `port`: (可选) 数字，最小值为0，最大值为65535；
-- `timeout`: (可选) 数字，单位是毫秒，rpc 调用控制超时时间；
-- `credentials`: (可选) 证书链，使用`makeCredentials()`获取；
-- `channelOptions`: (可选) proto channel options；
-
-**返回值:**
-- void: 空。
-
-### makeCredentials()
-
-```js
-const credentials = loader.makeCredentials(rootCerts, privateKey, certChain, verifyOptions)
+const credentials = loader.makeClientCredentials(rootCerts, privateKey, certChain, verifyOptions)
 ```
 
 **功能说明:**
 - 生成可供客户端使用的证书实例。
 
 **参数说明:**
-- `rootCerts`: (可选) Buffer, 一般为 ca 文件；
-- `privateKey`: (可选) Buffer, 一般为 key 文件；
-- `certChain`: (可选) Buffer, 一般为 crt 文件；
-- `verifyOptions`: (可选)，`{ checkServerIdentity }`；
-    - `checkServerIdentity`: callback函数, `(hostname, cert) => { }`；
+<OptionTable
+  options={[
+    ['rootCerts', 'Buffer', '可选，一般为读 ca 文件'],
+    ['privateKey', 'Buffer', '可选，一般为读 key 文件'],
+    ['certChain', 'Buffer', '可选，一般为读 crt 文件'],
+    ['verifyOptions', 'Object', '可选，{ checkServerIdentity: (hostname, cert) => { } }'],
+  ]}
+/>
 
 **返回值:**
-
-存在两种情况:
 - 如果有完整的参数，则返回:`grpc.credentials.createSsl()`；
 - 如果没有参数，则返回: `grpc.credentials.createInsecure()`；
+
+### initServer()
+
+```js
+const server = await loader.initServer(channelOptions)
+```
+
+**功能说明:**
+- 创建 gRPC server 实例，并提供一系列 server API。
+
+**参数说明:**
+<OptionTable
+  options={[
+    ['channelOptions', 'ChannelOptions', `可选，proto channel options，默认使用内置 channelOptions`],
+    ['credentials', 'ServerCredentials', '可选，证书链，使用 `loader.makeServerCredentials()` 获取']
+  ]}
+/>
+
+**返回值:**
+- `Server`: 包含 `server` 一系列的 API。更多相关 API 请查看 [Server Side](/zh/apis/server-side)
+
+### makeServerCredentials()
+
+```js
+const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkClientCertificate)
+```
+
+**功能说明:**
+- 生成可供服务端使用的证书实例。
+
+**参数说明:**
+<OptionTable
+  options={[
+    ['rootCerts', 'Buffer', '可选，一般为读 ca 文件'],
+    ['keyCertPairs', '[{ private_key, cert_chain }]', '可选，{ private_key: Buffer, cert_chain: Buffer }，证书对， key 和 crt'],
+    ['checkClientCertificate', 'Boolean', '可选，是否检查客户端证书'],
+  ]}
+/>
+
+**返回值:**
+- 如果有完整的参数，则返回:`grpc.ServerCredentials.createSsl()`；
+- 如果没有参数，则返回: `grpc.ServerCredentials.createInsecure()`；
+
 
 ### makeMetadata()
 
@@ -172,30 +164,18 @@ const meta = loader.makeMetadata({ key: value })
 ```
 
 **功能说明:**
-- 创建供客户端使用的的 metadata 实例。
+- 创建供客户端使用的的 metadata 实例。参数可为空。
 
 **参数说明:**
-- `object`: (必选)，对象:
-    - `[key]`: 字符串，key 值；
-    - `[value]`: 字符串，或字符串数组，非字符串场合会在内部转 Buffer;
+<OptionTable
+  options={[
+    ['key', 'String', 'key 值'],
+    ['value', 'any / any[]', '一般为字符串或字符串数组，非字符串场合会在内部转 Buffer'],
+  ]}
+/>
 
 **返回值:**
 - `Metadata` 实例。
-
-### initServer()
-
-```js
-const server = loader.initServer(channelOptions)
-```
-
-**功能说明:**
-- 创建 gRPC server 实例，并提供一些列 server API。更多相关 API 请查看 [Server](/zh/apis/server)
-
-**参数说明:**
-- `channelOptions`: (可选) proto channel options；
-
-**返回值:**
-- 返回 `Server` 实例，可以查看 [Server](/zh/apis/server) 获取更多 API。
 
 ### service()
 
@@ -206,9 +186,13 @@ const service = loader.service(name)
 **功能说明:**
 - 获取`proto`中的`service`定义。
 
-
 **参数说明:**
-- `name`: (必选) 指 `proto` 文件路由，具体是到 `service` 的位置;
+<OptionTable
+  options={[
+    ['name', 'String', '必选，指 `proto` 文件路由，具体是到 `service` 的位置'],
+  ]}
+/>
+- `name`: ;
 
 **返回值:**
 - `proto` 中的 `service` 定义。
@@ -224,22 +208,11 @@ const type = loader.type(name)
 - 能力上包含了`service()`;
 
 **参数说明:**
-- `name`: (必选) 指 `proto` 文件路由，包名到`service`，或到`model`，或到`message`;
+<OptionTable
+  options={[
+    ['name', 'String', '必选，指 `proto` 文件路由，包名到`service`，或到`model`，或到`message`'],
+  ]}
+/>
 
 **返回值:**
 - `proto` 中的 `type` 定义。
-
-### message()
-
-```js
-const message = loader.message(name)
-```
-
-**功能说明:**
-- 获取`proto`中的`message`定义;
-
-**参数说明:**
-- `name`: (必选) 指 proto 文件的路由，具体是指路由 message 的链条名。
-
-**返回值:**
-- `proto` 中的 `message` 定义。

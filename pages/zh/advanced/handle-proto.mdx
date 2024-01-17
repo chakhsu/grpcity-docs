@@ -1,13 +1,11 @@
 # Handle Proto
 
-有时候，我们需要得到处理 proto 内容的能力，`gRPCity`库就提供了这样的能力，同时这些能力中在内部也会被调用。
-例如: `add(serviceName, implementation)`，就需要获取 proto 文件里定义的 service name。
-
-好处是多做了一层校验，保证服务的正确性。
+有时候，我们需要得到处理 `proto` 内容的能力，`gRPCity`库就提供了这样的能力，同时这些能力中在内部也会被调用。
+例如: `add(serviceName, implementation)`，就需要获取 `proto` 文件里定义的 `service name`。
 
 ### 加载 proto
 
-假如我们的 proto 路径是 `protos/test/helloworld/`, proto 的内容如下
+假如我们的 `proto` 路径是 `protos/test/helloworld/`, `proto` 的内容如下
 
 ```proto filename="protos/test/helloworld/helloworld.proto"
 service Greeter {
@@ -37,7 +35,7 @@ const loader = new ProtoLoader({
 
 ### Package Prefix
 
-有些场景，我们需要对proto 的包名进行前缀补充，使用下面的方式：
+有些场景，我们需要对 `proto` 的包名进行前缀补充，使用下面的方式：
 
 ```js
 await loader.init({
@@ -106,7 +104,7 @@ console.log(serviceDefinition)
 
 ### type(name)
 
-`name`参数指 proto 文件的路由，包名到service，或到model，或到message。`type()`的能力包含了`service()`。
+`name`参数指 `proto` 文件的路由，包名到 `service` ，或到 `model` ，或到 `message`。 `type()` 的能力包含了 `service()`。
 
 `type('test')` 例子：
 

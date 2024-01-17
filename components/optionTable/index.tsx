@@ -1,34 +1,34 @@
 import styles from './style.module.css'
 
-export function OptionTable({ options }: { options: [string, string, any] }) {
+export default function OptionTable({ options }: { options: [string, string, any] }) {
   return (
     <div
       className={
-        '-mx-6 mb-4 mt-6 overflow-x-auto overscroll-x-contain px-6 pb-4 ' +
+        '_mb-4 _mt-6 _overflow-x-auto _overscroll-x-contain _px-6 _pb-4 ' +
         styles.container
       }
     >
-      <table className="w-full border-collapse text-sm">
+      <table className="_w-full _border-collapse _text-sm">
         <thead>
-          <tr className="border-b py-4 text-left dark:border-neutral-700">
-            <th className="py-2 font-semibold">Option</th>
-            <th className="py-2 pl-6 font-semibold">Type</th>
-            <th className="px-6 py-2 font-semibold">Description</th>
+          <tr className="_py-4 _text-left _border-b _border-gray-100 dark:_border-gray-700">
+            <th className="_py-2 _font-semibold">Option</th>
+            <th className="_py-2 _pl-6 _font-semibold">Type</th>
+            <th className="_px-6 _py-2 _font-semibold">Description</th>
           </tr>
         </thead>
-        <tbody className="align-baseline text-gray-900 dark:text-gray-100">
+        <tbody className="_align-baseline _text-gray-900">
           {options.map(([option, type, description]) => (
             <tr
               key={option}
-              className="border-b border-gray-100 dark:border-neutral-700/50"
+              className="_py-4 _text-left _border-b _border-gray-100 dark:_border-gray-700"
             >
-              <td className="whitespace-pre py-2 font-mono text-xs font-semibold leading-6 text-violet-600 dark:text-violet-500">
+              <td className="_whitespace-pre _py-2 _font-mono _text-xs _font-semibold _text-primary-600 dark:_text-primary-600">
                 {option}
               </td>
-              <td className="whitespace-pre py-2 pl-6 font-mono text-xs font-semibold leading-6 text-slate-500 dark:text-slate-400">
+              <td className="_whitespace-pre _py-2 _pl-6 _font-mono _text-xs _font-semibold _text-gray-500 dark:_text-gray-400">
                 {type}
               </td>
-              <td className="py-2 pl-6">{description}</td>
+              <td className="_py-2 _pl-6 _text-slate-900 dark:_text-slate-100">{description}</td>
             </tr>
           ))}
         </tbody>

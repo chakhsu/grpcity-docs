@@ -1,5 +1,5 @@
 export default {
   "proto-loader": "Proto Loader",
-  "server": "Server",
-  "client": "Client"
+  "client-side": "Client Side",
+  "server-side": "Server Side"
 }

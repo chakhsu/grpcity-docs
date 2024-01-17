@@ -95,12 +95,12 @@ const options = {
     timeout:  5000 // 表示在当前时间的 5 秒后超时。
 }
 
-const a = await serviceAClient.rpcMethod1({ name: 'myapp' }, meta, options)
-const b = await serviceBClient.rpcMethod2({ name: 'youapp' }, meta, options)
+const { status, peer, metadata, response } = await serviceAClient.rpcMethod({ name: 'myapp' }, meta, options)
 ```
 
 `client`发起请求后，收到的结果包含了三个值，分别是`status`、`metadata`和`response`。
 - `status`: 服务端处理执行后的状态；
+- `peer`: 客户端地址信息；
 - `metadata`: 服务端返回的 metadata 信息；
 - `response`: 服务端处理完成后响应的结果；
 
@@ -113,6 +113,7 @@ const b = await serviceBClient.rpcMethod2({ name: 'youapp' }, meta, options)
     details: 'OK',
     metadata: Metadata { internalRepr: Map(0) {}, options: {} }
   },
+  peer: '::9098',
   metadata: Metadata {
     internalRepr: Map(2) { 'content-type' => [Array], 'date' => [Array] },
     options: {}

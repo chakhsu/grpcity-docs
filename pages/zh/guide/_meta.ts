@@ -1,8 +1,8 @@
 export default {
   "loader": "Loader",
-  "config": "Config",
-  "server": "Server",
   "client": "Client",
+  "server": "Server",
+  "config": "Config",
   "metadata": "Metadata",
   "async-stream": "Async Stream",
   "stream": "Stream",
