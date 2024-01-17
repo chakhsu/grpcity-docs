@@ -15,6 +15,7 @@ const client = clients.get(name, options)
 **功能说明:**
 - 获取 `name` 对应的 proto 定义的 service 客户端实例，走 `proxy` 而且会缓存起来。
 
+**参数说明:**
 <OptionTable
   options={[
     ['name', 'String', `必填，包含包名的 service name`],
@@ -45,6 +46,7 @@ const client = clients.getReal(name, options)
 **功能说明:**
 - 获取 `name` 对应的 proto 定义的 service 客户端实例，不走 `proxy` 而且不会缓存。
 
+**参数说明:**
 <OptionTable
   options={[
     ['name', 'String', `必填，包含包名的 service name`],

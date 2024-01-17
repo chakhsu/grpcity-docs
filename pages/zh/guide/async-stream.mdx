@@ -263,8 +263,8 @@ import loader from "./loader.js"
 const start = async (addr) => {
   await loader.init()
 
-  const server = loader.initServer()
-  server.addService('stream.Hellor', new Stream())
+  const server = await loader.initServer()
+  server.add('stream.Hellor', new Stream())
 
   await server.listen(addr)
   console.log('start:', addr)
