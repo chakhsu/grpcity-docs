@@ -2,6 +2,7 @@ import { useRouter } from 'next/router'
 import type { DocsThemeConfig } from 'nextra-theme-docs'
 import { LocaleSwitch, useConfig, ThemeSwitch } from 'nextra-theme-docs'
 import type { ComponentProps, ReactElement } from 'react'
+import Footer from '@components/footer'
 
 export const Logo = (props: ComponentProps<'svg'>): ReactElement => (
   <svg viewBox="0 0 83 83" {...props}>
@@ -104,11 +105,15 @@ const config: DocsThemeConfig = {
     )
   },
   footer: {
-    content: (
-      <p className="_text-sm">
-        © {new Date().getFullYear()} gRPCity & Built by Chakhsu.
-      </p>
-    )
+    content: () => {
+      const { route } = useRouter()
+      const locate = route.includes('/en') ? '/en' : '/zh'
+      return (
+        <>
+          {Footer(locate)}
+        </>
+      )
+    }
   },
   sidebar: {
     defaultMenuCollapseLevel: 1,
