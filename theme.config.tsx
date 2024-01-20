@@ -77,7 +77,7 @@ const config: DocsThemeConfig = {
   project: {
     link: 'https://github.com/chakhsu/grpcity',
   },
-  docsRepositoryBase: 'https://github.com/chakhsu/grpcity-docs',
+  docsRepositoryBase: 'https://github.com/chakhsu/grpcity-docs/tree/main',
   head: () => {
     const config = useConfig()
     const { route } = useRouter()
