@@ -1,9 +1,10 @@
 import styles from './style.module.css'
 
 export default function Footer(locale: string) {
+
   const listMap = [
     {
-      name: 'Usage',
+      name: locale === '/en' ? 'Usage' : '用法',
       list: [
         {
           name: 'Loader',
@@ -20,7 +21,7 @@ export default function Footer(locale: string) {
       ]
     },
     {
-      name: 'Guides',
+      name: locale === '/en' ? 'Guide' : '指南',
       list: [
         {
           name: 'Get Started',
@@ -41,7 +42,7 @@ export default function Footer(locale: string) {
       ]
     },
     {
-      name: 'Others',
+      name: locale === '/en' ? 'Others' : '其他',
       list: [
         {
           name: 'DB Service',
@@ -60,7 +61,7 @@ export default function Footer(locale: string) {
       ]
     },
     {
-      name: 'Recommend',
+      name: locale === '/en' ? 'Recommend' : '推荐',
       list: [
         {
           name: 'Cache Proxy Plus ↗',
