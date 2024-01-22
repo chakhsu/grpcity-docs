@@ -78,6 +78,7 @@ export default function Footer(locale: string) {
   ]
 
   return (
+    <>
     <div className={`${styles.root} _flex _text-sm`}>
       <div className={`${styles['w-1-4']}`}>
         © {new Date().getFullYear()} gRPCity.
@@ -101,5 +102,6 @@ export default function Footer(locale: string) {
       })}
       </div>
     </div>
+    </>
   )
 }

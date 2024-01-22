@@ -70,3 +70,7 @@ export default function LogoImage() {
     </div>
   )
 }
+
+export function LogoTitle() {
+  return (<Logo />)
+}

@@ -1,0 +1,79 @@
+---
+title: Intro
+description: gPRCity 是一套简单、易用和高级的基于 Node.js 的 gRPC 微服务库。
+---
+
+import LogoImage from '@components/logoImage'
+
+<LogoImage />
+
+# gRPCity
+
+<p className="_flex _h-6 _mt-4 _gap-2">
+    <a href="https://github.com/chakhsu/grpcity" target="_blank">
+        <img alt="build-status" src="https://github.com/chakhsu/grpcity/actions/workflows/build.yml/badge.svg" loading="lazy" decoding="async"></img>
+    </a>
+    <a href="https://www.npmjs.com/package/grpcity" target="_blank">
+        <img alt="npm" src="https://img.shields.io/npm/v/grpcity" loading="lazy" decoding="async"></img>
+    </a>
+    <a href="https://github.com/chakhsu/grpcity/blob/main/LICENSE" target="_blank">
+        <img alt="license" src="https://img.shields.io/npm/l/grpcity" loading="lazy" decoding="async"></img>
+    </a>
+</p>
+
+gPRCity: 一套简单、易用和高级的基于 Node.js 的 gRPC 微服务库。
+
+### 是什么？
+
+`gRPCity` 是一个运行在 Node.js 的 gRPC 微服务库。其结合了 `proto-loader` 和 `grpc-js`，简化了很多难以理解的技术概念和步骤，
+提供了容易理解和简洁的 API 去完成加载 proto 文件，同时也提供了完整和强大的客户端和服务端支持。当然，也有非常多高级的功能满足大多数开发场景。
+
+它主要是解决了三个问题，怎么加载 proto 文件、客户端怎么更好地发起调用、服务端怎么更好的提供支持。
+在`gRPCity`里，都给出了不错的答案，同时，在面对更复杂的业务场景下，`gRPCity` 也是有不错的支持。
+
+> 名字来源于: gRPC + City = gRPCity，寄托了作者希望这个库能支撑了业务城市的建设，以技术底座的视角，让大家聚焦业务，更好地支撑交付。
+
+### 为什么？
+
+随着业务发展，流量和数据会不停膨胀，对资源进行精细化利用会变得日益重要。在这个时候，微服务是一个可以帮助我们解决如何充分利用硬件资源的方式，
+同时也要满足代码复用的需求，来适应不同场景下的业务。在此背景下，就有了这个库。当然，决定开源这个事，主要是因为我们用 Node.js 做了大量的微服务实践，
+所以希望用开源的方式，让大家看到我们做的事。
+
+`gRPCity` 的第一行代码最早写在2019年10月28日，并由 [Kamuel](https://github.com/k7) 贡献了 `proto load` 和 `client proxy` 能力。
+之后由[Chakhsu](https://github.com/chakhsu) 继续开发，支持了`multi proto load`、`full client proxy`、`server call proxy` 和 `full stream support`，使得该库功能逐渐齐全。
+目前该库已投入到生产中，使用该库的实例数有上百个。欢迎各位试用。
+
+### 设计
+
+`gRPCity` 内在数据流通设计是非常清晰的，如下所示：
+
+`.proto` -> `this._packagePrefix` -> `this._types`:
+![gPRCity loader](/img/grpcity-loader.svg)
+
+`init clients` -> `get client` -> `client proxy` -> `rpc method call` -> `do`:
+![gPRCity client](/img/grpcity-client.svg)
+
+`init server` -> `instance` -> `call proxy`:
+![gPRCity server](/img/grpcity-server.svg)
+
+### 特性
+
+- **API**: 通信协议以 gRPC 为基础，通过 Protobuf 进行定义；
+- **Protobuf**: 只支持动态 pb 加载，简化了 pb 文件的加载流程；
+- **No-Route**: 无路由，rpc 与 method 天生绑定；
+- **Client**: 一次配置，随时随处调用，支持 multi-server 的调用；
+- **Server**: 简化了初始化流程，三步完成启动，支持 multi-server 的启动；
+- **Credentials**: 客户端和服务端完整地支持了证书加载，提供了通信加密的能力；
+- **Metadata**: 规范化了元信息的传递和获取；
+- **Reflection**: 服务端内置 gRPC reflection API；
+- **Error**: 提供了专有 Error 对象，保证异常捕捉后可以针对性处理；
+- **Middleware**: 客户端和服务端都支持中间件机制；
+- **Config**: 与官方配置对齐，支持 pb load 配置和 gRPC channel 配置；
+- **Promise**: rpc 方法内部支持了 promisify，同时也保留了 callbackify ；
+- **Typescript**: 纯 TS 实现，类型齐全。
+
+...还有更多等你发现。
+
+### License
+
+Released under the MIT License.
