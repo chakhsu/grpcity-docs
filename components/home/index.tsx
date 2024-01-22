@@ -15,7 +15,7 @@ export default function Home() {
       headlineOne: '以更好的方式去创建',
       headlineTwo: '您的 gRPC 客户端和服务端。',
       subtitleOne: 'gRPCity 是一个基于 grpc-node 的客户端和服务端一体化 Node.js 库。',
-      subtitleTwo: '简单、易用和高级，让你专注于业务代码而不是底层实现。',
+      subtitleTwo: '简单、易用和高级，让你更专注于业务代码。',
       cta: '开始使用'
     }
   }
