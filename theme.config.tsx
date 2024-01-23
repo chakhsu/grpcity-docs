@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router'
 import type { DocsThemeConfig } from 'nextra-theme-docs'
 import { LocaleSwitch, useConfig, ThemeSwitch } from 'nextra-theme-docs'
-import type { ComponentProps, ReactElement } from 'react'
 import Footer from '@components/footer'
 import { LogoTitle } from '@components/logoImage'
 

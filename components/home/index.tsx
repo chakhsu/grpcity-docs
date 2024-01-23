@@ -32,7 +32,7 @@ export default function Home() {
           <p className={styles.head}>
             <span></span>
             <span>
-              {heroMap[locate].headlineOne} <br />
+              {heroMap[locate].headlineOne}<br className="max-md:_hidden" />
               {heroMap[locate].headlineTwo}
               <span className={styles.pops}>
                 <span className={styles.pop}></span>
@@ -46,7 +46,7 @@ export default function Home() {
           </p>
         </h1>
         <p className={styles.subtitle}>
-          {heroMap[locate].subtitleOne} <br />
+          {heroMap[locate].subtitleOne}<br className="max-md:_hidden" />
           {heroMap[locate].subtitleTwo}
         </p>
         <div className={styles.actions}>
