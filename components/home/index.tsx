@@ -5,7 +5,7 @@ import styles from './style.module.css'
 export default function Home() {
   const heroMap = {
     '/en': {
-      headlineOne: 'A better way to build',
+      headlineOne: 'A better way to build ',
       headlineTwo: 'your gRPC client and server.',
       subtitleOne: 'gRPCity is a Node.js library based on grpc-node that integrates client and server into one.',
       subtitleTwo: 'It is simple, easy to use and advanced, keeping you to focus on business code.',
