@@ -29,8 +29,21 @@ export default function Home() {
       <div className={styles.tiles}></div>
       <div className={styles.content}>
         <h1 className={styles.headline}>
-          {heroMap[locate].headlineOne} <br />
-          {heroMap[locate].headlineTwo}
+          <p className={styles.head}>
+            <span></span>
+            <span>
+              {heroMap[locate].headlineOne} <br />
+              {heroMap[locate].headlineTwo}
+              <span className={styles.pops}>
+                <span className={styles.pop}></span>
+                <span className={styles.pop}></span>
+                <span className={styles.pop}></span>
+                <span className={styles.pop}></span>
+                <span className={styles.pop}></span>
+              </span>
+            </span>
+            <span></span>
+          </p>
         </h1>
         <p className={styles.subtitle}>
           {heroMap[locate].subtitleOne} <br />
