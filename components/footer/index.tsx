@@ -94,16 +94,6 @@ export default function Footer(locale: string) {
           name: 'Changelog ↗',
           url: 'https://github.com/chakhsu/grpcity/releases',
           newWindow: true
-        },
-        {
-          name: 'Cache Proxy Plus ↗',
-          url: 'https://github.com/chakhsu/cache-proxy-plus',
-          newWindow: true
-        },
-        {
-          name: 'Sync Defer ↗',
-          url: 'https://github.com/chakhsu/sync-defer',
-          newWindow: true
         }
       ]
     }
