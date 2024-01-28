@@ -86,7 +86,7 @@ export default function Footer(locale: string) {
           url: `${locale}/docs/db-service`
         },
         {
-          name: 'More Examples ↗',
+          name: 'Examples ↗',
           url: 'https://github.com/chakhsu/grpcity/tree/main/example',
           newWindow: true
         },

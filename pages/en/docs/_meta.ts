@@ -10,7 +10,7 @@ export default {
   },
   "db-service": "DB Service",
   example: {
-    title: "More Examples ↗",
+    title: "Examples ↗",
     href: "https://github.com/chakhsu/grpcity/tree/main/example",
     newWindow: true,
   },
