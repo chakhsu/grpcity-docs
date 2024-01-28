@@ -54,14 +54,23 @@
 }
 
 .feature-plan a svg {
-  transition: all 0.2s ease;
+  transition: all 0.5s ease;
 }
 
 .feature-plan a:hover svg {
+  --tw-svg-opacity: 1;
+  color: hsl(var(--nextra-primary-hue)var(--nextra-primary-saturation)60%/var(--tw-svg-opacity));
   transform: translateY(5px);
 }
 
+.feature-plan a:hover .feature-header {
+  --tw-svg-opacity: 1;
+  color: hsl(var(--nextra-primary-hue)var(--nextra-primary-saturation)60%/var(--tw-svg-opacity));
+}
+
 .feature-plan a:focus-visible svg {
+  --tw-svg-opacity: 1;
+  color: hsl(var(--nextra-primary-hue)var(--nextra-primary-saturation)60%/var(--tw-svg-opacity));
   transform: translateY(5px);
 }
 
