@@ -1,8 +1,7 @@
-import { useRouter } from 'next/router'
 import Link from 'next/link';
 import styles from './hero.module.css'
 
-export default function Hero() {
+export default function Hero(locate: string) {
   const heroMap = {
     '/en': {
       headlineOne: 'A better way to build ',
@@ -19,9 +18,6 @@ export default function Hero() {
       cta: '开始使用'
     }
   }
-
-  const { route } = useRouter()
-  const locate = route.includes('/en') ? '/en' : '/zh'
 
   return (
     <div className={styles.root}>
