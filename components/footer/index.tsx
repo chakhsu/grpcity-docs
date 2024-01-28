@@ -106,9 +106,9 @@ export default function Footer(locale: string) {
         © {new Date().getFullYear()} gRPCity.
       </div>
       <div className={`${styles.columns} ${styles['w-3-4']}`}>
-      {listMap.map(list => {
+      {listMap.map((list, index) => {
         return (
-          <section>
+          <section key={index}>
             <h3 className="_text-sm _font-semibold _text-gray-900 first:_mt-0 dark:_text-gray-100">{list.name}</h3>
             <ul>
               {list.list.map((item, index) => {
