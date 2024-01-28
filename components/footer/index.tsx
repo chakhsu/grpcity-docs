@@ -8,15 +8,23 @@ export default function Footer(locale: string) {
       list: [
         {
           name: 'Loader',
-          url: `${locale}/guide/loader`
+          url: `${locale}/docs/guide/loader`
         },
         {
           name: 'Client',
-          url: `${locale}/guide/client`
+          url: `${locale}/docs/guide/client`
         },
         {
           name: 'Server',
-          url: `${locale}/guide/server`
+          url: `${locale}/docs/guide/server`
+        },
+        {
+          name: 'Metadata',
+          url: `${locale}/docs/guide/metadata`
+        },
+        {
+          name: 'Config',
+          url: `${locale}/docs/guide/config`
         }
       ]
     },
@@ -25,28 +33,57 @@ export default function Footer(locale: string) {
       list: [
         {
           name: 'Get Started',
-          url: `${locale}/start`
+          url: `${locale}/docs/start`
         },
         {
           name: 'User Guide',
-          url: `${locale}/guide`
+          url: `${locale}/docs/guide`
         },
         {
-          name: 'Advanced',
-          url: `${locale}/advanced`
+          name: 'Async Stream',
+          url: `${locale}/docs/guide/async-stream`
         },
         {
-          name: 'API',
-          url: `${locale}/apis`
+          name: 'Credentials',
+          url: `${locale}/docs/guide/credentials`
+        },
+        {
+          name: 'Status',
+          url: `${locale}/docs/guide/status`
         }
       ]
     },
     {
-      name: locale === '/en' ? 'Others' : '其他',
+      name: locale === '/en' ? 'Advanced' : '高级功能',
+      list: [
+        {
+          name: 'Client Middleware',
+          url: `${locale}/docs/advanced/client-middleware`
+        },
+        {
+          name: 'Server Middleware',
+          url: `${locale}/docs/advanced/server-middleware`
+        },
+        {
+          name: 'gRPC Reflection',
+          url: `${locale}/docs/advanced/grpc-reflection`
+        },
+        {
+          name: 'Handle Proto',
+          url: `${locale}/docs/advanced/handle-proto`
+        },
+        {
+          name: 'API',
+          url: `${locale}/docs/apis`
+        }
+      ]
+    },
+    {
+      name: locale === '/en' ? 'More' : '更多',
       list: [
         {
           name: 'DB Service',
-          url: `${locale}/db-service`
+          url: `${locale}/docs/db-service`
         },
         {
           name: 'More Examples ↗',
@@ -57,12 +94,7 @@ export default function Footer(locale: string) {
           name: 'Changelog ↗',
           url: 'https://github.com/chakhsu/grpcity/releases',
           newWindow: true
-        }
-      ]
-    },
-    {
-      name: locale === '/en' ? 'Recommend' : '推荐',
-      list: [
+        },
         {
           name: 'Cache Proxy Plus ↗',
           url: 'https://github.com/chakhsu/cache-proxy-plus',
@@ -89,9 +121,9 @@ export default function Footer(locale: string) {
           <section>
             <h3 className="_text-sm _font-semibold _text-gray-900 first:_mt-0 dark:_text-gray-100">{list.name}</h3>
             <ul>
-              {list.list.map(item => {
+              {list.list.map((item, index) => {
                 return (
-                  <li>
+                  <li key={index}>
                     <a href={item.url} target={item.newWindow ? "_blank" : "_self"} className="_text-gray-500 hover:_text-gray-900 dark:_text-neutral-400 dark:hover:_text-gray-50">{item.name}</a>
                   </li>
                 )
