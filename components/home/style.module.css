@@ -1,5 +1,5 @@
 .root {
-  position: static;
+  position: relative;
 }
 
 .tilesBg {
@@ -41,7 +41,8 @@
   padding-left: max(env(safe-area-inset-left), 1.5rem);
   padding-right: max(env(safe-area-inset-right), 1.5rem);
   max-width: 90rem;
-  text-align: left;
+  text-align: center;
+  padding-bottom: 150px;
 }
 
 .headline {
@@ -62,7 +63,7 @@
 .head {
   color: hsl(0 0% 10%);
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: flex-end;
 }
 :global(.dark) .head {

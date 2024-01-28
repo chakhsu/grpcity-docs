@@ -4,7 +4,6 @@ export default {
     type: "page",
     display: "hidden",
     theme: {
-      footer: false,
       layout: "raw"
     }
   },
