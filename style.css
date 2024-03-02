@@ -78,7 +78,7 @@ nav a span.logo:hover {
 }
 
 .nextra-code {
-  font-size: .8rem;
+  font-size: .8rem!important;
 }
 
 .nextra-code ._bg-gray-100 {
