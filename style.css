@@ -77,6 +77,10 @@ nav a span.logo:hover {
   }
 }
 
+.nextra-nav-container-blur,.nextra-sidebar-footer,.nextra-toc-footer,body {
+  background-color: transparent;
+}
+
 .nextra-code {
   font-size: .8rem!important;
 }
