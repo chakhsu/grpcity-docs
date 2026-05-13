@@ -4,17 +4,17 @@ import styles from './hero.module.css'
 export default function Hero(locate: string) {
   const heroMap = {
     '/en': {
-      headlineOne: 'A better way to build ',
-      headlineTwo: 'your gRPC client and server.',
-      subtitleOne: 'gRPCity is a Node.js library based on grpc-node that integrates client and server into one.',
-      subtitleTwo: 'It is simple, easy to use and advanced, keeping you to focus on business code.',
+      headlineOne: 'A nicer way to build',
+      headlineTwo: 'your gRPC server and client.',
+      subtitleOne: 'gRPCity wraps @grpc/grpc-js and @grpc/proto-loader behind a small, opinionated API,',
+      subtitleTwo: 'so you can stand up a typed service in a handful of lines and stay focused on business code.',
       cta: 'Get Started'
     },
     '/zh': {
-      headlineOne: '以更好的方式去创建',
-      headlineTwo: '您的 gRPC 客户端和服务端。',
-      subtitleOne: 'gRPCity 是一个基于 grpc-node 的客户端和服务端一体化 Node.js 库。',
-      subtitleTwo: '简单、易用和高级，让你更专注于业务代码。',
+      headlineOne: '更顺手的方式',
+      headlineTwo: '搭建你的 gRPC 服务端和客户端。',
+      subtitleOne: 'gRPCity 把 @grpc/grpc-js 与 @grpc/proto-loader 封装在一套小而克制的 API 之下，',
+      subtitleTwo: '十几行代码起一个带类型的服务，把剩下的时间留给业务逻辑。',
       cta: '开始使用'
     }
   }

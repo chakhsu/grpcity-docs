@@ -1,6 +1,6 @@
 ---
 title: Intro
-description: gPRCity is a simple, easy-to-use, and advanced gRPC microservice library based on Node.js.
+description: gRPCity is a batteries-included gRPC framework for Node.js — typed servers and clients in a handful of lines.
 ---
 
 import LogoImage from '@components/logoImage'
@@ -21,71 +21,56 @@ import LogoImage from '@components/logoImage'
     </a>
 </p>
 
-gPRCity: A simple, easy-to-use, and advanced gRPC microservice library based on Node.js.
+gRPCity is a batteries-included gRPC framework for Node.js. It wraps `@grpc/grpc-js` and `@grpc/proto-loader` behind a small, opinionated API so you can stand up a typed gRPC service or client in a handful of lines and stay focused on business logic.
 
-### What is it?
+### What it does
 
-`gRPCity` is a gRPC microservice library running on Node.js.
-It combines `proto-loader` and `grpc-js`, simplifying many difficult technical concepts and steps,
-providing an easy-to-understand and concise API to complete the loading of proto files,
-and also provides complete and powerful client and server support. Of course,
-there are also many advanced features to meet most development scenarios.
+`gRPCity` answers three questions that every Node.js gRPC project ends up asking:
 
-It mainly solves three problems: how to load proto files, how clients can better initiate calls and how servers can better provide support.
-In `gRPCity`, good answers are given to all these questions,
-and `gRPCity` also provides good support in the face of more complex business scenarios.
+- How do I load `.proto` files once and reuse them across the process?
+- How do I write a client that's promise-friendly, supports streaming, and reads cleanly?
+- How do I write a server that's just a class, with middleware where I expect it?
 
-> The name comes from: gRPC + City = gRPCity,
-which embodies the author's hope that this library can support the construction of the business city,
-from the perspective of the technical base, allowing everyone to focus on the business and better support delivery.
+The framework collapses the boilerplate without hiding it. Loader, client, and server are three small surfaces that share state, so a single `loader.init()` is enough to drive everything else.
 
-### Why?
+### Why it exists
 
-As the business grows, traffic and data will continue to expand,
-and the fine utilization of resources will become increasingly important.
-At this time, microservices is a way that can help us solve how to make full use of hardware resources,
-and also need to meet the needs of code reuse to adapt to business under different scenarios.
-In this context, this library was created. Of course, the decision to open source is mainly because we have done a lot of microservice practices with Node.js,
-so we hope to let everyone see what we are doing through open source.
+`gRPCity` grew out of running Node.js microservices in production. As traffic grows, the cost of every routing layer and every ad-hoc helper adds up. We wanted one library that did the boring parts — promisification, middleware, reflection, TLS, metadata — once and consistently, so service authors could spend their time on business code instead.
 
-The first line of code for `gRPCity` was written on October 28, 2019, and [Kamuel](https://github.com/k7) contributed the `proto load` and `client proxy` capabilities.
-It was then continued by [Chakhsu](https://github.com/chakhsu), who added `multi proto load`, `full client proxy`, `server call proxy` and `full stream support`,
-making the library gradually complete. The library is now in production, with hundreds of instances using it. Everyone is welcome to try it.
+The first commit landed on October 28, 2019. [Kamuel](https://github.com/k7) wrote the original proto load and client proxy. [Chakhsu](https://github.com/chakhsu) carried it forward with multi-proto load, the full client proxy, the server call proxy, and complete streaming support. The library now backs hundreds of services in production.
 
-### Design
+### Design at a glance
 
-The internal data flow design of `gRPCity` is very clear, as shown below:
+The internal data flow is intentionally short:
 
-`.proto` -> `this._packagePrefix` -> `this._types`:
-![gPRCity loader](/img/grpcity-loader.svg)
+`.proto` → `this._packagePrefix` → `this._types`:
+![gRPCity loader](/img/grpcity-loader.svg)
 
-`init clients` -> `get client` -> `client proxy` -> `rpc method call` -> `do`:
-![gPRCity client](/img/grpcity-client.svg)
+`init clients` → `get client` → `client proxy` → `rpc method call` → `do`:
+![gRPCity client](/img/grpcity-client.svg)
 
-`init server` -> `instance` -> `call proxy`:
-![gPRCity server](/img/grpcity-server.svg)
+`init server` → `instance` → `call proxy`:
+![gRPCity server](/img/grpcity-server.svg)
 
 ### Features
 
-- **API**: Communication protocol is based on gRPC and defined through Protobuf.
-- **Protobuf**: Supports only dynamic load, simplifying the loading process of protobuf files.
-- **Client**: Configured once, callable anytime, anywhere, and supports multi-server invocation.
-- **Server**: Simplifies the initialization process with a three-step start, supporting multi-server deployment.
-- **Credentials**: Complete support for certificate loading on both the client and server.
-- **No-Route**: No routing, RPC is inherently bound to methods.
-- **Middleware**: Both client and server support middleware.
-- **Metadata**: Standardizes the transmission and retrieval of metadata.
-- **Reflection**: Built-in gRPC Reflection API in server.
-- **Error**: Provides dedicated Error objects to ensure targeted handling of
-  exceptions after catching.
-- **Promise**: Supports promisify internally in RPC methods while also
-  preserving callbackify.
-- **AbortSignal**: Pass an `AbortSignal` to any RPC call to cancel it.
-- **Config**: Supports protobuf load configurations and gRPC channel configurations.
-- **Validation**: Loader, client and server options are validated at runtime with [zod](https://zod.dev).
-- **Typescript**: Implemented purely in TypeScript with comprehensive types.
+- **API** — gRPC over HTTP/2, schemas defined in Protobuf.
+- **Protobuf** — dynamic loading only; no codegen step.
+- **Client** — configure once, call from anywhere; multi-server supported.
+- **Server** — three-line bootstrap; multiple services per process.
+- **Credentials** — full TLS support on both ends.
+- **No routing** — RPC paths are bound to methods automatically.
+- **Middleware** — Koa-style `(ctx, next)` on both client and server.
+- **Metadata** — standard helpers for sending and reading metadata.
+- **Reflection** — gRPC Server Reflection built in.
+- **Error** — `GrpcClientError` carries `code` / `details` / `metadata` for precise `catch` handling.
+- **Promise & callback** — async APIs by default, callback variants kept.
+- **AbortSignal** — pass an `AbortSignal` to any RPC call to cancel it.
+- **Config** — passthrough for any `@grpc/proto-loader` and `@grpc/grpc-js` channel option.
+- **Validation** — loader, client and server options are validated at runtime with [zod](https://zod.dev).
+- **TypeScript** — written in TS with complete type exports.
 
-...and a lot more.
+…and a few more.
 
 ### License
 
