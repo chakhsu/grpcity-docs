@@ -1,12 +1,10 @@
 # Handle Proto
 
-Sometimes, we need the capability to handle `proto` content, and the `gRPCity` library provides such functionality, which is also internally invoked.
+The loader carries a few low-level helpers for inspecting parsed proto content directly. They're the same primitives gRPCity uses internally for `add(serviceName, impl)`-style calls — you'll reach for them when you need to introspect services, look up messages by their fully qualified name, or wire up tooling against a loaded proto tree.
 
-For example: `add(serviceName, implementation)` requires obtaining the `service name` defined in the `proto` file.
+### Load the proto
 
-### Load proto
-
-Suppose our `proto` path is `protos/test/helloworld/`, and the `proto` content is as follows:
+Take `protos/test/helloworld/` as the proto root with this content:
 
 ```proto filename="protos/test/helloworld/helloworld.proto"
 service Greeter {
@@ -34,9 +32,9 @@ const loader = new ProtoLoader({
 })()
 ```
 
-### Package Prefix
+### Package prefix
 
-In some scenarios, we need to prefix the package name of the `proto`. Use the following approach:
+If you need to namespace the loaded definitions — typically for tenant or environment sandboxing — pass `isDev` and `packagePrefix` to `init()`:
 
 ```js
 await loader.init({
@@ -45,11 +43,11 @@ await loader.init({
 })
 ```
 
-When using `packagePrefix`, the loaded `proto` definition will be modified, and all paths will have this prefix.
+Once a prefix is set, every loaded definition lives under it — including the on-wire method paths. Server and client must agree on the same prefix.
 
 ### service(name)
 
-The `name` parameter refers to the route in the `proto` file, specifically to the location of the `service`.
+`name` is the fully qualified service name from the `.proto`, including the package. The returned object is the underlying gRPC service definition.
 
 ```js
 const serviceDefinition = loader.service('test.helloworld.Greeter')
@@ -105,7 +103,7 @@ Prints:
 
 ### type(name)
 
-The `name` parameter specifies the route in the `proto` file, from the package to the `service`, `model`, or `message`. The capabilities of `type()` include `service()`.
+`name` is any fully qualified name in the loaded proto tree — packages, services, models, or messages. `type()` is a superset of `service()`: anything you can pass to `service()` also resolves through `type()`.
 
 Example with `type('test')`:
 

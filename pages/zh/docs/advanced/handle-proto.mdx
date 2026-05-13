@@ -1,11 +1,10 @@
 # Handle Proto
 
-有时候，我们需要得到处理 `proto` 内容的能力，`gRPCity`库就提供了这样的能力，同时这些能力中在内部也会被调用。
-例如: `add(serviceName, implementation)`，就需要获取 `proto` 文件里定义的 `service name`。
+loader 内置了一组用于直接观察解析后 proto 内容的低层 helper。它们与 gRPCity 内部 `add(serviceName, impl)` 一类的实现共用同一组原语——当你需要做服务自省、按全限定名查 message、或者对一棵已加载的 proto 树写工具时会用到。
 
 ### 加载 proto
 
-假如我们的 `proto` 路径是 `protos/test/helloworld/`, `proto` 的内容如下
+把 `protos/test/helloworld/` 当 proto 根目录，内容如下：
 
 ```proto filename="protos/test/helloworld/helloworld.proto"
 service Greeter {
@@ -33,9 +32,9 @@ const loader = new ProtoLoader({
 })()
 ```
 
-### Package Prefix
+### Package prefix
 
-有些场景，我们需要对 `proto` 的包名进行前缀补充，使用下面的方式：
+需要给已加载的定义加命名空间——通常用于租户或环境隔离——给 `init()` 传 `isDev` 与 `packagePrefix`：
 
 ```js
 await loader.init({
@@ -44,11 +43,11 @@ await loader.init({
 })
 ```
 
-使用了`packagePrefix`，在加载后会修改 `proto` 定义，所有的 `path` 都会有这个前缀。
+设置了 prefix 之后，加载到的所有定义——包括 wire 上的方法路径——都会带上它。服务端和客户端必须配同一个 prefix。
 
 ### service(name)
 
-`name`参数，指 `proto` 文件路由，具体是到 `service` 的位置。
+`name` 是 `.proto` 中含包名的完整 service 名称，返回值是底层的 gRPC service 定义。
 
 ```js
 const serviceDefinition = loader.service('test.helloworld.Greeter')
@@ -104,7 +103,7 @@ console.log(serviceDefinition)
 
 ### type(name)
 
-`name`参数指 `proto` 文件的路由，包名到 `service` ，或到 `model` ，或到 `message`。 `type()` 的能力包含了 `service()`。
+`name` 是已加载 proto 树里任意全限定名——package、service、model 或 message。`type()` 是 `service()` 的超集：能传给 `service()` 的，`type()` 也都能解析。
 
 `type('test')` 例子：
 
