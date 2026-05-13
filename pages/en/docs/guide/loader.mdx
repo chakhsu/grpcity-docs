@@ -2,117 +2,105 @@ import { Callout } from 'nextra/components'
 
 # Loader
 
-When using Proto Loader, we only need to provide parameters when creating an instance.
+`ProtoLoader` is the entry point for everything else in `gRPCity`. You construct it with a description of where your `.proto` files live, then call `init()` once; the resulting instance feeds both the client and the server.
 
 ```js
 import { ProtoLoader } from 'grpcity'
+
 const loader = new ProtoLoader({ location, files })
 ```
 
-**Why are the parameters `location` and `files` used?**
-- `location` refers to the directory containing proto files, including the proto files referenced by services, such as `model.proto`, `empty.proto`, and other independently referenced files.
-- `files` specify the specific `service.proto` files, informing the underlying service that its definition comes from these files.
+The two arguments serve different roles:
 
-**Benefits:**
-- Service loading is clear, indicating which services will be used.
-- Proto directory structure is customizable without affecting loading.
+- `location` is the root directory the loader searches, including transitive imports such as `model.proto` or `empty.proto`.
+- `files` lists the specific `service.proto` files to load. The loader uses these to decide which services and types to expose.
 
-### Directory Retrieval
+Splitting the two means:
 
-For ESM, use the following:
+- the loaded services are explicit and easy to audit, and
+- you can lay out your proto directory however you like without affecting load behaviour.
+
+### Resolving the directory
+
+In ESM, `__dirname` is not a global. Derive it from `import.meta.url`:
 
 ```js
 import { ProtoLoader } from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// __dirname for esm
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 ```
 
-For CommonJS, `__dirname` is global, and you can use it directly where needed.
+On Node.js >= 20.11 you can use `import.meta.dirname` instead. In CommonJS, `__dirname` is still the built-in global.
 
-### A Single Directory
+### A single directory
 
-In most cases, you only need to load the proto directory once and specify multiple services, as shown below:
+The common case: one proto directory, several service files.
 
 ```js
 export default new ProtoLoader({
-    location: path.join(__dirname, './proto'),
-    files: [
-        'path/to/service-a.proto',
-        'path/to/service-b.proto'
-    ]
+  location: path.join(__dirname, './proto'),
+  files: ['path/to/service-a.proto', 'path/to/service-b.proto']
 })
 ```
 
-### Multiple Directories
+### Multiple directories
 
-Sometimes, when making service calls across businesses, you may need to load multiple proto directories. Our `gRPCity` already supports loading multiple proto directories, as shown below:
+When you need to load protos from more than one source — for example, two business domains living side by side — pass an array.
 
 ```js
 export default new ProtoLoader([
-    {
-        location: path.join(__dirname, './proto1'),
-        files: [
-            'path/to/service-a.proto'
-        ]
-    },
-    {
-        location: path.join(__dirname, './proto2'),
-        files: [
-            'path/to/service-b.proto'
-        ]
-    },
+  {
+    location: path.join(__dirname, './proto1'),
+    files: ['path/to/service-a.proto']
+  },
+  {
+    location: path.join(__dirname, './proto2'),
+    files: ['path/to/service-b.proto']
+  }
 ])
 ```
 
-### Initialization
+### Initializing
 
-**Why does the loader need to be initialized with init()?**
-
-`init()` is the actual execution of loading proto. It is also the position to customize parameters and environment configurations, making it more independent and can be placed as the first step in the service framework process, requiring only one execution.
+`init()` actually reads and parses the proto files. It's also where you pass environment options, so it sits naturally at the top of your service bootstrap.
 
 ```js
 await loader.init(options)
 ```
 
-Explanation of `options`, which includes the following parameters:
-- `isDev`: (optional, boolean) Toggles dev mode. On its own it does nothing visible; it gates `packagePrefix`.
-- `packagePrefix`: (optional, string) Only honored when `isDev` is `true`. Rebinds every loaded service and type under `<prefix>.<originalName>`, and the on-wire gRPC method paths become `/<prefix>.<package>.<Service>/...`. Useful for sandboxing tenants or environments.
-- `loadOptions`: (optional, object) Passed straight through to `@grpc/proto-loader`. Your object overrides the defaults field-by-field. Defaults: `keepCase: true`, `longs: String`, `enums: String`, `defaults: false`, `oneofs: true`.
+`options` accepts the following fields:
+
+- `isDev` — (optional, boolean) toggles dev mode. On its own it does nothing visible; it gates `packagePrefix`.
+- `packagePrefix` — (optional, string) only honoured when `isDev` is `true`. Rebinds every loaded service and type under `<prefix>.<originalName>`, and the on-wire gRPC method paths become `/<prefix>.<package>.<Service>/...`. Handy for sandboxing tenants or environments.
+- `loadOptions` — (optional, object) passed straight through to `@grpc/proto-loader`. Your object overrides the defaults field-by-field. Defaults: `keepCase: true`, `longs: String`, `enums: String`, `defaults: false`, `oneofs: true`.
 
 <Callout>
-For more information on `loadOptions`, please refer to this article: [Config](/en/docs/guide/config)
+  See [Config](/en/docs/guide/config) for a full walk-through of `loadOptions`.
 </Callout>
 
 <Callout type="info">
-`init()` is **idempotent** and **concurrent-safe**: calling it multiple times — even from multiple entry points before the first call resolves — shares a single in-flight Promise. `initServer`, `initClients`, and `initReflection` call it internally if you haven't, so you only need an explicit `await loader.init(options)` when you want to pass options or call `service()` / `type()` directly.
+  `init()` is **idempotent** and **concurrent-safe**: calling it multiple times — even from multiple entry points before the first call resolves — shares a single in-flight promise. `initServer`, `initClients`, and `initReflection` call it internally if you haven't, so the only reason to await `loader.init(options)` explicitly is when you want to pass options or call `service()` / `type()` directly.
 </Callout>
 
-#### Example
+#### Picking a prefix per environment
 
-Note that when using `packagePrefix`, both the server and client need to be consistent.
+When you use `packagePrefix`, both the server and the client must use the **same** value — they need to agree on the on-wire path.
 
-For the test environment, configure as follows:
-
-```js
-await loader.init({
-    isDev: true,
-    packagePrefix: 'test'
-})
-```
-
-For the stage environment, configure as follows:
+Test environment:
 
 ```js
-await loader.init({
-    isDev: true,
-    packagePrefix: 'stage'
-})
+await loader.init({ isDev: true, packagePrefix: 'test' })
 ```
 
-For the production environment, simply ignore these two configuration items, as shown below:
+Stage environment:
+
+```js
+await loader.init({ isDev: true, packagePrefix: 'stage' })
+```
+
+Production: leave both options off.
 
 ```js
 await loader.init()

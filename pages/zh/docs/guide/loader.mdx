@@ -2,118 +2,105 @@ import { Callout } from 'nextra/components'
 
 # Loader
 
-我们使用 Proto Loader 的时候，只需要在创建实例的时候，传入参数即可。
+`ProtoLoader` 是 `gRPCity` 其他所有能力的入口。先用 proto 文件位置的描述构造它，然后调用一次 `init()`；同一个实例可以同时驱动 client 和 server。
 
 ```js
 import { ProtoLoader } from 'grpcity'
+
 const loader = new ProtoLoader({ location, files })
 ```
 
-**为什么传参是`location`和`files`？**
-- `location`是指 proto 文件目录，包含 service 引用的 proto，如`model.proto`、`empty.proto`等等这些被独立引用的文件。
-- `files`是指具体的`service.proto`文件，告诉底层 service 的定义来自这些文件，是具体的服务定义。
+两个参数分工不同：
 
-**带来的好处:**
-- service 加载非常清晰，知道是哪些 service 会被使用
-- proto 的目录结构，可以自定义，不影响加载
+- `location`：loader 搜索的根目录，包含被引用的 `model.proto`、`empty.proto` 等独立引用文件。
+- `files`：要加载的 `service.proto` 列表。loader 据此决定向外暴露哪些 service 和 type。
 
-### 目录获取
+把两者分开的好处：
 
-ESM 模块的代码文件目录获取如下:
+- 加载的 service 一目了然，便于审计；
+- proto 的目录结构可以自定义，不影响加载。
+
+### 获取目录
+
+ESM 里 `__dirname` 不是全局变量，从 `import.meta.url` 派生：
 
 ```js
 import { ProtoLoader } from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// __dirname for esm
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 ```
 
-如果是 CommonJS 模块的代码只 `__dirname` 是全局的，只需要在需要用到的地方直接使用即可。
+Node.js >= 20.11 可以直接用 `import.meta.dirname`。CommonJS 下 `__dirname` 仍是内建全局。
 
-### 单个目录加载
+### 加载单个目录
 
-大多数情况下，我们只需要加载一次proto目录，并指定多个service，如下所示:
+最常见的情形：一个 proto 目录里放多个 service 文件。
 
 ```js
 export default new ProtoLoader({
-    location: path.join(__dirname, './proto'),
-    files: [
-        'path/to/service-a.proto',
-        'path/to/service-b.proto'
-    ]
+  location: path.join(__dirname, './proto'),
+  files: ['path/to/service-a.proto', 'path/to/service-b.proto']
 })
 ```
 
-### 多个目录加载
+### 加载多个目录
 
-有时候，我们需要跨业务进行服务调用，这个时候就会出现多个proto目录都需要加载的情况，
-我们的`gRPCity`已经做好了这块的多proto目录的加载支持了。如下所示:
+需要跨业务调用、proto 分散在不同目录时，传入数组：
 
 ```js
 export default new ProtoLoader([
-    {
-        location: path.join(__dirname, './proto1'),
-        files: [
-            'path/to/service-a.proto'
-        ]
-    },
-    {
-        location: path.join(__dirname, './proto2'),
-        files: [
-            'path/to/service-b.proto'
-        ]
-    },
+  {
+    location: path.join(__dirname, './proto1'),
+    files: ['path/to/service-a.proto']
+  },
+  {
+    location: path.join(__dirname, './proto2'),
+    files: ['path/to/service-b.proto']
+  }
 ])
 ```
 
-### 初始化 init()
+### 初始化
 
-**为什么 loader 还需要 init ？**
-
-`init` 是真正把proto加载的执行。同时也是自定义参数和环境的配置位置，功能更加独立，可以放到服务框架流程中的第一步，只需要执行一次。
+`init()` 才真正去读取并解析 proto 文件，也是传入环境选项的地方，自然地放在服务启动流程的第一步。
 
 ```js
 await loader.init(options)
 ```
 
-`options` 说明，包含如下参数:
-- `isDev`：（可选，boolean）开关开发模式。它本身不会产生任何外在效果，只用来开启 `packagePrefix`。
-- `packagePrefix`：（可选，string）仅当 `isDev: true` 时生效。会把加载到的所有 service 和 type 重新挂到 `<prefix>.<原名>`，并且 wire 上的 gRPC 方法路径变成 `/<prefix>.<package>.<Service>/...`。适合做租户/环境隔离。
-- `loadOptions`：（可选，object）原样透传给 `@grpc/proto-loader`，会按字段覆盖默认值。默认值：`keepCase: true`、`longs: String`、`enums: String`、`defaults: false`、`oneofs: true`。
+`options` 字段：
+
+- `isDev`：（可选，boolean）开关开发模式。本身不会产生任何外在效果，只用于启用 `packagePrefix`。
+- `packagePrefix`：（可选，string）仅当 `isDev: true` 时生效。把加载到的所有 service 和 type 重新挂到 `<prefix>.<原名>`，wire 上的 gRPC 方法路径变成 `/<prefix>.<package>.<Service>/...`。适合做租户/环境隔离。
+- `loadOptions`：（可选，object）原样透传给 `@grpc/proto-loader`，按字段覆盖默认值。默认：`keepCase: true`、`longs: String`、`enums: String`、`defaults: false`、`oneofs: true`。
 
 <Callout>
-其中`loadOptions`更多说明请看这一篇: [Config](/zh/docs/guide/config)
+  `loadOptions` 完整说明请见 [Config](/zh/docs/guide/config)。
 </Callout>
 
 <Callout type="info">
-`init()` 是 **幂等** 且 **并发安全** 的：即使多个入口在第一次 `init()` 完成前同时调用，它们也会共享同一个进行中的 Promise。`initServer`、`initClients`、`initReflection` 内部都会在你没调过的情况下自动 `init()`，所以你只需要在「希望传参」或「想直接调用 `service()` / `type()`」时显式 `await loader.init(options)`。
+  `init()` 是 **幂等** 且 **并发安全** 的：即使多个入口在首次 `init()` 完成前同时调用，它们也会共享同一个进行中的 promise。`initServer`、`initClients`、`initReflection` 在你没调过的情况下会自动 `init()`，所以只有想传参或者想直接调用 `service()` / `type()` 时，才需要显式 `await loader.init(options)`。
 </Callout>
 
-#### 示例
+#### 按环境选 prefix
 
-注意使用了`packagePrefix`之后，服务端和客户端都要一致。
+使用 `packagePrefix` 时，服务端和客户端必须配同一个值——双方要在 wire 路径上达成一致。
 
-test 环境，配置如下:
-
-```js
-await loader.init({
-    isDev: true,
-    packagePrefix: 'test'
-})
-```
-
-stage 环境，配置如下:
+test 环境：
 
 ```js
-await loader.init({
-    isDev: true,
-    packagePrefix: 'stage'
-})
+await loader.init({ isDev: true, packagePrefix: 'test' })
 ```
 
-production 环境，直接忽略掉这两个配置项即可，如下:
+stage 环境：
+
+```js
+await loader.init({ isDev: true, packagePrefix: 'stage' })
+```
+
+生产环境：两个选项都不传。
 
 ```js
 await loader.init()

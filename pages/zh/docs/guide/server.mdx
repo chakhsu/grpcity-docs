@@ -2,114 +2,97 @@ import { Callout } from 'nextra/components'
 
 # Server
 
-Server 是`gRPCity`的核心功能之一，提供了服务端生命周期的接管能力。通过一系列的接口函数，
-提供了从证书导入、服务绑定、中间件支持，服务启动和服务退出等全周期的管理API。
+`Server` 接管服务端的整个生命周期：基于 loader 构造它，注册一个或多个 service 实现，按需加上中间件，再 `listen()`。一个实例可以在同一个进程里挂多个 service。
 
 ### 实例获取
 
 ```js
-// 获取 server 实例
 const server = await loader.initServer(serverOptions)
 ```
 
-`serverOptions` 说明，包含如下参数:
-- `channelOptions`: 可选，通信配置规则；
-- `credentials`: 可选，服务端证书；
+`serverOptions`：
+
+- `channelOptions`（可选）—— 底层 gRPC server 的 channel 级配置。
+- `credentials`（可选）—— 服务端 TLS 凭证。
 
 <Callout>
-`channelOptions`在 [Config 指南](/zh/docs/guide/config) 里有详细讲解。
-</Callout>
-
-<Callout>
-`credentials`在 [Credentials 指南](/zh/docs/guide/credentials) 里有详细讲解。
+  `channelOptions` 默认值见 [Config 指南](/zh/docs/guide/config)，TLS 配置见 [Credentials 指南](/zh/docs/guide/credentials)。
 </Callout>
 
 ### 服务绑定
 
 ```js
-// service rpc 绑定
 server.add(name, implementation, options)
 ```
 
-参数说明：
-- `name`: (必填) 指 `proto` 文件路由，具体是到 `service` 的位置；
-- `implementation`: (必填) 携带 service rpc 定义好的方法的对象或者类；
-- `options`: (可选) object：
-    - `exclude`: (可选) 字符串数组，排除`implementation`中不需要参与`service rpc`绑定的方法；
-    - `inherit`: (可选) 如果 `implementation` 通过继承的方式获得的`func`，父类也要参与绑定，把父类传入该参数即可；
+- `name`（必填）—— proto 中含包名的完整 service 名称。
+- `implementation`（必填）—— 一个实例化的对象或类，方法名要与 service 的 RPC 对应。
+- `options`（可选）
+  - `exclude`（string[]）—— 不参与绑定的 `implementation` 方法（例如内部 helper）。
+  - `inherit` —— 如果 `implementation` 通过继承获得 handler，把父类传进来即可让继承到的方法也被发现。
 
 ### 服务解绑
 
 ```js
-// service rpc 解绑
 server.remove(name)
 ```
 
-参数说明：
-- `name`: (必填) 指 `proto` 文件路由，具体是到 `service` 的位置；
+`name` 与 `add()` 时使用的完整 service 名称相同。
 
 ### 添加中间件
 
-`server.use()`提供了`implementation` 前后处理的中间件能力，更多详情查看 [Middleware 指南](/zh/docs/advanced/server-middleware)
+`server.use()` 在每个 handler 前后运行。`(ctx, next)` 模式见 [Server Middleware 指南](/zh/docs/advanced/server-middleware)。
 
 ```js
-// implementation 中间件支持
 // 逐个添加
 server.use(f1)
 server.use(f2)
 server.use(f3)
-// 传入多个参数添加
+
+// 多个位置参数添加
 server.use(f1, f2, f3)
-// 使用数组添加
+
+// 用数组添加
 server.use([f1, f2, f3])
 ```
 
 <Callout type="warning">
-注意: 当前版本只有 `async` 的方法支持中间件，`callback` 暂不支持。
+  中间件只对 `async` handler 生效。`callback` 形式会绕过中间件。
 </Callout>
 
 ### 在 handler 中返回错误
 
-直接 `throw` 就行。gRPCity 会捕获抛出的 `Error`，并对四类 RPC（unary、
-client stream、server stream、bidi）都把它转换成 wire 上的 gRPC status。
+直接 `throw` 就行。gRPCity 会捕获抛出的 `Error`，并对四类 RPC（unary、client stream、server stream、bidi）都把它转换成 wire 上的 gRPC status。
 
-特别是 server-stream 与 bidi handler，**throw 就是正确的失败方式** ——
-gRPCity 会通过底层 server stream 的 `'error'` 通道发回 status trailer，
-让客户端立刻收到错误，而不是等到 deadline 才超时。客户端侧的接收形态
-请见 [Error 指南](./error)。
+特别是 server-stream 与 bidi handler，**throw 就是正确的失败方式** —— gRPCity 会通过底层 server stream 的 `'error'` 通道发回 status trailer，让客户端立刻收到错误，而不是等到 deadline 才超时。客户端侧的接收形态请见 [Error 指南](./error)。
 
 ### 证书与启动
 
-服务启动 `listen` 支持两个参数，分别是`addr`和`credentials`:
+`listen(addr, credentials?)` 启动服务。
 
-- `addr`: (必填) 服务启动需要监听的地址和端口，支持类型如下，任选一个:
-    - string: ip+port 格式，如 `127.0.0.1:9099`；
-    - object: `{ host, port }`；
-        - host: 字符串，支持 ip 和域名；
-        - port: 数字，最小值为0，最大值为65535；
-- `credentials`: (可选) 使用`loader.makeServerCredentials()`来生成，并给`listen`调用；
+- `addr`（必填）—— 监听的 host 和 port。两种形态：
+  - `host:port` 字符串，例如 `'127.0.0.1:9099'`。
+  - 对象 `{ host, port }`，其中 `port` 范围 `[0, 65535]`。
+- `credentials`（可选）—— 用 `loader.makeServerCredentials()` 构造。
 
 ```js
-// 服务端证书
-const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkClientCertificate)
-// 服务启动
-await server.listen(addr, credentials)
-// or
-// await server.listen('127.0.0.1:9099', credentials)
-// await server.listen({ host: '127.0.0.1', port: 9099 }, credentials)
+const credentials = loader.makeServerCredentials(rootCerts, keyCertPairs, checkClientCertificate)
+
+// 两种写法都可以
+await server.listen('127.0.0.1:9099', credentials)
+await server.listen({ host: '127.0.0.1', port: 9099 }, credentials)
 ```
 
 <Callout type="warning">
-`credentials`的优先级：`listen()`里的最高，其次是`initServer()`，最后是默认。
+  Credentials 优先级：`listen()` > `initServer()` > 内置默认。
 </Callout>
 
 ### 服务退出
 
-`shutdown()` 需要使用`async`来保证异步执行完成，而`forceShutdown`不需要。
-
 ```js
-// 服务优雅退出
+// 优雅退出 —— 等待进行中的调用完成
 await server.shutdown()
-// 服务强制退出
+
+// 强制退出 —— 立刻关闭一切
 server.forceShutdown()
 ```

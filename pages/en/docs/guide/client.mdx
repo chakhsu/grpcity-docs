@@ -2,7 +2,7 @@ import { Callout } from 'nextra/components'
 
 # Client
 
-Client is one of the core features of `gRPCity`, mainly providing the ability to obtain services and make RPC calls.
+The `clients` factory in `gRPCity` discovers services from the loader, dials them, and hands you a typed proxy you can call like an ordinary async function.
 
 ### Initialization
 
@@ -10,53 +10,56 @@ Client is one of the core features of `gRPCity`, mainly providing the ability to
 const clients = await loader.initClients({ services, channelOptions, credentials })
 ```
 
-Parameter explanation:
-- `services`: Required, `{ [service name]: address }`
-    - `[service name]`: Service name with package name;
-    - `address`: Server communication address, supports two formats, such as: `host:port` or `{ host, port }`
-- `channelOptions`: Optional, communication configuration rules;
-- `credentials`: Optional, client-side certificate;
+Parameters:
+
+- `services` (required) — `{ [serviceName]: address }`
+  - `serviceName`: fully qualified service name, including the package.
+  - `address`: server address. Either `host:port` (string) or `{ host, port }`.
+- `channelOptions` (optional) — channel-level configuration passed through to gRPC.
+- `credentials` (optional) — client credentials, e.g. for TLS.
 
 Example:
 
 ```js
-const credentials = loader.makeCredentials(rootCerts, privateKey, certChain, verifyOptions)
+const credentials = loader.makeClientCredentials(rootCerts, privateKey, certChain, verifyOptions)
+
 const clients = await loader.initClients({
-    services: {
-        'dev.path.to.serviceA': 'domain.local:9099',
-        'path.to.serviceB': {
-            host: '192.168.32.111',
-            port: 10099
-        }
-    },
-    channelOptions,
-    credentials,
+  services: {
+    'dev.path.to.serviceA': 'domain.local:9099',
+    'path.to.serviceB': {
+      host: '192.168.32.111',
+      port: 10099
+    }
+  },
+  channelOptions,
+  credentials
 })
 ```
 
 ### Middleware
 
-`clients.use()` provides middleware capabilities for pre and post-processing of `call method`. For more details, see [Middleware Guide](/en/docs/advanced/client-middleware)
+`clients.use()` runs around every RPC, before and after the call. See the [Client Middleware](/en/docs/advanced/client-middleware) guide.
 
 ```js
-// Implementation of middleware support
-// Add one by one
+// add one at a time
 clients.use(f1)
 clients.use(f2)
 clients.use(f3)
-// Add with multiple parameters
+
+// or pass several positional middlewares
 clients.use(f1, f2, f3)
-// Add using an array
+
+// or pass an array
 clients.use([f1, f2, f3])
 ```
 
 <Callout type="warning">
-Note: The current version only supports middleware for `async` methods; `callback` is not supported for now.
+  Middleware only runs around `async` calls. The `callback` form bypasses it.
 </Callout>
 
-### Get Instance
+### Getting an instance
 
-Obtaining instances here is relatively simple, just call `get(name)`, and make sure to pass the complete `service name`, including the package name.
+`get(name)` returns a cached client proxy for the given fully qualified service name.
 
 ```js
 const serviceAClient = clients.get('dev.path.to.serviceA')
@@ -64,47 +67,52 @@ const serviceBClient = clients.get('path.to.serviceB')
 ```
 
 <Callout>
-Note: `get()` caches the client to ensure that when you retrieve the same client, it won't be recreated, reducing resource consumption. `getReal()` provides a way to get a client without caching.
+  `get()` caches by name, so repeated calls return the same instance. Use `getReal()` if you need a fresh, uncached client.
 </Callout>
 
-### RPC Call
+### Making an RPC call
 
-There are two methods for making RPC calls, `async` and `callback`. In normal cases, we mostly use the `async` syntax.
+Two styles are supported: `async` and `callback`. The async form is the default.
 
 #### async
-
-Here, we directly use the `async/await` syntax.
 
 ```js
 const result = await serviceAClient.rpcMethod(request, metadata, options)
 ```
 
-- `rpcMethod` (Method to call): This is a method for making requests. The method depends on the `rpc` defined in the `.proto` file of the gRPC service, with 4 forms: unary, client streaming, server streaming, and bidirectional streaming;
-- `request` (Request parameters): This is an object containing the request data. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service;
-- `metadata` (Metadata): This is an optional parameter used to pass metadata related to the request. Metadata is represented as key-value pairs and can contain data for authentication, authorization, tracking, or other purposes;
-- `options` (Options): This is an optional parameter used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Some available options include timeout, retry strategy, etc. If not passed, a default timeout of 10 seconds will be set, and you can modify the timeout by passing in `timeout`;
+Arguments:
 
-Here is an example of a unary call:
+- `rpcMethod` — the method declared on the service in your `.proto`. There are four kinds: unary, client streaming, server streaming, and bidi streaming.
+- `request` — the request payload, shaped after the message type from the proto.
+- `metadata` (optional) — request metadata as key/value pairs (auth, tracing, etc.).
+- `options` (optional) — per-call options. Recognised fields include `timeout` (per-call deadline; defaults to 10 seconds when omitted) and `signal` (an `AbortSignal` to cancel the call — see [AbortSignal](/en/docs/guide/abort-signal)).
+
+Unary example:
 
 ```js
 const meta = loader.makeMetadata({
-    'x-business-id': ['grpcity', 'testing'],
-    'x-timestamp-client': 'begin=' + new Date().toISOString()
+  'x-business-id': ['grpcity', 'testing'],
+  'x-timestamp-client': 'begin=' + new Date().toISOString()
 })
 const options = {
-    timeout: 5000 // Represents a timeout 5 seconds from the current time.
+  timeout: 5000 // 5 seconds from now
 }
 
-const { status, peer, metadata, response } = await serviceAClient.rpcMethod({ name: 'myapp' }, meta, options)
+const { status, peer, metadata, response } = await serviceAClient.rpcMethod(
+  { name: 'myapp' },
+  meta,
+  options
+)
 ```
 
-After the `client` initiates the request, the result received contains three values: `status`, `metadata`, and `response`.
-- `status`: The status after the server processes the execution;
-- `peer`: Client address information;
-- `metadata`: Metadata information returned by the server;
-- `response`: Result responded by the server after processing is complete;
+Every call resolves to four fields:
 
-The returned result example:
+- `status` — the gRPC status returned by the server.
+- `peer` — the remote address you talked to.
+- `metadata` — trailing metadata returned by the server.
+- `response` — the response payload itself.
+
+A typical result looks like:
 
 ```js
 {
@@ -124,53 +132,41 @@ The returned result example:
 
 #### callback
 
-Making a `callback` call requires adding an additional prototype chain, such as `.call.`.
+The callback form sits behind `.call.`:
 
 ```js
 const a = serviceAClient.call.rpcMethod1({ name: 'myapp' }, (err, result) => {
-    if (err) {
-        throw err
-    }
-    return result
+  if (err) throw err
+  return result
 })
 const b = serviceBClient.call.rpcMethod2({ name: 'youapp' }, (err, result) => {
-    if (err) {
-        throw err
-    }
-    return result
+  if (err) throw err
+  return result
 })
 ```
 
 ### Reinitialization
 
-There are some scenarios that require us to reinitialize `clients`, for example: when the server's access address changes. The provided solution here is to first execute `clear()`, and then execute `init()`.
-
-The principle is to clear all caches from the previous client initialization, then reexecute the initialization to generate new cache info. The complete example is as follows:
+When server addresses change at runtime, clear the existing clients first, then re-init with the new mapping.
 
 ```js
 const clients = await loader.initClients({
-    services: {
-        'dev.path.to.serviceA': 'domain.local:9099',
-        'path.to.serviceB': {
-            host: '192.168.32.111',
-            port: 10099
-        }
-    }
+  services: {
+    'dev.path.to.serviceA': 'domain.local:9099',
+    'path.to.serviceB': { host: '192.168.32.111', port: 10099 }
+  }
 })
 
 clients.clear()
 
 clients.init({
-    services: {
-        'dev.path.to.serviceA': 'domain.local:9088',
-        'path.to.serviceB': {
-            host: '192.168.32.112',
-            port: 10099
-        }
-    }
+  services: {
+    'dev.path.to.serviceA': 'domain.local:9088',
+    'path.to.serviceB': { host: '192.168.32.112', port: 10099 }
+  }
 })
 ```
 
 <Callout type="warning">
-Note: `clear()` must be executed before `init()`, otherwise it will not take effect.
+  `clear()` must run before `init()`. Otherwise the new init returns the cached factory and the address swap silently has no effect.
 </Callout>

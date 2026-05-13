@@ -2,115 +2,97 @@ import { Callout } from 'nextra/components'
 
 # Server
 
-Server is one of the core features of `gRPCity`, providing the ability to take over the server-side lifecycle. Through a series of interface functions, it offers full-cycle management APIs for tasks such as certificate import, service binding, middleware support, server startup, and server shutdown.
+`Server` owns the server-side lifecycle: build it from a loader, register one or more service implementations, optionally wrap everything in middleware, then `listen()`. A single instance can host multiple services in the same process.
 
 ### Initialization
 
 ```js
-// Get the server instance
 const server = await loader.initServer(serverOptions)
 ```
 
-`serverOptions` is an object that includes the following parameters:
-- `channelOptions`: Optional, communication configuration rules;
-- `credentials`: Optional, server-side certificate;
+`serverOptions`:
+
+- `channelOptions` (optional) — channel-level configuration for the underlying gRPC server.
+- `credentials` (optional) — server-side credentials for TLS.
 
 <Callout>
-Detailed explanations of `channelOptions` can be found in the [Config Guide](/en/docs/guide/config).
+  See the [Config Guide](/en/docs/guide/config) for `channelOptions` defaults and the [Credentials Guide](/en/docs/guide/credentials) for TLS setup.
 </Callout>
 
-<Callout>
-Detailed explanations of `credentials` can be found in the [Credentials Guide](/en/docs/guide/credentials).
-</Callout>
-
-### Service Binding
+### Binding a service
 
 ```js
-// Service RPC binding
 server.add(name, implementation, options)
 ```
 
-Parameter explanations:
-- `name`: (Required) Specifies the route in the `proto` file, specifically to the location of the `service`;
-- `implementation`: (Required) An object or class carrying methods defined in the service RPC;
-- `options`: (Optional) Object:
-    - `exclude`: (Optional) Array of strings, excluding methods in `implementation` that do not need to be involved in `service RPC` binding;
-    - `inherit`: (Optional) If `implementation` obtains `func` through inheritance, and the parent class should also be involved in binding, pass the parent class to this parameter;
+- `name` (required) — fully qualified service name from the proto, including the package.
+- `implementation` (required) — an object or class instance whose methods match the service's RPCs.
+- `options` (optional)
+  - `exclude` (string[]) — names of methods on `implementation` that should not be bound (e.g. private helpers).
+  - `inherit` — when `implementation` inherits its handlers, pass the parent class so the inherited methods are still discovered.
 
-### Service Remove
+### Removing a service
 
 ```js
-// Service RPC unbinding
 server.remove(name)
 ```
 
-Parameter explanation:
-- `name`: (Required) Specifies the route in the `proto` file, specifically to the location of the `service`;
+`name` is the same fully qualified service name you passed to `add()`.
 
 ### Middleware
 
-`server.use()` provides middleware capabilities for pre and post-processing of `implementation`. For more details, see the [Middleware Guide](/en/docs/advanced/server-middleware).
+`server.use()` wraps every handler before and after it runs. See the [Server Middleware Guide](/en/docs/advanced/server-middleware) for the `(ctx, next)` shape.
 
 ```js
-// Middleware support for implementation
-// Add one by one
+// add one at a time
 server.use(f1)
 server.use(f2)
 server.use(f3)
-// Add with multiple parameters
+
+// or pass several positional middlewares
 server.use(f1, f2, f3)
-// Add using an array
+
+// or pass an array
 server.use([f1, f2, f3])
 ```
 
 <Callout type="warning">
-Note: Only `async` methods are supported for middleware in the current version; `callback` is not supported yet.
+  Middleware only runs around `async` handlers. The `callback` form bypasses it.
 </Callout>
 
 ### Returning errors from a handler
 
-Just `throw`. gRPCity catches the thrown `Error` and turns it into a gRPC
-status on the wire for any of the four RPC kinds (unary, client stream,
-server stream, bidi).
+Just `throw`. gRPCity catches the thrown `Error` and turns it into a gRPC status on the wire for any of the four RPC kinds (unary, client stream, server stream, bidi).
 
-For server-stream and bidi handlers in particular, throwing is the
-correct way to fail — gRPCity routes the error through the underlying
-server stream's `'error'` channel so the client receives the status
-trailer immediately rather than waiting for its deadline. See the
-[Error guide](./error) for what the client sees.
+For server-stream and bidi handlers in particular, throwing is the correct way to fail — gRPCity routes the error through the underlying server stream's `'error'` channel, so the client receives the status trailer immediately rather than waiting for its deadline. See the [Error guide](./error) for what the client sees.
 
-### Certificates and Startup
+### Certificates and startup
 
-The `listen` method for server startup supports two parameters: `addr` and `credentials`:
+`listen(addr, credentials?)` starts the server.
 
-- `addr`: (Required) The address and port that the service startup needs to listen to, supporting either of the following types:
-    - string: in the format of ip+port, such as `127.0.0.1:9099`;
-    - object: `{ host, port }`;
-        - host: string, supports both ip and domain names;
-        - port: number, with a minimum value of 0 and a maximum value of 65535;
-- `credentials`: (Optional) Generated using `loader.makeServerCredentials()` and passed to the `listen` call;
+- `addr` (required) — host and port. Two shapes:
+  - string in `host:port` form, e.g. `'127.0.0.1:9099'`.
+  - object `{ host, port }`, where `port` must be in `[0, 65535]`.
+- `credentials` (optional) — built with `loader.makeServerCredentials()`.
 
 ```js
-// Server certificate
-const credentials = server.makeServerCredentials(rootCerts, keyCertPairs, checkClientCertificate)
-// Server startup
-await server.listen(addr, credentials)
-// or
-// await server.listen('127.0.0.1:9099', credentials)
-// await server.listen({ host: '127.0.0.1', port: 9099 }, credentials)
+const credentials = loader.makeServerCredentials(rootCerts, keyCertPairs, checkClientCertificate)
+
+// either form is fine
+await server.listen('127.0.0.1:9099', credentials)
+await server.listen({ host: '127.0.0.1', port: 9099 }, credentials)
 ```
 
 <Callout type="warning">
-Priority of `credentials`: Highest in `listen()`, followed by `initServer()`, and finally the default.
+  Credentials precedence: `listen()` > `initServer()` > built-in default.
 </Callout>
 
-### Server Shutdown
-
-`shutdown()` needs to use `async` to ensure asynchronous execution completion, while `forceShutdown` does not.
+### Shutting down
 
 ```js
-// Graceful server shutdown
+// graceful — waits for in-flight calls to finish
 await server.shutdown()
-// Forceful server shutdown
+
+// forceful — closes everything immediately
 server.forceShutdown()
 ```

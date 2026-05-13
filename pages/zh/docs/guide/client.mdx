@@ -2,7 +2,7 @@ import { Callout } from 'nextra/components'
 
 # Client
 
-Client 是`gRPCity`的核心功能之一，主要是提供获取 service，并进行 rpc 调用。
+`gRPCity` 的 clients 工厂会从 loader 里发现 service，对它们建立连接，给你一个像普通 async 函数一样调用的类型化代理。
 
 ### 初始化
 
@@ -10,53 +10,56 @@ Client 是`gRPCity`的核心功能之一，主要是提供获取 service，并�
 const clients = await loader.initClients({ services, channelOptions, credentials })
 ```
 
-参数说明:
-- `services`: 必须，`{ [service name]: address }`
-    - `[service name]`: 含包名的 service 名称；
-    - `address`: 服务端通信地址，有两种格式支持，如：`host:port`或者`{ host, port }`
-- `channelOptions`: 可选，通信配置规则；
-- `credentials`: 可选，客户端端证书；
+参数：
 
-完整示例如下：
+- `services`（必填）—— `{ [服务名]: 地址 }`
+  - `服务名`：含包名的完整 service 名称。
+  - `地址`：服务端地址，支持 `host:port` 字符串或 `{ host, port }` 对象两种形态。
+- `channelOptions`（可选）—— 透传给底层 gRPC 的 channel 级配置。
+- `credentials`（可选）—— 客户端凭证，例如 TLS。
+
+示例：
 
 ```js
-const credentials = loader.makeCredentials(rootCerts, privateKey, certChain, verifyOptions)
+const credentials = loader.makeClientCredentials(rootCerts, privateKey, certChain, verifyOptions)
+
 const clients = await loader.initClients({
-    services: {
-        'dev.path.to.serviceA': 'domain.local:9099',
-        'path.to.serviceB': {
-            host: '192.168.32.111',
-            port: 10099
-        }
-    },
-    channelOptions,
-    credentials,
+  services: {
+    'dev.path.to.serviceA': 'domain.local:9099',
+    'path.to.serviceB': {
+      host: '192.168.32.111',
+      port: 10099
+    }
+  },
+  channelOptions,
+  credentials
 })
 ```
 
-### 添加中间件
+### 中间件
 
-`clients.use()`提供了`call method`前后处理的中间件能力，更多详情查看 [Middleware 指南](/zh/docs/advanced/client-middleware)
+`clients.use()` 会在每次 RPC 前后运行。详见 [Client Middleware](/zh/docs/advanced/client-middleware) 指南。
 
 ```js
-// implementation 中间件支持
 // 逐个添加
 clients.use(f1)
 clients.use(f2)
 clients.use(f3)
-// 传入多个参数添加
+
+// 多个位置参数添加
 clients.use(f1, f2, f3)
-// 使用数组添加
+
+// 用数组添加
 clients.use([f1, f2, f3])
 ```
 
 <Callout type="warning">
-注意: 当前版本只有 `async` 的方法支持中间件，`callback` 暂不支持。
+  中间件只对 `async` 形式生效。`callback` 形式会绕过中间件。
 </Callout>
 
 ### 获取实例
 
-这里获取实例的方式相对简单，直接调用`get(name)`即可，注意需要传入完整的`service name`，包括了包名。
+`get(name)` 按完整服务名返回一个已缓存的客户端代理。
 
 ```js
 const serviceAClient = clients.get('dev.path.to.serviceA')
@@ -64,47 +67,52 @@ const serviceBClient = clients.get('path.to.serviceB')
 ```
 
 <Callout>
-注意: `get()`会缓存客户端，保证每次获取相同的客户端的时候，不会重复创建，减少消耗。`getReal()`提供获取没有缓存的客户端。
+  `get()` 按名字缓存，重复调用返回同一个实例。如果需要一个全新的、不走缓存的客户端，请使用 `getReal()`。
 </Callout>
 
-### 调用 rpc
+### 发起 RPC 调用
 
-调用 rpc 有两种方法，分别是`async`和`callback`，正常情况下，我们更多是使用`async`语法。
+支持两种风格：`async` 与 `callback`。常规情况下使用 `async`。
 
 #### async
-
-这里直接使用`async/await`语法。
 
 ```js
 const result = await serviceAClient.rpcMethod(request, metadata, options)
 ```
 
-- `rpcMethod`（请求方法）: 这是一个执行请求的方法。请求方法取决于定义的 gRPC 服务的`.proto`文件中的`rpc`，有4种形式，分别是点对点、流对点、点对流，流对流；
-- `request`（请求参数）: 这是一个包含请求数据的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型；
-- `metadata`（元数据）: 这是一个可选参数，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据；
-- `options`（选项）: 这是一个可选参数，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入`timeout`的方式修改超时时间；
+参数：
 
-这里展示的是点对点的例子:
+- `rpcMethod`：proto 中 service 定义的方法。共有四种形态：unary、client streaming、server streaming、bidi streaming。
+- `request`：请求负载，结构由 proto 的 message 类型决定。
+- `metadata`（可选）：作为键值对传递的请求 metadata，常用于鉴权、追踪等。
+- `options`（可选）：per-call 选项对象。可用字段包括 `timeout`（单次调用超时，默认 10 秒）和 `signal`（用于取消调用的 `AbortSignal`，详见 [AbortSignal](/zh/docs/guide/abort-signal)）。
+
+unary 示例：
 
 ```js
 const meta = loader.makeMetadata({
-    'x-business-id': ['grpcity', 'testing'],
-    'x-timestamp-client': 'begin=' + new Date().toISOString()
+  'x-business-id': ['grpcity', 'testing'],
+  'x-timestamp-client': 'begin=' + new Date().toISOString()
 })
 const options = {
-    timeout:  5000 // 表示在当前时间的 5 秒后超时。
+  timeout: 5000 // 当前时间的 5 秒后超时
 }
 
-const { status, peer, metadata, response } = await serviceAClient.rpcMethod({ name: 'myapp' }, meta, options)
+const { status, peer, metadata, response } = await serviceAClient.rpcMethod(
+  { name: 'myapp' },
+  meta,
+  options
+)
 ```
 
-`client`发起请求后，收到的结果包含了三个值，分别是`status`、`metadata`和`response`。
-- `status`: 服务端处理执行后的状态；
-- `peer`: 客户端地址信息；
-- `metadata`: 服务端返回的 metadata 信息；
-- `response`: 服务端处理完成后响应的结果；
+每次调用都会返回四个字段：
 
-返回的结果示例:
+- `status`：服务端返回的 gRPC status。
+- `peer`：远端地址。
+- `metadata`：服务端返回的 trailing metadata。
+- `response`：响应负载本身。
+
+典型结果：
 
 ```js
 {
@@ -124,53 +132,41 @@ const { status, peer, metadata, response } = await serviceAClient.rpcMethod({ na
 
 #### callback
 
-`callback`的调用需要多加一个原型链，如`.call.`。
+callback 形式挂在 `.call.` 下：
 
 ```js
 const a = serviceAClient.call.rpcMethod1({ name: 'myapp' }, (err, result) => {
-    if (err) {
-        throw err
-    }
-    return result
+  if (err) throw err
+  return result
 })
 const b = serviceBClient.call.rpcMethod2({ name: 'youapp' }, (err, result) => {
-    if (err) {
-        throw err
-    }
-    return result
+  if (err) throw err
+  return result
 })
 ```
 
 ### 重新初始化
 
-有一些业务场景是需要我们对 `clients` 进行重新初始化，例如:服务端的访问地址变更。这里提供的解决方法是先执行 `clear()`，在执行 `init()`。
-
-原理是清除上一次的客户端初始化时的所有缓存，再重新执行初始化，生成新的缓存信息。完整示例如下：
+服务端地址在运行时发生变化时，先清空已有 clients，再用新映射重新初始化。
 
 ```js
 const clients = await loader.initClients({
-    services: {
-        'dev.path.to.serviceA': 'domain.local:9099',
-        'path.to.serviceB': {
-            host: '192.168.32.111',
-            port: 10099
-        }
-    }
+  services: {
+    'dev.path.to.serviceA': 'domain.local:9099',
+    'path.to.serviceB': { host: '192.168.32.111', port: 10099 }
+  }
 })
 
 clients.clear()
 
 clients.init({
-    services: {
-        'dev.path.to.serviceA': 'domain.local:9088',
-        'path.to.serviceB': {
-            host: '192.168.32.112',
-            port: 10099
-        }
-    }
+  services: {
+    'dev.path.to.serviceA': 'domain.local:9088',
+    'path.to.serviceB': { host: '192.168.32.112', port: 10099 }
+  }
 })
 ```
 
 <Callout type="warning">
-注意: `init()`之前需要先执行`clear()`，否则会不生效。
+  `clear()` 必须在 `init()` 之前。否则后续 init 会拿到缓存工厂，地址切换静默失效。
 </Callout>
