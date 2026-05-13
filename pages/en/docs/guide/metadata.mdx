@@ -4,7 +4,20 @@ Metadata functionality is essential in gRPC. In some scenarios, we need capabili
 
 ### Client-Side Sending
 
-To send `metadata` from the client, use `loader.makeMetadata()`. Here is an example:
+To send `metadata` from the client, use `loader.makeMetadata()` (the
+helper that ships with every loader). If you'd rather construct a
+`Metadata` instance directly, gRPCity also re-exports the class so you
+don't have to depend on `@grpc/grpc-js`:
+
+```js
+import { Metadata } from 'grpcity'
+
+const meta = new Metadata()
+meta.set('x-tenant', 'acme')
+```
+
+Below uses the loader helper, which is just a thin wrapper that returns
+a `Metadata` instance:
 
 ```js
 const client = clients.get('test.helloworld.Greeter')

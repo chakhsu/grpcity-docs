@@ -4,7 +4,18 @@ MetaData 功能在 gRPC 里是非常重要。有些场景，我们需要像`http
 
 ### 客户端发送
 
-客户端发送`metadata`，需要调用`loader.makeMetadata()`，使用方式如下:
+客户端发送 `metadata` 通常会用 `loader.makeMetadata()`（每个 loader 自带的
+辅助函数）。如果你更喜欢直接构造 `Metadata` 实例，gRPCity 也把 `Metadata`
+类从主包重新导出，免得再去依赖 `@grpc/grpc-js`：
+
+```js
+import { Metadata } from 'grpcity'
+
+const meta = new Metadata()
+meta.set('x-tenant', 'acme')
+```
+
+下面使用 loader helper（其实只是返回一个 `Metadata` 实例的薄封装）：
 
 ```js
 const client = clients.get('test.helloworld.Greeter')
