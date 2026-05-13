@@ -1,10 +1,10 @@
 # Status
 
-`gRPCity`库提供了非常便捷获取`status`的能力。一般情况下会很少使用到，这里就简单提及。
+每次 gRPC 调用都会以一个 `status` 结尾。`gRPCity` 把数值与符号映射做得很易用。这页平时不太会读，但日志里出现某个错误码时，你会回来查它。
 
-### 获取 Status
+### 读取 status
 
-**内置 `Status` 获取:**
+数值与符号的映射挂在包对象的 `Status` 导出上：
 
 ```js
 import { Status } from 'grpcity'
@@ -12,9 +12,7 @@ import { Status } from 'grpcity'
 console.log(Status.OK)
 ```
 
-**客户端获取服务端的 `Status`:**
-
-客户端获取服务端返回的`status`的方式，非常简单，如下所示。
+调用结束后，客户端会和 response 一起返回完整的 status：
 
 ```js
 const client = clients.get('path.to.service')
@@ -31,7 +29,7 @@ console.log(status)
 
 ### Status Code
 
-默认的 Status Code 详细情况如下表所示:
+完整列表及含义如下：
 
 | Code | Number | Description |
 |------|--------|-------------|
@@ -53,9 +51,9 @@ console.log(status)
 | DATA_LOSS | 15 | 无法恢复的数据丢失或损坏。 |
 | UNAUTHENTICATED | 16 | 请求没有有效的操作认证凭据。 |
 
-### Status Case
+### 各 code 出现的场景
 
-除了`OK`外，我们也需要了解其他`Code`产生的可能原因，如下表所示:
+除了 `OK` 之外，下表把最常见的几种情况映射到对应的 code 与触发方：
 
 | Case | Code | 产生的位置在 Client 或 Server |
 |------|------|-------------------------------|

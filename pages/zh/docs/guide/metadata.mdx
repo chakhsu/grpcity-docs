@@ -1,12 +1,10 @@
-# MetaData
+# Metadata
 
-MetaData 功能在 gRPC 里是非常重要。有些场景，我们需要像`http header`一样的能力，如链路追踪，调用来源等等场景，这个时候 Metadata 就是满足这些场景的功能。
+Metadata 是 gRPC 的「header」——伴随请求/响应的一组键值对。链路追踪、调用来源、鉴权 token，以及其他不该塞进 message body 的横切字段，都靠它传递。
 
 ### 客户端发送
 
-客户端发送 `metadata` 通常会用 `loader.makeMetadata()`（每个 loader 自带的
-辅助函数）。如果你更喜欢直接构造 `Metadata` 实例，gRPCity 也把 `Metadata`
-类从主包重新导出，免得再去依赖 `@grpc/grpc-js`：
+`loader.makeMetadata()` 是最顺手的方式——传一个普通对象，它返回一个 `Metadata` 实例。如果你想自己构造 `Metadata`，gRPCity 也把 `Metadata` 类从主包重新导出，免去对 `@grpc/grpc-js` 的直接依赖：
 
 ```js
 import { Metadata } from 'grpcity'
@@ -15,7 +13,7 @@ const meta = new Metadata()
 meta.set('x-tenant', 'acme')
 ```
 
-下面使用 loader helper（其实只是返回一个 `Metadata` 实例的薄封装）：
+下面用 helper 演示：
 
 ```js
 const client = clients.get('test.helloworld.Greeter')
@@ -30,7 +28,7 @@ const { status, metadata, response } = await client.sayGreet({ name: 'greeter' }
 console.log(metadata)
 ```
 
-我们打印`metadata`, 结果如下:
+返回的 trailing `metadata` 结构如下：
 
 ```bash filename="Terminal"
 Metadata {
@@ -60,7 +58,7 @@ Metadata {
 
 ### 服务端接收
 
-服务端接收`metadata`的位置在 `call.metadata` 里，使用之前需要先`clone()`出来，然后根据`key`去`get(key)`值。
+任意 handler 中，`call.metadata` 都是一个完整的 `Metadata` 实例。修改前先 `clone()` 一下，再用 `get(key)` 读取：
 
 ```js {5, 8-10}
 async sayGreet(call) {
@@ -85,7 +83,7 @@ async sayGreet(call) {
 }
 ```
 
-输出结果如下:
+输出如下：
 
 ```bash filename="Terminal"
 [ 'max-age=100' ]
@@ -95,7 +93,7 @@ async sayGreet(call) {
 
 ### 服务端发送
 
-有时候，我们也需要服务端把`metadata`信息发送返回给客户端的情况，方法如下:
+需要把 metadata 附加到响应（客户端会作为 trailing metadata 收到）时，在 call 上调 `sendMetadata()`：
 
 ```js {4}
 async SayHello (call) {
@@ -107,4 +105,4 @@ async SayHello (call) {
 }
 ```
 
-服务端发送`metadata`，客户端是可以接收到的。
+客户端会在调用结果的 `metadata` 字段里收到这份信息。

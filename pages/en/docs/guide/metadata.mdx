@@ -1,13 +1,10 @@
-# MetaData
+# Metadata
 
-Metadata functionality is essential in gRPC. In some scenarios, we need capabilities similar to HTTP headers, such as tracing, source of the request, and more. Metadata serves these purposes.
+Metadata is gRPC's headers — key/value pairs that travel alongside requests and responses. You'll reach for it for tracing, request provenance, auth tokens, and other cross-cutting fields that don't belong in the message body.
 
-### Client-Side Sending
+### Sending from the client
 
-To send `metadata` from the client, use `loader.makeMetadata()` (the
-helper that ships with every loader). If you'd rather construct a
-`Metadata` instance directly, gRPCity also re-exports the class so you
-don't have to depend on `@grpc/grpc-js`:
+`loader.makeMetadata()` is the ergonomic path — it takes a plain object and returns a `Metadata` instance. If you prefer to build one yourself, gRPCity also re-exports the `Metadata` class so you don't have to depend on `@grpc/grpc-js` directly:
 
 ```js
 import { Metadata } from 'grpcity'
@@ -16,8 +13,7 @@ const meta = new Metadata()
 meta.set('x-tenant', 'acme')
 ```
 
-Below uses the loader helper, which is just a thin wrapper that returns
-a `Metadata` instance:
+The example below uses the helper:
 
 ```js
 const client = clients.get('test.helloworld.Greeter')
@@ -32,7 +28,7 @@ const { status, metadata, response } = await client.sayGreet({ name: 'greeter' }
 console.log(metadata)
 ```
 
-Printing the `metadata` yields the following result:
+The trailing `metadata` looks like this:
 
 ```bash filename="Terminal"
 Metadata {
@@ -60,9 +56,9 @@ The server defaults to sending the following metadata:
 - `user-agent`: The value is generally `grpc-node-js/1.9.7`.
 - `date`: The value is generally `Wed, 01 Nov 2023 03:31:06 GMT`.
 
-### Server-Side Receiving
+### Receiving on the server
 
-To receive `metadata` on the server side, check for it in `call.metadata`. Before using it, clone it using `clone()`, and then retrieve values based on the `key`.
+Inside any handler, `call.metadata` is a fully populated `Metadata` instance. Clone it before mutating, then read values with `get(key)`:
 
 ```js {5, 8-10}
 async sayGreet(call) {
@@ -95,9 +91,9 @@ The output is as follows:
 [ 'begin=2023-10-31T16:34:22.296Z' ]
 ```
 
-### Server-Side Sending
+### Sending from the server
 
-In some cases, the server needs to send `metadata` information back to the client. The method is as follows:
+To attach metadata to the response (visible to the client as trailing metadata), call `sendMetadata()` on the call:
 
 ```js {4}
 async SayHello (call) {
@@ -109,4 +105,4 @@ async SayHello (call) {
 }
 ```
 
-The server sending `metadata` can be received by the client.
+The client receives this metadata in the `metadata` field of the call result.

@@ -1,10 +1,10 @@
 # Async Stream
 
-Here, we will demonstrate how to utilize the capability of `async stream`. It is recommended to first go through the [Stream](/en/docs/guide/stream) guide, as there are some similarities between the two.
+This page walks through `gRPCity`'s recommended streaming API: promise-based `for await` consumption on the client and the server. If you need the older callback form, see the [Stream](/en/docs/guide/stream) guide first — the two pages share the proto and most of the setup.
 
-### Define proto
+### Define the proto
 
-This `proto` defines three `rpc` methods, corresponding to the three ways of connecting streams between the client and the server: client-stream, server-stream, and duplex-stream.
+The proto declares the three streaming RPC kinds — client-stream, server-stream, and bidi:
 
 ```proto filename="stream.proto"
 syntax="proto3";
@@ -22,7 +22,7 @@ message Message {
 }
 ```
 
-### Load proto
+### Load the proto
 
 ```js filename="./loader.js"
 import { ProtoLoader } from 'grpcity'
