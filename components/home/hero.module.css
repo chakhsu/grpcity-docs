@@ -2,34 +2,26 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: 5rem 1.5rem 6rem;
+  padding: 4rem 1.5rem 5rem;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .root {
-    padding: 7rem 2rem 8rem;
+    padding: 6rem 2rem 7rem;
   }
 }
 
-/* Soft radial glow behind the headline */
+/* Soft radial glow */
 .tilesBg {
   position: absolute;
   inset: 0;
   z-index: -2;
   background:
-    radial-gradient(
-      60% 60% at 50% 10%,
-      hsl(var(--nextra-primary-hue) 80% 60% / 0.18),
-      transparent 70%
-    ),
-    radial-gradient(
-      40% 40% at 80% 60%,
-      hsl(280 80% 60% / 0.12),
-      transparent 70%
-    );
+    radial-gradient(50% 50% at 20% 30%, hsl(var(--nextra-primary-hue) 80% 60% / 0.18), transparent 70%),
+    radial-gradient(40% 40% at 90% 70%, hsl(280 80% 60% / 0.12), transparent 70%);
 }
 
-/* Faint grid backdrop, fades out toward the edges */
+/* Faint grid backdrop */
 .tiles {
   position: absolute;
   inset: 0;
@@ -38,8 +30,8 @@
     linear-gradient(to right, rgb(0 0 0 / 0.04) 1px, transparent 1px),
     linear-gradient(to bottom, rgb(0 0 0 / 0.04) 1px, transparent 1px);
   background-size: 40px 40px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 80%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 80%);
+  mask-image: radial-gradient(ellipse 80% 60% at 30% 30%, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 30% 30%, black 30%, transparent 80%);
 }
 
 :global(.dark) .tiles {
@@ -50,26 +42,46 @@
 
 .content {
   position: relative;
-  max-width: 56rem;
+  max-width: 80rem;
   margin: 0 auto;
-  text-align: center;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .content {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: 4rem;
+  }
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  min-width: 0;
+}
+
+.right {
+  min-width: 0;
 }
 
 .brand {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
   opacity: 0.95;
 }
 
 .brand :global(svg) {
-  height: 56px;
+  height: 44px;
   width: auto;
 }
 
 .eyebrow {
   display: inline-block;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -78,7 +90,7 @@
   border-radius: 999px;
   background: hsl(var(--nextra-primary-hue) 80% 60% / 0.08);
   border: 1px solid hsl(var(--nextra-primary-hue) 80% 60% / 0.18);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 :global(.dark) .eyebrow {
@@ -86,11 +98,11 @@
 }
 
 .headline {
-  font-size: clamp(2rem, 5vw, 3.75rem);
+  font-size: clamp(1.85rem, 4vw, 3rem);
   font-weight: 800;
   letter-spacing: -0.025em;
   line-height: 1.1;
-  margin: 0 0 1.5rem;
+  margin: 0 0 1.25rem;
   color: rgb(17 24 39);
 }
 
@@ -112,11 +124,11 @@
 }
 
 .subtitle {
-  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-size: clamp(0.95rem, 1.4vw, 1.1rem);
   line-height: 1.6;
   color: rgb(75 85 99);
-  max-width: 40rem;
-  margin: 0 auto 2.5rem;
+  max-width: 30rem;
+  margin: 0 0 2rem;
 }
 
 :global(.dark) .subtitle {
@@ -126,9 +138,8 @@
 .actions {
   display: flex;
   gap: 0.75rem;
-  justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .cta,
@@ -136,10 +147,10 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 0.7rem;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease,
     border-color 120ms ease;
   text-decoration: none;
@@ -148,12 +159,12 @@
 .cta {
   background: hsl(var(--nextra-primary-hue) 80% 50%);
   color: white;
-  box-shadow: 0 8px 24px -8px hsl(var(--nextra-primary-hue) 80% 40% / 0.45);
+  box-shadow: 0 8px 20px -8px hsl(var(--nextra-primary-hue) 80% 40% / 0.45);
 }
 
 .cta:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 28px -8px hsl(var(--nextra-primary-hue) 80% 40% / 0.55);
+  box-shadow: 0 12px 24px -8px hsl(var(--nextra-primary-hue) 80% 40% / 0.55);
 }
 
 .cta span {
@@ -190,13 +201,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  padding: 0.45rem 0.45rem 0.45rem 0.9rem;
   border-radius: 999px;
   background: rgb(255 255 255 / 0.8);
   border: 1px solid rgb(0 0 0 / 0.08);
   backdrop-filter: blur(8px);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 :global(.dark) .installPill {
@@ -222,13 +233,13 @@
 
 .copyBtn {
   margin-left: 0.25rem;
-  padding: 0.4rem 0.85rem;
+  padding: 0.35rem 0.75rem;
   border-radius: 999px;
   border: 1px solid rgb(0 0 0 / 0.1);
   background: rgb(243 244 246);
   color: rgb(55 65 81);
   font-family: inherit;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 120ms ease, color 120ms ease, border-color 120ms ease;

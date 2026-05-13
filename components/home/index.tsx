@@ -1,6 +1,5 @@
 import { useRouter } from 'next/router'
 import Hero from './hero'
-import CodePreview from './codePreview'
 import Feature from './feature'
 import WhyGrpcity from './why'
 
@@ -13,7 +12,6 @@ export default function Home() {
   return (
     <>
       {Hero(locale)}
-      {CodePreview(locale)}
       {Feature(locale)}
       {WhyGrpcity(locale)}
     </>

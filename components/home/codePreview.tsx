@@ -1,22 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import styles from './codePreview.module.css'
 
 const COPY = {
-  '/en': {
-    title: 'Three files, end to end.',
-    subtitle: 'A loader, a server, and a client — using promises and async iterators throughout.',
-    tabs: { loader: 'loader.js', server: 'server.js', client: 'client.js' }
-  },
-  '/zh': {
-    title: '三个文件，跑通整个链路。',
-    subtitle: '一个 loader、一个 server、一个 client —— 全程 promise 与 async iterator。',
-    tabs: { loader: 'loader.js', server: 'server.js', client: 'client.js' }
-  }
+  '/en': { eyebrow: 'Quick start', tabs: { loader: 'loader.js', server: 'server.js', client: 'client.js' } },
+  '/zh': { eyebrow: '快速上手', tabs: { loader: 'loader.js', server: 'server.js', client: 'client.js' } }
 } as const
 
 type Locale = keyof typeof COPY
+type SnippetKey = 'loader' | 'server' | 'client'
 
-const SNIPPETS: Record<'loader' | 'server' | 'client', string> = {
+const SNIPPETS: Record<SnippetKey, string> = {
   loader: `import { ProtoLoader } from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -51,38 +44,86 @@ const { response } = await greeter.sayGreet({ name: 'gRPCity' })
 console.log(response) // { message: 'hello, gRPCity' }`
 }
 
+// Cache highlighted HTML across mounts so tab-switching is instant after the
+// first paint of each snippet/theme combination.
+const HTML_CACHE: Partial<Record<`${SnippetKey}:${'light' | 'dark'}`, string>> = {}
+
+const useHighlighted = (key: SnippetKey, theme: 'light' | 'dark') => {
+  const cacheKey = `${key}:${theme}` as const
+  const [html, setHtml] = useState<string | null>(HTML_CACHE[cacheKey] ?? null)
+
+  useEffect(() => {
+    if (HTML_CACHE[cacheKey]) {
+      setHtml(HTML_CACHE[cacheKey]!)
+      return
+    }
+    let cancelled = false
+    ;(async () => {
+      try {
+        const { codeToHtml } = await import('shiki')
+        const out = await codeToHtml(SNIPPETS[key], {
+          lang: 'javascript',
+          theme: theme === 'dark' ? 'github-dark-default' : 'github-light-default'
+        })
+        if (!cancelled) {
+          HTML_CACHE[cacheKey] = out
+          setHtml(out)
+        }
+      } catch {
+        // Stay on the plain fallback if shiki fails to load.
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [cacheKey, key, theme])
+
+  return html
+}
+
+const useColorScheme = (): 'light' | 'dark' => {
+  const [scheme, setScheme] = useState<'light' | 'dark'>('light')
+  useEffect(() => {
+    const read = () => (document.documentElement.classList.contains('dark') ? 'dark' : 'light')
+    setScheme(read())
+    const obs = new MutationObserver(() => setScheme(read()))
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    return () => obs.disconnect()
+  }, [])
+  return scheme
+}
+
 export default function CodePreview(locale: Locale) {
   const copy = COPY[locale] || COPY['/en']
-  const [active, setActive] = useState<'loader' | 'server' | 'client'>('server')
+  const [active, setActive] = useState<SnippetKey>('server')
+  const scheme = useColorScheme()
+  const html = useHighlighted(active, scheme)
 
   return (
-    <section className={styles.root}>
-      <div className={styles.inner}>
-        <div className={styles.heading}>
-          <h2 className={styles.title}>{copy.title}</h2>
-          <p className={styles.subtitle}>{copy.subtitle}</p>
-        </div>
-
-        <div className={styles.frame}>
-          <div className={styles.tabs} role="tablist">
-            {(Object.keys(copy.tabs) as Array<keyof typeof copy.tabs>).map((key) => (
-              <button
-                key={key}
-                role="tab"
-                aria-selected={active === key}
-                className={`${styles.tab} ${active === key ? styles.tabActive : ''}`}
-                onClick={() => setActive(key)}
-                type="button"
-              >
-                {copy.tabs[key]}
-              </button>
-            ))}
-          </div>
-          <pre className={styles.code} aria-live="polite">
+    <div className={styles.frame}>
+      <div className={styles.tabs} role="tablist" aria-label={copy.eyebrow}>
+        {(Object.keys(copy.tabs) as SnippetKey[]).map((key) => (
+          <button
+            key={key}
+            role="tab"
+            aria-selected={active === key}
+            type="button"
+            className={`${styles.tab} ${active === key ? styles.tabActive : ''}`}
+            onClick={() => setActive(key)}
+          >
+            {copy.tabs[key]}
+          </button>
+        ))}
+      </div>
+      <div className={styles.codeBox} aria-live="polite">
+        {html ? (
+          <div className={styles.shiki} dangerouslySetInnerHTML={{ __html: html }} />
+        ) : (
+          <pre className={styles.fallback}>
             <code>{SNIPPETS[active]}</code>
           </pre>
-        </div>
+        )}
       </div>
-    </section>
+    </div>
   )
 }
