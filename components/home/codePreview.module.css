@@ -1,0 +1,134 @@
+.root {
+  padding: 4rem 1.5rem;
+  background: rgb(249 250 251 / 0.6);
+  border-top: 1px solid rgb(0 0 0 / 0.05);
+  border-bottom: 1px solid rgb(0 0 0 / 0.05);
+}
+
+:global(.dark) .root {
+  background: rgb(15 16 19 / 0.4);
+  border-color: rgb(255 255 255 / 0.05);
+}
+
+@media (min-width: 768px) {
+  .root {
+    padding: 6rem 2rem;
+  }
+}
+
+.inner {
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+.heading {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.title {
+  font-size: clamp(1.5rem, 3.2vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.75rem;
+  color: rgb(17 24 39);
+}
+
+:global(.dark) .title {
+  color: rgb(243 244 246);
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: rgb(107 114 128);
+  margin: 0;
+}
+
+:global(.dark) .subtitle {
+  color: rgb(156 163 175);
+}
+
+.frame {
+  border: 1px solid rgb(0 0 0 / 0.08);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.85);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+  box-shadow: 0 24px 48px -24px rgb(0 0 0 / 0.18);
+}
+
+:global(.dark) .frame {
+  background: rgb(15 16 19 / 0.85);
+  border-color: rgb(255 255 255 / 0.08);
+  box-shadow: 0 24px 48px -24px rgb(0 0 0 / 0.6);
+}
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.75rem 0.75rem 0;
+  border-bottom: 1px solid rgb(0 0 0 / 0.06);
+}
+
+:global(.dark) .tabs {
+  border-bottom-color: rgb(255 255 255 / 0.08);
+}
+
+.tab {
+  padding: 0.5rem 0.9rem;
+  border: none;
+  background: transparent;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8rem;
+  color: rgb(107 114 128);
+  cursor: pointer;
+  border-radius: 0.5rem 0.5rem 0 0;
+  position: relative;
+  bottom: -1px;
+  transition: color 120ms ease, background 120ms ease;
+}
+
+.tab:hover {
+  color: rgb(31 41 55);
+  background: rgb(0 0 0 / 0.03);
+}
+
+.tabActive {
+  color: hsl(var(--nextra-primary-hue) 80% 50%);
+  background: transparent;
+  border: 1px solid rgb(0 0 0 / 0.06);
+  border-bottom: 1px solid transparent;
+  background: rgb(255 255 255);
+}
+
+:global(.dark) .tab:hover {
+  color: rgb(229 231 235);
+  background: rgb(255 255 255 / 0.04);
+}
+
+:global(.dark) .tabActive {
+  color: hsl(var(--nextra-primary-hue) 80% 75%);
+  background: rgb(15 16 19 / 0.95);
+  border-color: rgb(255 255 255 / 0.08);
+}
+
+.code {
+  margin: 0;
+  padding: 1.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: rgb(31 41 55);
+  background: transparent;
+  overflow-x: auto;
+}
+
+:global(.dark) .code {
+  color: rgb(229 231 235);
+}
+
+.code code {
+  font-family: inherit;
+  background: transparent;
+  padding: 0;
+}
