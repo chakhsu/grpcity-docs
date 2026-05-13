@@ -67,6 +67,18 @@ server.use([f1, f2, f3])
 Note: Only `async` methods are supported for middleware in the current version; `callback` is not supported yet.
 </Callout>
 
+### Returning errors from a handler
+
+Just `throw`. gRPCity catches the thrown `Error` and turns it into a gRPC
+status on the wire for any of the four RPC kinds (unary, client stream,
+server stream, bidi).
+
+For server-stream and bidi handlers in particular, throwing is the
+correct way to fail — gRPCity routes the error through the underlying
+server stream's `'error'` channel so the client receives the status
+trailer immediately rather than waiting for its deadline. See the
+[Error guide](./error) for what the client sees.
+
 ### Certificates and Startup
 
 The `listen` method for server startup supports two parameters: `addr` and `credentials`:

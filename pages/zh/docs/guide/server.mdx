@@ -68,6 +68,16 @@ server.use([f1, f2, f3])
 注意: 当前版本只有 `async` 的方法支持中间件，`callback` 暂不支持。
 </Callout>
 
+### 在 handler 中返回错误
+
+直接 `throw` 就行。gRPCity 会捕获抛出的 `Error`，并对四类 RPC（unary、
+client stream、server stream、bidi）都把它转换成 wire 上的 gRPC status。
+
+特别是 server-stream 与 bidi handler，**throw 就是正确的失败方式** ——
+gRPCity 会通过底层 server stream 的 `'error'` 通道发回 status trailer，
+让客户端立刻收到错误，而不是等到 deadline 才超时。客户端侧的接收形态
+请见 [Error 指南](./error)。
+
 ### 证书与启动
 
 服务启动 `listen` 支持两个参数，分别是`addr`和`credentials`:
