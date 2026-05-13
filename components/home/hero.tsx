@@ -6,9 +6,8 @@ import CodePreview from './codePreview'
 
 const COPY = {
   '/en': {
-    eyebrow: 'gRPCity',
-    headline: 'gRPC for Node.js,',
-    headlineAccent: 'without the boilerplate.',
+    headline: 'A nicer way to build ',
+    headlineAccent: 'your gRPC server and client.',
     subtitle:
       'A small, opinionated framework that wraps @grpc/grpc-js and @grpc/proto-loader so you can ship a typed service or client in a handful of lines.',
     primary: 'Get started',
@@ -18,9 +17,8 @@ const COPY = {
     copied: 'Copied'
   },
   '/zh': {
-    eyebrow: 'gRPCity',
-    headline: 'Node.js 的 gRPC，',
-    headlineAccent: '不再有样板代码。',
+    headline: '以更好的方式去创建',
+    headlineAccent: '您的 gRPC 客户端和服务端。',
     subtitle:
       '一套小而克制的框架，封装 @grpc/grpc-js 与 @grpc/proto-loader，让你用十几行代码就能交付带类型的服务或客户端。',
     primary: '开始上手',
@@ -56,11 +54,6 @@ export default function Hero(locale: Locale) {
 
       <div className={styles.content}>
         <div className={styles.left}>
-          <div className={styles.brand} aria-hidden>
-            <LogoTitle />
-          </div>
-
-          <span className={styles.eyebrow}>{copy.eyebrow}</span>
 
           <h1 className={styles.headline}>
             {copy.headline}

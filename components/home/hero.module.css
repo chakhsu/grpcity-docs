@@ -118,9 +118,7 @@
     hsl(calc(var(--nextra-primary-hue) + 80) 80% 65%) 100%
   );
   -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+  background-clip: text;font-size: clamp(1.45rem, 4vw, 1.9rem);
 }
 
 .subtitle {
