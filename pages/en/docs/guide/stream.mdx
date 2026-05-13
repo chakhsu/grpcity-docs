@@ -1,11 +1,8 @@
 # Stream
 
-The `gRPCity` library provides complete stream processing capabilities, allowing you to implement business scenarios such as file uploads, event mechanisms, task monitoring, metric reporting and etc.
-Currently, there are three types of streaming RPCs: `client-stream to server`, `client to server-stream`, and `client-stream to server-stream`.
+gRPC streams unlock cases the unary form can't cover well: file uploads, event feeds, progress reporting, metric streams. `gRPCity` supports all three flavours — client stream, server stream, and bidi — and exposes them in two API styles.
 
-Here, we'll demonstrate how to work with streams using callbacks and event mechanisms. We will use the `proxy.call` methods of the client.
-
-If you need to learn about working with `async streams`, you can refer to the [Async Stream](/en/docs/guide/async-stream) guide.
+This page covers the **callback / event** style accessed via `proxy.call`. For the more idiomatic `for await` form, see the [Async Stream](/en/docs/guide/async-stream) guide.
 
 ### Prerequisites
 

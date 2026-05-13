@@ -1,9 +1,11 @@
 # Config
 
-`gRPCity` has two important configurations related to proto: `loadOptions` and `channelOptions`. Both are used in `init()`, while `initClients()` and `initServer()` use only `channelOptions`.
+`gRPCity` exposes two configuration objects that match the two layers it talks to:
 
-- `loadOptions`: Corresponds to the rule configuration when loading `proto` files.
-- `channelOptions`: Corresponds to the rule configuration for communication between the server and the client.
+- `loadOptions` — how the `.proto` files are parsed and decoded. Passed to `loader.init()`.
+- `channelOptions` — how the underlying gRPC channel behaves on the wire. Passed to `initClients()` and `initServer()`.
+
+Both are passthroughs: gRPCity ships sensible defaults and merges your overrides on top.
 
 ## Default Options
 
@@ -13,7 +15,7 @@ import { defaultLoadOptions, defaultChannelOptions } from 'grpcity'
 
 ## loadOptions
 
-The fields included in `loadOptions` are described as follows:
+Fields supported by `loadOptions`:
 
 | Field Name | Valid Values | Description |
 |------------|--------------|------------|
@@ -28,7 +30,7 @@ The fields included in `loadOptions` are described as follows:
 | `json` | `true` or `false` | Represent `Infinity` and `NaN` as strings in `float` fields and automatically decode `google.protobuf.Any` values. Default is `false`.
 | `includeDirs` | Array of strings | List of search paths for imported `.proto` files.
 
-The default `loadOptions` for `gRPCity` is:
+gRPCity's defaults:
 
 ```js
 {
@@ -42,9 +44,9 @@ The default `loadOptions` for `gRPCity` is:
 
 ## channelOptions
 
-`channelOptions` aligns with the `grpc-js` official specifications, and you can see all the `channel` configuration options [here](https://grpc.github.io/grpc/core/group__grpc__arg__keys.html). The currently supported configuration options can be found [here](https://github.com/grpc/grpc-node/tree/master/packages/grpc-js#supported-channel-options).
+`channelOptions` are passed straight through to `@grpc/grpc-js`. The full list of channel arguments is documented [here](https://grpc.github.io/grpc/core/group__grpc__arg__keys.html); the subset that grpc-js currently honours is documented [here](https://github.com/grpc/grpc-node/tree/master/packages/grpc-js#supported-channel-options).
 
-The default `channelOptions` for `gRPCity` is:
+gRPCity's defaults are tuned for typical microservice deployments — short reconnect backoff, conservative keepalives, and a basic retry policy on `UNAVAILABLE`:
 
 ```js
 {

@@ -2,15 +2,13 @@ import { Callout } from 'nextra/components'
 
 # Server Middleware
 
-`gRPCity` 提供服务端执行处理的中间件机制，它让我们能够在 rpc 执行之前和之后中间件代码。它与客户端的中间件的区别在上下文。
+服务端中间件在每次入站 RPC 前后包一层。思路与 [客户端中间件](/zh/docs/advanced/client-middleware) 相同，区别在上下文：这里你可以读取入站 metadata、修改响应、附加 trailing metadata，或把抛出的错误转成 status。
 
-像统一调用日志打印，监控指标采集，鉴权，修改传参，修改结果，延时和重试等业务场景中，中间件发挥非常便利的作用，使得我们处理业务能够提升开发效率。
+### 洋葱模型
 
-### 原理
+`gRPCity` 服务端同样使用 Koa 风格的洋葱模型中间件：每个函数自己决定何时调 `next()`，`next()` 之前与之后的代码把下层逻辑包在中间。
 
-`gRPCity`的中间件实现是基于`koa-compose`库，它提供了洋葱模型的工作机制，方便我们去执行中间件。
-
-假如我们有 a、b、c 这三个中间件，中间件执行的顺序是`a → b → c`，如下所示:
+按 `a → b → c` 顺序注册三个中间件，调用轨迹如下：
 
 ```bash
 enter a

@@ -22,7 +22,8 @@
     "nextra": "3.0.0-alpha.22",
     "nextra-theme-docs": "3.0.0-alpha.22",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "shiki": "^4.0.2"
   },
   "devDependencies": {
     "@types/node": "20.11.24",

@@ -2,15 +2,13 @@ import { Callout } from 'nextra/components'
 
 # Server Middleware
 
-`gRPCity` provides a middleware mechanism for server-side processing, allowing us to run middleware code before and after the execution of rpc. The difference between server-side middleware and client-side middleware lies in the context.
+Server middleware wraps every inbound RPC, before and after the handler runs. Same idea as [client middleware](/en/docs/advanced/client-middleware), different context — here you can read inbound metadata, mutate the response, attach trailing metadata, or convert thrown errors into a status.
 
-In various business scenarios such as unified call log printing, monitoring metric collection, authentication, parameter modification, result modification, delay, and retry, middleware plays a very convenient role, enhancing the development efficiency of handling business.
+### Onion model
 
-### Principle
+`gRPCity` uses Koa-style onion-model middleware on the server side too: each function decides when to call `next()`, and code on either side of `next()` runs around everything below it.
 
-The middleware implementation of `gRPCity` is based on the onion model, making it easy for us to execute middleware.
-
-Suppose we have three middleware functions, a, b, and c, and the execution order is `a → b → c`, as shown below:
+Three middlewares `a`, `b`, `c` registered in that order produce this trace:
 
 ```bash
 enter a

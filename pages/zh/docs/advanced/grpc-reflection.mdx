@@ -2,12 +2,11 @@ import Video from '@components/video'
 
 # gRPC Reflection
 
-`gRPCity` 服务端支持[`GRPC Server Reflection Protocol`](https://github.com/grpc/grpc/blob/master/doc/server-reflection.md)。
-这个功能允许一些第三方客户端，如 Postman，从运行中的服务端动态加载获取 API 规范，无需手动传递和加载 `proto`。
+`gRPCity` 服务端实现了 [`gRPC Server Reflection Protocol`](https://github.com/grpc/grpc/blob/master/doc/server-reflection.md)，Postman、`grpcurl` 这类工具可以直接在 wire 上探测你的服务，不需要本地的 `.proto` 文件副本。
 
 ### 用法
 
-先从`loader`中获取`reflection`，再在`server`中注入该`reflection`，就完成了集成。
+从 loader 构造反射服务并注入到 server：
 
 ```js {3,4}
 const server = await loader.initServer()

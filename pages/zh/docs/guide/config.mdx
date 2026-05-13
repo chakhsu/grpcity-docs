@@ -1,10 +1,11 @@
 # Config
 
-`gRPCity`关于proto有两个非常重要的配置，分别是`loadOptions`和`channelOptions`。
-其中，`init()`用到`loadOptions`，而`initClients()`和`initServer()`用到`channelOptions`。
+`gRPCity` 暴露两个配置对象，分别对应它打交道的两层：
 
-- `loadOptions`: 对应的是`proto`文件加载时的配置规则；
-- `channelOptions`: 对应的是服务端与客户端通信之间的配置规则；
+- `loadOptions` —— `.proto` 文件的解析与编解码规则。在 `loader.init()` 时传入。
+- `channelOptions` —— 底层 gRPC channel 在网络层的行为。在 `initClients()` 与 `initServer()` 时传入。
+
+两者都是 passthrough 形式：gRPCity 自带合理的默认值，并把你的覆盖叠加上去。
 
 ## 获取默认配置
 
@@ -14,7 +15,7 @@ import { defaultLoadOptions, defaultChannelOptions } from 'grpcity'
 
 ## loadOptions
 
-loadOptions 包含的字段，详情如下:
+`loadOptions` 支持的字段：
 
 | 字段名称 | 有效值 | 描述 |
 |------------|--------------|------------|
@@ -29,7 +30,7 @@ loadOptions 包含的字段，详情如下:
 | `json` | `true` 或 `false` | 在 `float` 字段中将 `Infinity` 和 `NaN` 表示为字符串，并自动解码 `google.protobuf.Any` 值。默认为 `false`。
 | `includeDirs` | 字符串数组 | 导入的 `.proto` 文件的搜索路径列表。
 
-`gRPCity`的默认`loadOptions`为:
+gRPCity 的默认值：
 
 ```js
 {
@@ -43,10 +44,9 @@ loadOptions 包含的字段，详情如下:
 
 ## channelOptions
 
-`channelOptions` 支持度保持跟`grpc-js`官方一致，我们可以从 [这里](https://grpc.github.io/grpc/core/group__grpc__arg__keys.html) 看到所有的`channel`配置项。
-我们可以从 [这里](https://github.com/grpc/grpc-node/tree/master/packages/grpc-js#supported-channel-options) 看到目前支持的配置项。
+`channelOptions` 原样透传给 `@grpc/grpc-js`。所有 channel 参数见 [这里](https://grpc.github.io/grpc/core/group__grpc__arg__keys.html)；grpc-js 当前实际支持的子集见 [这里](https://github.com/grpc/grpc-node/tree/master/packages/grpc-js#supported-channel-options)。
 
-`gRPCity`的默认`channelOptions`为:
+gRPCity 的默认值面向典型微服务场景：较短的重连退避、保守的 keepalive、`UNAVAILABLE` 触发的基础重试策略：
 
 ```js
 {

@@ -1,50 +1,99 @@
+import { Callout } from 'nextra/components'
+
 # Error
 
-Error handling is an important aspect of ensuring the smooth operation of services. `gRPCity` provides convenient error handling mechanisms.
-In general, it is recommended to use `try/catch` for error catching and `throw` to expose errors.
+`gRPCity` surfaces every failure to the client side as a typed error so you
+can `catch` it precisely. Whether the failure originated in your handler, in
+the network, in a deadline, or in an `AbortSignal`, the shape of the error
+tells you exactly what happened.
 
-### Client-Side Error Handling
+## The `GrpcClientError` shape
 
-When a client calls a server, if the server encounters an error, it will return an `ERROR` object with the following four fields:
+When a unary call rejects, or a stream surfaces an error from `for await`,
+the client receives a `GrpcClientError` with these fields:
 
-- `name`: The value is `GrpcClientError`, which can be used to determine if it is a client-side RPC error.
-- `code`: gRPC Status Code.
-- `message`: The error message emitted by the gRPC server.
-- `stack`: The error trace stack from the server.
+| Field      | Description                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------ |
+| `name`     | Always `'GrpcClientError'`. Use this to distinguish framework errors from regular ones.    |
+| `code`     | Numeric gRPC [status code](./status). `1` is `CANCELLED`, `4` is `DEADLINE_EXCEEDED`, etc. |
+| `details`  | The status string from the server, when present.                                           |
+| `metadata` | Any trailing metadata returned with the failure.                                           |
+| `message`  | Composed message including the method path and server stack (handy for logging).           |
+| `stack`    | The client-side stack at the point the error was thrown.                                   |
 
-The expanded `ERROR` object looks like this:
+Example:
 
-```javascript
-{
-    "name": "GrpcClientError",
-    "code": 2,
-    "message": "/test.helloworld.Greeter/SayHello (2 UNKNOWN: Error: throw error because x-throw-error [Error Message From Server, stack: at Greeter.SayHello (/Users/lau/Documents/GitHub/grpcity/test/server.js:27:13)])",
-    "stack": "
-        at start (/Users/lau/Documents/GitHub/grpcity/test/client.js:36:72)
-        ...
-        at callErrorFromStatus (/Users/lau/Documents/GitHub/grpcity/node_modules/@grpc/grpc-js/build/src/call.js:31:19)
-        at Object.onReceiveStatus (/Users/lau/Documents/GitHub/grpcity/node_modules/@grpc/grpc-js/build/src/client.js:192:76)
-    "
-}
-```
-
-### Server-Side Error Triggering
-
-The following example shows how the server can proactively trigger an error when the client sends `x-throw-error` metadata,
-and the `sayHello()` method on the server checks for this metadata:
-
-```javascript {6-8}
-async sayHello(call) {
-    const metadata = call.metadata.clone()
-    metadata.add('x-timestamp-server', 'received=' + new Date().toISOString())
-    call.sendMetadata(metadata)
-
-    if (metadata.get('x-throw-error').length > 0) {
-        throw new Error('throw error because x-throw-error')
+```js
+try {
+  await client.sayGreet({ name: 'gRPCity' })
+} catch (err) {
+  if (err.name === 'GrpcClientError') {
+    if (err.code === 1) {
+      // cancelled — usually by AbortSignal or call.cancel()
+    } else if (err.code === 4) {
+      // deadline exceeded — bump `timeout` or shed load
+    } else {
+      // any other non-OK status
     }
-
-    return { message: `hello, ${call.request.name || 'world'}` }
+  } else {
+    throw err
+  }
 }
 ```
 
-When the server proactively triggers an error, the error is caught by the client and reported as shown in the client-side error handling example above.
+## Distinguishing `AbortError` from `GrpcClientError`
+
+When you pass an `AbortSignal` that fires **before** the RPC reaches the
+wire, gRPCity rejects synchronously with the signal's `reason` (a standard
+`AbortError`, `code: 20`). The call is never sent. When the signal fires
+**during** the call, gRPCity translates the abort into `call.cancel()` and
+you get a `GrpcClientError` with `code: 1`.
+
+See the [AbortSignal](./abort-signal) guide for the full picture.
+
+## Streams
+
+The same `GrpcClientError` shape applies to streaming RPCs. Errors surface
+from the consumer side as a rejected `for await`:
+
+```js
+const call = await client.serverStreamHello({ message: 'x' })
+try {
+  for await (const data of call.readAll()) {
+    // ...
+  }
+} catch (err) {
+  // err.name === 'GrpcClientError', err.code carries the gRPC status
+}
+```
+
+Client-stream and bidi failures surface from `await call.writeEnd()` and
+from `for await ... call.readAll()` in the same way.
+
+## Triggering an error from the server
+
+Just `throw`. gRPCity converts the thrown `Error` into a gRPC status on
+the wire; the framework guarantees that throwing inside any of the four
+RPC handler kinds (unary, client stream, server stream, bidi) reaches the
+client as a `GrpcClientError`.
+
+```js {6-8}
+async sayHello(call) {
+  const metadata = call.metadata.clone()
+  metadata.add('x-timestamp-server', 'received=' + new Date().toISOString())
+  call.sendMetadata(metadata)
+
+  if (metadata.get('x-throw-error').length > 0) {
+    throw new Error('throw error because x-throw-error')
+  }
+
+  return { message: `hello, ${call.request.name || 'world'}` }
+}
+```
+
+<Callout type="info">
+  For server-stream and bidi handlers, throwing is the correct way to fail
+  the call — gRPCity routes it through the underlying server stream's
+  `'error'` channel so the client receives a status trailer immediately
+  rather than waiting for its deadline.
+</Callout>

@@ -1,10 +1,10 @@
 # Status
 
-The `gRPCity` library provides a convenient way to obtain `status`. In general, you won't need to use it often, but I'll provide a brief overview here.
+Every gRPC call ends with a `status`. `gRPCity` makes the values and the numeric mapping easy to access. You won't read this page often, but it's the reference you'll come back to when an error code shows up in logs.
 
-### Get Status
+### Reading the status
 
-Obtaining the `Status` object by `grpcity`:
+The numeric/symbolic status enum lives on the package's `Status` export:
 
 ```js
 import { Status } from 'grpcity'
@@ -12,7 +12,7 @@ import { Status } from 'grpcity'
 console.log(Status.OK)
 ```
 
-Obtaining the `status` returned by the server is straightforward for the client, as shown below:
+On a completed call, the client returns the full status alongside the response:
 
 ```javascript
 const client = clients.get('path.to.service')
@@ -28,9 +28,9 @@ console.log(status)
 }
 ```
 
-### Status Codes
+### Status codes
 
-The default status codes and their descriptions are as follows:
+The full list and what each one means:
 
 | Code | Number | Description |
 |------|--------|-------------|
@@ -52,9 +52,9 @@ The default status codes and their descriptions are as follows:
 | DATA_LOSS | 15 | Unrecoverable data loss or corruption. |
 | UNAUTHENTICATED | 16 | The request does not have valid authentication credentials. |
 
-### Status Cases
+### When each code appears
 
-In addition to "OK," you should also be aware of the possible reasons for other `Code` values, as shown in the following table:
+Apart from `OK`, the table below maps the most common situations to the code you'll see and which side raised it:
 
 | Case | Code | Client or Server |
 |------|------|-------------------------------|

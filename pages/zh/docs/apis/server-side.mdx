@@ -2,7 +2,7 @@ import OptionTable from '@components/optionTable'
 
 # Server Side API
 
-通过调用`loader.initServer()`获取 `server` 实例，下面将展示其 API 详情。
+`loader.initServer()` 返回的 `server` 实例的参考。下面的方法覆盖完整生命周期：注册/注销 service、添加中间件、监听、退出。
 
 ## Server
 
@@ -64,6 +64,16 @@ server.inject(customService)
 
 **功能说明:**
 - 给当前 `server` 注入一个自定义的 `service`。目前仅支持 `loader.initReflection()` 的注入。
+
+**参数说明:**
+<OptionTable
+  options={[
+    ['customService', 'Object', '一个预先构造好的 service 对象，需要带有 inject(server) 方法。loader.initReflection() 返回的就是这种对象。']
+  ]}
+/>
+
+**返回值:**
+- `void`: 空。
 
 ### use()
 

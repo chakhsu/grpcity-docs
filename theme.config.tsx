@@ -78,10 +78,10 @@ const config: DocsThemeConfig = {
     { locale: 'zh', name: '简体中文' }
   ],
   banner: {
-    key: '2.0-release',
+    key: '3.0-release',
     content: (
       <a href="https://github.com/chakhsu/grpcity/releases" target="_blank">
-        🎉 gRPCity 2.0 is released. Read more →
+        🎉 gRPCity 3.0 is released. Read more →
       </a>
     )
   }

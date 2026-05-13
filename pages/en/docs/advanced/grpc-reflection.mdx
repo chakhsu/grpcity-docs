@@ -2,12 +2,11 @@ import Video from '@components/video'
 
 # gRPC Reflection
 
-The `gRPCity` server supports the [`GRPC Server Reflection Protocol`](https://github.com/grpc/grpc/blob/master/doc/server-reflection.md).
-This feature allows some third-party clients, such as Postman, to dynamically load API specifications from a running server without manually passing and loading the `proto` file.
+`gRPCity`'s server speaks the [`gRPC Server Reflection Protocol`](https://github.com/grpc/grpc/blob/master/doc/server-reflection.md), so tools like Postman or `grpcurl` can introspect your service over the wire without a local copy of the `.proto` files.
 
 ### Usage
 
-First, obtain `reflection` from the `loader`, then inject the `reflection` into the `server` to complete the integration.
+Build a reflection service from the loader and inject it into the server:
 
 ```js {3,4}
 const server = await loader.initServer()

@@ -3,36 +3,36 @@ import { Callout } from 'nextra/components'
 
 # Get Started
 
-Before this, I hope you have some understanding of `gRPC` and `protobuf`, which is the best, of course, you can also get familiar with it here. Here we will use a simple example for a quick start, divided into four steps, which are project initialization, loading proto, implementing the server, and implementing the client.
+This page walks through a complete request/response loop in four steps: project setup, the loader, the server, and the client. Some prior familiarity with `gRPC` and `protobuf` helps but isn't required — the snippets below are runnable as-is.
 
 <Callout>
-Learn more by visiting and reading: [gRPC](https://grpc.io/docs/what-is-grpc/introduction/) & [proto3](https://protobuf.dev/programming-guides/proto3/)
+Background reading: [gRPC](https://grpc.io/docs/what-is-grpc/introduction/) and [proto3](https://protobuf.dev/programming-guides/proto3/).
 </Callout>
 
 ## Project Initialization
 
 <Steps>
 
-### Create Project
+### Create the project
 
-Create a demo project and enter:
+Create a demo directory and switch into it:
 ```bash filename="Terminal"
 mkdir demo && cd demo
 ```
 
-Initialize and install dependencies
+Initialize the project and install gRPCity (requires Node.js >= 18):
 ```bash filename="Terminal" sh npm2yarn
 npm init -y
 npm i grpcity
 ```
 
 <Callout type="warning">
-Note: We need to add `"type": "module"` in `package.json` to activate ESM.
+Add `"type": "module"` to `package.json` so the snippets below run as ESM.
 </Callout>
 
-### Project Directory
+### Project layout
 
-We need to create a series of directories and files. The final project directory and file structure are as follows. The highlighted parts need to be created by us in advance:
+The final tree looks like this. The highlighted lines are files you'll create as you go:
 
 ```bash filename="Terminal" {2,3,9,10,11}
 .
@@ -53,11 +53,11 @@ We need to create a series of directories and files. The final project directory
 
 <Steps>
 
-### Define Proto
+### Define the proto
 
-We define two services, `Greeter` and `Hellor`, and split `message` into `model`.
+Two services — `Greeter` and `Hellor` — share a `model` package for messages.
 
-Enter the following content for `service.proto`:
+`service.proto`:
 
 ```proto filename="./proto/helloworld/service.proto"
 syntax = "proto3";
@@ -92,9 +92,11 @@ message HelloReply {
 }
 ```
 
-### Implement Loader
+### Write the loader
 
-Enter the following content for `./loader.js`:
+A single loader instance is shared by the server and the client, so the proto files are parsed exactly once.
+
+`./loader.js`:
 
 ```js filename="./loader.js"
 import { ProtoLoader } from 'grpcity'
@@ -113,20 +115,20 @@ export default new ProtoLoader({
 ```
 
 <Callout>
-In `ProtoLoader`, `location` and `files` respectively represent the proto directory and service proto file.
+`location` is the root directory the loader searches; `files` are the proto files inside it.
 </Callout>
 
-So far, we have completed the loading of proto files and got `loader.js`. This way we can import this file anywhere and support us to develop and implement the client or server.
+That's it for the loader. Any module that needs to build clients or register services can import `./loader.js`.
 
 </Steps>
 
-## Implement Server
+## Implement the server
 
-All the steps here will be done in the `./server.js` file.
+Everything below goes into `./server.js`.
 
 <Steps>
 
-### Import Loader
+### Import the loader
 
 ```js filename="./server.js"
 import loader from "./loader.js"
@@ -134,7 +136,7 @@ import loader from "./loader.js"
 
 ### Implement Greeter
 
-Create `Greeter` and implement the `sayGreet` method:
+Each service is an ordinary class. Methods receive the `call` (with `request`, `metadata`, helpers) and return the response object.
 
 ```js filename="./server.js"
 class Greeter {
@@ -155,7 +157,7 @@ class Greeter {
 
 ### Implement Hellor
 
-Continue to implement `Hellor` in the same way
+Same pattern, second service:
 
 ```js filename="./server.js"
 class Hellor {
@@ -191,19 +193,19 @@ start('127.0.0.1:9098')
 
 </Steps>
 
-## Implement Client
+## Implement the client
 
 <Steps>
 
-### Import Loader
+### Import the loader
 
 ```js filename="./client.js"
 import loader from "./loader.js"
 ```
 
-### Get Client
+### Get the client
 
-Create `start` method, complete getting client.
+Build a `start` function that initialises the loader and a clients factory.
 
 ```js filename="./client.js"
 const start = async (addr) => {
@@ -218,9 +220,9 @@ const start = async (addr) => {
 }
 ```
 
-### Call and Start
+### Make the calls
 
-We then supplement the logic of the client calling the server in the `start` method and print the call result.
+Round out `start` with two RPCs and print what each returns:
 
 ```js filename="./client.js"
 const start = async (addr) => {
@@ -246,31 +248,31 @@ start('127.0.0.1:9098')
 ```
 
 <Callout>
-The result received after the `client` initiates the call includes four values, which are `status`, `peer`, `metadata`, and `response`. Here, we only need to print out `response`.
+Every client call resolves to `{ status, peer, metadata, response }`. We only print `response` here, but the other three fields are useful for logging and tracing.
 </Callout>
 
 </Steps>
 
-## Debug
+## Run it
 
-We need two terminal windows, one for running the server and the other for running the client.
+Two terminals: server in one, client in the other.
 
 <Steps>
 
-### Start Server
+### Start the server
 
 ```bash filename="Terminal"
 node ./server.js
 helloworld server is started:  127.0.0.1:9098
 ```
 
-After starting, our client can connect to the corresponding address.
+Once it's listening, the client can dial that address.
 
-### Start Client
+### Start the client
 
-Start the client, establish a connection with the server, and execute the call. Here, we will execute the client twice.
+Run the client twice and watch the in-memory counter on the server side bump:
 
-The result of the first execution is as follows:
+First run:
 
 ```bash filename="Terminal"
 node ./client.js
@@ -278,7 +280,7 @@ greeterClient.sayGreet { message: 'hello grpcity by Greeter', count: 1 }
 hellorClient.sayHello { message: 'hello grpcity by Hellor' }
 ```
 
-The result of the second execution is as follows:
+Second run:
 
 ```bash filename="Terminal"
 node ./client.js
@@ -286,10 +288,10 @@ greeterClient.sayGreet { message: 'hello grpcity by Greeter', count: 2 }
 hellorClient.sayHello { message: 'hello grpcity by Hellor' }
 ```
 
-We can observe that both executions return as expected. In the `sayGreet` function, the `count` is incremented to 2 after the second run, aligning with our expectations and confirming the successful completion of this client-server interaction loop.
+The `count` field increments between runs — state lives in the `Greeter` instance, exactly as you'd expect from a long-running server.
 
 </Steps>
 
-And that wraps up our quick start tutorial, designed to be straightforward and user-friendly. For a deeper understanding, feel free to explore the **User Guide**.
+That's the whole loop. Read on in the **User Guide** for streaming, middleware, TLS, and beyond.
 
-The code for this tutorial is available on [GitHub](https://github.com/chakhsu/grpcity-basic-demo).
+The full source for this walk-through lives at [chakhsu/grpcity-basic-demo](https://github.com/chakhsu/grpcity-basic-demo).

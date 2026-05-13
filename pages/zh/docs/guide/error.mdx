@@ -1,48 +1,94 @@
+import { Callout } from 'nextra/components'
+
 # Error
 
-错误处理是保证服务正常运行的重要工作。`gRPCity` 也提供方便的错误处理方式。一般情况下，建议使用`try/catch`进行错误捕捉，采用`throw`进行错误暴露。
+`gRPCity` 把所有失败都以可识别的错误形式抛给客户端，你可以精确地 `catch`。
+无论失败源于 handler、网络、deadline 还是 `AbortSignal`，错误的形态都能
+告诉你究竟发生了什么。
 
-### 客户端发现错误
+## `GrpcClientError` 字段
 
-客户端调用服务端，如果服务端报错，则会返回`ERROR`对象，对象包含下面4个字段:
+当 unary 调用 reject、或 stream 在 `for await` 上抛出，客户端会收到一个
+`GrpcClientError`，包含以下字段：
 
-- `name`: 值为`GrpcClientError`, 可以用来判断是否为客户端 rpc 的错误；
-- `code`: gRPC Status Code；
-- `message`: gRPC Server emit message details;
-- `stack`: file error trace stack;
+| 字段        | 说明                                                                                |
+| ----------- | ----------------------------------------------------------------------------------- |
+| `name`      | 永远是 `'GrpcClientError'`。用它区分框架错误和普通错误。                            |
+| `code`      | gRPC [status code](./status) 数字。`1` 是 `CANCELLED`，`4` 是 `DEADLINE_EXCEEDED`。 |
+| `details`   | 服务端返回的 status 字符串（若有）。                                                |
+| `metadata`  | 失败时携带的 trailing metadata。                                                    |
+| `message`   | 组合后的错误消息，包含方法路径和服务端 stack（方便日志使用）。                      |
+| `stack`     | 抛错处的客户端调用栈。                                                              |
 
-`ERROR`对象完全展开后如下所示:
+例子：
 
 ```js
-{
-    "name":"GrpcClientError",
-    "code":2,
-    "message":"/test.helloworld.Greeter/SayHello (2 UNKNOWN: Error: throw error because x-throw-error [Error Message From Server, stack: at Greeter.SayHello (/Users/lau/Documents/GitHub/grpcity/test/server.js:27:13)])",
-    "stack": "
-        at start (/Users/lau/Documents/GitHub/grpcity/test/client.js:36:72)
-        ...
-        at callErrorFromStatus (/Users/lau/Documents/GitHub/grpcity/node_modules/@grpc/grpc-js/build/src/call.js:31:19)
-        at Object.onReceiveStatus (/Users/lau/Documents/GitHub/grpcity/node_modules/@grpc/grpc-js/build/src/client.js:192:76)
-    "
-}
-```
-
-### 服务端触发错误
-
-下面展示如果客户端发送`x-throw-error`元信息，服务端执行`sayHello()`检查该元信息后主动触发报错的例子。
-
-```js { 6-8 }
-async sayHello (call) {
-    const metadata = call.metadata.clone()
-    metadata.add('x-timestamp-server', 'received=' + new Date().toISOString())
-    call.sendMetadata(metadata)
-
-    if (metadata.get('x-throw-error').length > 0) {
-        throw new Error('throw error because x-throw-error')
+try {
+  await client.sayGreet({ name: 'gRPCity' })
+} catch (err) {
+  if (err.name === 'GrpcClientError') {
+    if (err.code === 1) {
+      // CANCELLED — 通常由 AbortSignal 或 call.cancel() 触发
+    } else if (err.code === 4) {
+      // DEADLINE_EXCEEDED — 需要调大 timeout 或降流量
+    } else {
+      // 其他非 OK 状态
     }
-
-    return { message: `hello, ${call.request.name || 'world'}` }
+  } else {
+    throw err
+  }
 }
 ```
 
-服务端主动触发报错后，客户端捕捉到的错误报错，如上面客户端发现错误展示的例子一样。
+## `AbortError` 与 `GrpcClientError` 的区分
+
+当传入的 `AbortSignal` 在 RPC 还**没**进入网络层之前就触发，gRPCity 会
+同步 reject signal 的 `reason`（一个标准的 `AbortError`，`code: 20`），
+**完全不发起调用**。如果是调用进行中触发，gRPCity 会把 abort 翻译为底层
+的 `call.cancel()`，错误形态是 `GrpcClientError`，`code: 1`。
+
+详见 [AbortSignal](./abort-signal)。
+
+## 流式 RPC
+
+`GrpcClientError` 形态同样适用于流式 RPC。错误会通过 `for await` 抛出：
+
+```js
+const call = await client.serverStreamHello({ message: 'x' })
+try {
+  for await (const data of call.readAll()) {
+    // ...
+  }
+} catch (err) {
+  // err.name === 'GrpcClientError'，err.code 是 gRPC status
+}
+```
+
+Client stream 与 bidi 的失败同样从 `await call.writeEnd()` 和
+`for await ... call.readAll()` 抛出。
+
+## 服务端触发错误
+
+直接 `throw` 即可。gRPCity 会把抛出的 `Error` 转换成 wire 上的 gRPC
+status；四种 RPC handler（unary、client stream、server stream、bidi）都
+保证 throw 会以 `GrpcClientError` 形态到达客户端。
+
+```js {6-8}
+async sayHello(call) {
+  const metadata = call.metadata.clone()
+  metadata.add('x-timestamp-server', 'received=' + new Date().toISOString())
+  call.sendMetadata(metadata)
+
+  if (metadata.get('x-throw-error').length > 0) {
+    throw new Error('throw error because x-throw-error')
+  }
+
+  return { message: `hello, ${call.request.name || 'world'}` }
+}
+```
+
+<Callout type="info">
+  对于 server-stream / bidi handler，**throw 就是正确的失败方式** ——
+  gRPCity 会通过底层 server stream 的 `'error'` 通道发回 status trailer，
+  让客户端立刻收到错误，而不是等到 deadline 才超时。
+</Callout>

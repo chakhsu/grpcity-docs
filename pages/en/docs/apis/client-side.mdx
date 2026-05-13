@@ -2,7 +2,7 @@ import OptionTable from '@components/optionTable'
 
 # Client Side API
 
-Retrieve the `clients` instance by using `loader.initClients()`. The API details are outlined below.
+Reference for the `clients` factory returned by `loader.initClients()` and the per-method proxies it produces. Two layers are documented below: the factory itself (`get`, `use`, `clear`, `init`) and the per-RPC method shapes for unary, client-stream, server-stream, and bidi calls.
 
 ## Clients
 
@@ -146,7 +146,7 @@ const { status, peer, metadata, response } = await client.rpcUnaryMethod(request
   options={[
     ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
     ['metadata', 'Metadata', 'Optional, used to pass metadata related to the request. Metadata is represented as key-value pairs and can include information for authentication, authorization, tracking, or other purposes'],
-    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Some available options include timeout, retry strategy, etc. If not passed, the default timeout is set to 10 seconds and can be modified by passing `timeout`']
+    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Available options include `timeout` (per-call deadline; defaults to 10 seconds if omitted) and `signal` (an `AbortSignal` to cancel the call — see [AbortSignal](../guide/abort-signal))']
   ]}
 />
 
@@ -173,7 +173,7 @@ const clientStreamCall = await client.rpcClientStreamMethod(metadata, options)
 <OptionTable
   options={[
     ['metadata', 'Metadata', 'Optional, used to pass metadata related to the request. Metadata is represented as key-value pairs and can include information for authentication, authorization, tracking, or other purposes'],
-    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Some available options include timeout, retry strategy, etc. If not passed, the default timeout is set to 10 seconds and can be modified by passing `timeout`']
+    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Available options include `timeout` (per-call deadline; defaults to 10 seconds if omitted) and `signal` (an `AbortSignal` to cancel the call — see [AbortSignal](../guide/abort-signal))']
   ]}
 />
 
@@ -251,7 +251,7 @@ const serverStreamCall = await client.rpcServerStreamMethod(request, metadata, o
   options={[
     ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
     ['metadata', 'Metadata', 'Optional, used to pass metadata related to the request. Metadata is represented as key-value pairs and can include information for authentication, authorization, tracking, or other purposes'],
-    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Some available options include timeout, retry strategy, etc. If not passed, the default timeout is set to 10 seconds and can be modified by passing `timeout`']
+    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Available options include `timeout` (per-call deadline; defaults to 10 seconds if omitted) and `signal` (an `AbortSignal` to cancel the call — see [AbortSignal](../guide/abort-signal))']
   ]}
 />
 
@@ -301,7 +301,7 @@ const clientDuplexStreamCall = client.rpcDuplexStreamMethod(metadata, options)
 <OptionTable
   options={[
     ['metadata', 'Metadata', 'Optional, used to pass metadata related to the request. Metadata is represented as key-value pairs and can include information for authentication, authorization, tracking, or other purposes'],
-    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Some available options include timeout, retry strategy, etc. If not passed, the default timeout is set to 10 seconds and can be modified by passing `timeout`']
+    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Available options include `timeout` (per-call deadline; defaults to 10 seconds if omitted) and `signal` (an `AbortSignal` to cancel the call — see [AbortSignal](../guide/abort-signal))']
   ]}
 />
 
@@ -402,7 +402,7 @@ const callInstance = client.call.rpcMethod(request, metadata, options, callback)
   options={[
     ['request', 'Object', 'Optional, an object containing request parameters. The structure of the request object depends on the message type defined in the `.proto` file of the gRPC service'],
     ['metadata', 'Metadata', 'Optional, used to pass metadata related to the request. Metadata is represented as key-value pairs and can include information for authentication, authorization, tracking, or other purposes'],
-    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Some available options include timeout, retry strategy, etc. If not passed, the default timeout is set to 10 seconds and can be modified by passing `timeout`'],
+    ['options', 'Object', 'Optional, used to set specific call options. It is an object containing a set of key-value pairs that can be used to configure the behavior of the call. Available options include `timeout` (per-call deadline; defaults to 10 seconds if omitted) and `signal` (an `AbortSignal` to cancel the call — see [AbortSignal](../guide/abort-signal))'],
     ['callback', 'Function', 'Required, callback function to receive and process server errors and results']
   ]}
 />

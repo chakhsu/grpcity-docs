@@ -8,5 +8,6 @@ export default {
   "stream": "Stream",
   "credentials": "Credentials",
   "status": "Status",
-  "error": "Error"
+  "error": "Error",
+  "abort-signal": "AbortSignal"
 }

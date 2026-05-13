@@ -2,7 +2,7 @@ import OptionTable from '@components/optionTable'
 
 # Server Side API
 
-Retrieve the `server` instance by calling `loader.initServer()`. The API details are outlined below.
+Reference for the `server` instance returned by `loader.initServer()`. The methods below cover the full server lifecycle: register and unregister services, add middleware, listen, and shut down.
 
 ## Server
 
@@ -64,6 +64,16 @@ server.inject(customService)
 
 **Description:**
 - Injects a custom `service` into the current `server`. Currently, only supports injection from `loader.initReflection()`.
+
+**Parameters:**
+<OptionTable
+  options={[
+    ['customService', 'Object', 'A pre-built service object exposing an `inject(server)` method. `loader.initReflection()` returns one.']
+  ]}
+/>
+
+**Returns:**
+- `void`: Empty.
 
 ### use()
 

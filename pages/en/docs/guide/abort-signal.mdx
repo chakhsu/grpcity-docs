@@ -1,0 +1,104 @@
+import { Callout } from 'nextra/components'
+import OptionTable from '@components/optionTable'
+
+# AbortSignal
+
+Every RPC method on a gRPCity client accepts a per-call options object, and
+that object now understands a standard `signal: AbortSignal`. Pass an
+`AbortSignal` to cancel an in-flight call, or to refuse to send one when the
+signal has already fired.
+
+## Pre-abort vs mid-call abort
+
+There are two distinct outcomes depending on when the signal fires:
+
+- **Already aborted before the call** — gRPCity calls `signal.throwIfAborted()`
+  before contacting the server. The promise rejects synchronously with the
+  signal's `reason` (typically `AbortError`, `code: 20`). No RPC is issued.
+- **Aborted while the call is in flight** — gRPCity translates the abort into
+  the underlying gRPC `call.cancel()`. The peer immediately observes a
+  cancelled stream, and the client receives a `GrpcClientError` with
+  `code: 1` (`CANCELLED`).
+
+This split lets you distinguish "I never tried" from "I tried and gave up".
+
+## Quick start
+
+```js
+const ac = new AbortController()
+setTimeout(() => ac.abort(), 100)
+
+try {
+  const { response } = await client.sayGreet({ name: 'gRPCity' }, null, { signal: ac.signal })
+  console.log(response)
+} catch (err) {
+  if (err.name === 'AbortError') {
+    console.log('cancelled before the request was sent')
+  } else if (err.code === 1) {
+    console.log('cancelled while in flight')
+  } else {
+    throw err
+  }
+}
+```
+
+## Built-in helpers
+
+`AbortSignal` is the standard browser/Node primitive. You can pass anything
+that produces one:
+
+```js
+// Static — short-circuit immediately.
+AbortSignal.abort()
+
+// Time-driven — convenient replacement for the per-call `timeout` option
+// when you want a true AbortError instead of a deadline status.
+AbortSignal.timeout(2000)
+
+// Composing several signals (Node 20+).
+AbortSignal.any([userSignal, AbortSignal.timeout(5000)])
+```
+
+## All four RPC kinds
+
+`signal` belongs to the per-call options object. Every method takes that
+object as its last positional argument.
+
+```js
+// unary
+await client.unaryHello(request, metadata, { signal })
+
+// client stream — call returns a writable handle
+const call = await client.clientStreamHello(metadata, { signal })
+
+// server stream
+const call = await client.serverStreamHello(request, metadata, { signal })
+
+// bidi
+const call = await client.mutualStreamHello(metadata, { signal })
+```
+
+## Sharing a signal across calls
+
+A single `AbortController` can drive several concurrent RPCs. When you
+abort the controller, every call linked to its signal cancels.
+
+```js
+const ac = new AbortController()
+const calls = ids.map((id) => client.fetchOne({ id }, null, { signal: ac.signal }))
+const results = await Promise.allSettled(calls)
+ac.abort() // cancels anything still in flight, no-op for already-finished
+```
+
+## Listener cleanup
+
+gRPCity registers an `abort` listener on your signal for the duration of
+each call and removes it on the terminal `status` event. Reusing one
+long-lived signal across many RPCs does **not** accumulate listeners — this
+contract is covered by a regression test in the framework.
+
+<Callout type="info">
+  `signal` is the only addition to per-call options. Existing options
+  (`timeout`, `deadline`, etc.) continue to work as before, including in
+  combination with a signal — whichever fires first wins.
+</Callout>

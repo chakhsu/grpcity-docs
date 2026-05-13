@@ -1,0 +1,110 @@
+.frame {
+  width: 100%;
+  border: 1px solid rgb(0 0 0 / 0.1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.95);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+  box-shadow:
+    0 32px 64px -32px rgb(0 0 0 / 0.25),
+    0 0 0 1px rgb(0 0 0 / 0.02);
+  display: flex;
+  flex-direction: column;
+  min-height: 340px;
+}
+
+:global(.dark) .frame {
+  background: rgb(13 17 23 / 0.95); /* matches github-dark-default bg */
+  border-color: rgb(255 255 255 / 0.1);
+  box-shadow:
+    0 32px 64px -32px rgb(0 0 0 / 0.8),
+    0 0 0 1px rgb(255 255 255 / 0.04);
+}
+
+.tabs {
+  display: flex;
+  gap: 0.125rem;
+  padding: 0.55rem 0.55rem 0;
+  border-bottom: 1px solid rgb(0 0 0 / 0.06);
+  background: rgb(247 248 250 / 0.95); /* matches github-light-default bg */
+}
+
+:global(.dark) .tabs {
+  border-bottom-color: rgb(255 255 255 / 0.06);
+  background: rgb(22 27 34 / 0.95);
+}
+
+.tab {
+  padding: 0.45rem 0.85rem;
+  border: none;
+  background: transparent;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  color: rgb(107 114 128);
+  cursor: pointer;
+  border-radius: 0.4rem 0.4rem 0 0;
+  position: relative;
+  bottom: -1px;
+  transition: color 120ms ease, background 120ms ease;
+  outline: none;
+}
+
+.tab:hover {
+  color: rgb(31 41 55);
+  background: rgb(0 0 0 / 0.03);
+}
+
+.tabActive {
+  color: hsl(var(--nextra-primary-hue) 80% 50%);
+  background: rgb(255 255 255);
+  border: 1px solid rgb(0 0 0 / 0.06);
+  border-bottom-color: transparent;
+}
+
+:global(.dark) .tab:hover {
+  color: rgb(229 231 235);
+  background: rgb(255 255 255 / 0.04);
+}
+
+:global(.dark) .tabActive {
+  color: hsl(var(--nextra-primary-hue) 80% 75%);
+  background: rgb(13 17 23 / 1);
+  border-color: rgb(255 255 255 / 0.08);
+}
+
+.codeBox {
+  flex: 1;
+  padding: 1.25rem 1.25rem 1.5rem;
+  overflow-x: auto;
+}
+
+.fallback {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: rgb(31 41 55);
+  background: transparent;
+  white-space: pre;
+}
+
+:global(.dark) .fallback {
+  color: rgb(229 231 235);
+}
+
+/* Shiki output: <pre class="shiki"> <code>...</code> </pre>
+   Let shiki own the colors, tame inline background and padding. */
+.shiki :global(pre) {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.shiki :global(code) {
+  background: transparent !important;
+  padding: 0 !important;
+  font-family: inherit !important;
+}
