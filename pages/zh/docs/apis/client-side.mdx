@@ -2,7 +2,7 @@ import OptionTable from '@components/optionTable'
 
 # Client Side API
 
-通过 `loader.initClients()` 获取 `clients`实例，下面将展示其 API 详情。
+`loader.initClients()` 返回的 `clients` 工厂以及它派生的每个方法代理的参考。下面分两层：工厂本身的 `get` / `use` / `clear` / `init`，以及四类 RPC（unary、client-stream、server-stream、bidi）的调用形态。
 
 ## Clients
 

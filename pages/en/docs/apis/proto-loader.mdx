@@ -2,6 +2,8 @@ import OptionTable from '@components/optionTable'
 
 # Proto Loader API
 
+Reference for the loader-side surface. The constructor, `init()`, and the metadata / credentials helpers all live on the same `ProtoLoader` instance and share state. Most users only call the three highlighted entry points (`new ProtoLoader`, `loader.init`, `loader.initServer` / `initClients` / `initReflection`); the lower-level helpers below back-fill the rest.
+
 ### ProtoLoader
 
 ```js

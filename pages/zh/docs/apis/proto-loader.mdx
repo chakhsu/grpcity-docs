@@ -2,6 +2,8 @@ import OptionTable from '@components/optionTable'
 
 # Proto Loader API
 
+Loader 侧 API 参考。构造函数、`init()` 与 metadata / credentials 辅助函数都挂在同一个 `ProtoLoader` 实例上、共享同一份状态。大多数用户只调那三个入口（`new ProtoLoader`、`loader.init`、`loader.initServer` / `initClients` / `initReflection`），下面的低层 helper 兜底其余情况。
+
 ### ProtoLoader
 
 ```js
