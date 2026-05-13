@@ -146,7 +146,7 @@ const { status, peer, metadata, response } = await client.rpcUnaryMethod(request
   options={[
     ['request', 'Object', '可选，一个包含请求参数的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型'],
     ['metadata', 'Metadata', '可选，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据'],
-    ['options', 'Object', '可选，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入 `timeout` 的方式修改超时时间']
+    ['options', 'Object', '可选，per-call 选项对象。可用字段包括 `timeout`（单次调用超时，默认 10 秒）以及 `signal`（用于取消调用的 `AbortSignal`，详见 [AbortSignal](../guide/abort-signal)）']
   ]}
 />
 
@@ -173,7 +173,7 @@ const clientStreamCall = await client.rpcClientStreamMethod(metadata, options)
 <OptionTable
   options={[
     ['metadata', 'Metadata', '可选，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据'],
-    ['options', 'Object', '可选，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入 `timeout` 的方式修改超时时间']
+    ['options', 'Object', '可选，per-call 选项对象。可用字段包括 `timeout`（单次调用超时，默认 10 秒）以及 `signal`（用于取消调用的 `AbortSignal`，详见 [AbortSignal](../guide/abort-signal)）']
   ]}
 />
 
@@ -251,7 +251,7 @@ const serverStreamCall = await client.rpcServerStreamMethod(request, metadata, o
   options={[
     ['request', 'Object', '可选，一个包含请求参数的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型'],
     ['metadata', 'Metadata', '可选，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据'],
-    ['options', 'Object', '可选，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入 `timeout` 的方式修改超时时间']
+    ['options', 'Object', '可选，per-call 选项对象。可用字段包括 `timeout`（单次调用超时，默认 10 秒）以及 `signal`（用于取消调用的 `AbortSignal`，详见 [AbortSignal](../guide/abort-signal)）']
   ]}
 />
 
@@ -301,7 +301,7 @@ const clientDuplexStreamCall = client.rpcDuplexStreamMethod(metadata, options)
 <OptionTable
   options={[
     ['metadata', 'Metadata', '可选，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据'],
-    ['options', 'Object', '可选，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入 `timeout` 的方式修改超时时间']
+    ['options', 'Object', '可选，per-call 选项对象。可用字段包括 `timeout`（单次调用超时，默认 10 秒）以及 `signal`（用于取消调用的 `AbortSignal`，详见 [AbortSignal](../guide/abort-signal)）']
   ]}
 />
 
@@ -402,7 +402,7 @@ const callInstance = client.call.rpcMethod(request, metadata, options, callback)
   options={[
     ['request', 'Object', '可选，一个包含请求参数的对象。请求对象的结构取决于定义的 gRPC 服务的`.proto`文件中的消息类型'],
     ['metadata', 'Metadata', '可选，用于传递与请求相关的元数据。元数据是以键值对的形式表示的信息，可以包含用于身份验证、授权、跟踪或其他目的的数据'],
-    ['options', 'Object', '可选，用于设置特定的调用选项。它是一个包含一组键值对的对象，可用于配置调用的行为。一些可用的选项包括超时时间、重试策略等。如果不传该参数，默认会设置10秒超时，可以通过传入 `timeout` 的方式修改超时时间'],
+    ['options', 'Object', '可选，per-call 选项对象。可用字段包括 `timeout`（单次调用超时，默认 10 秒）以及 `signal`（用于取消调用的 `AbortSignal`，详见 [AbortSignal](../guide/abort-signal)）'],
     ['callback', 'Function', '必填，回调函数，用来接收并处理服务端返回错误信息和结果']
   ]}
 />

@@ -1,0 +1,98 @@
+import { Callout } from 'nextra/components'
+import OptionTable from '@components/optionTable'
+
+# AbortSignal
+
+gRPCity 客户端的每个 RPC 方法都接受一个 per-call 选项对象，该对象现在
+支持标准的 `signal: AbortSignal`。把 `AbortSignal` 传进去，可以取消正在
+进行的调用，或者在 signal 已触发时拒绝发起调用。
+
+## 调用前 abort vs 调用中 abort
+
+根据 signal 触发的时机，会得到两种截然不同的结果：
+
+- **调用前已 abort** — gRPCity 在联网前会调用 `signal.throwIfAborted()`，
+  promise 同步 reject，错误是 signal 的 `reason`（通常是 `AbortError`，
+  `code: 20`）。**完全不发起 RPC**。
+- **调用过程中 abort** — gRPCity 把 abort 翻译为底层的 `call.cancel()`。
+  对端会立刻收到 cancel 信号，client 拿到 `GrpcClientError`，`code: 1`
+  （`CANCELLED`）。
+
+这两种形态让你能区分"我根本没发请求"和"我发了再撤销"。
+
+## 快速上手
+
+```js
+const ac = new AbortController()
+setTimeout(() => ac.abort(), 100)
+
+try {
+  const { response } = await client.sayGreet({ name: 'gRPCity' }, null, { signal: ac.signal })
+  console.log(response)
+} catch (err) {
+  if (err.name === 'AbortError') {
+    console.log('调用未发出就被取消')
+  } else if (err.code === 1) {
+    console.log('调用进行中被取消')
+  } else {
+    throw err
+  }
+}
+```
+
+## 内置辅助
+
+`AbortSignal` 是浏览器/Node 标准原语，任何能产出它的东西都可以传：
+
+```js
+// 立刻短路
+AbortSignal.abort()
+
+// 时间驱动 — 当你想得到一个真正的 AbortError 而不是 deadline 状态时，
+// 这是 per-call `timeout` 选项的好替代。
+AbortSignal.timeout(2000)
+
+// 组合多个 signal（Node 20+）
+AbortSignal.any([userSignal, AbortSignal.timeout(5000)])
+```
+
+## 四类 RPC
+
+`signal` 放在 per-call 选项对象里，每个方法都把它当作最后一个位置参数：
+
+```js
+// unary
+await client.unaryHello(request, metadata, { signal })
+
+// client stream — 返回一个可写句柄
+const call = await client.clientStreamHello(metadata, { signal })
+
+// server stream
+const call = await client.serverStreamHello(request, metadata, { signal })
+
+// bidi
+const call = await client.mutualStreamHello(metadata, { signal })
+```
+
+## 共享一个 signal
+
+一个 `AbortController` 可以驱动多个并发 RPC。abort 一次，所有挂在它
+signal 上的调用都会取消：
+
+```js
+const ac = new AbortController()
+const calls = ids.map((id) => client.fetchOne({ id }, null, { signal: ac.signal }))
+const results = await Promise.allSettled(calls)
+ac.abort() // 取消尚在进行中的；已经结束的视为 no-op
+```
+
+## listener 清理
+
+gRPCity 在调用期间会在你的 signal 上注册一个 `abort` listener，并在终态
+`status` 事件里把它解绑。即便你在一个长期持有的 signal 上发起大量 RPC，
+listener 也不会累积 —— 框架里有专门的回归测试守护这一约定。
+
+<Callout type="info">
+  `signal` 是 per-call 选项的唯一新增字段。现有选项（`timeout`、`deadline`
+  等）保持不变，并且可以与 signal 组合使用 —— 谁先触发谁生效。
+</Callout>
