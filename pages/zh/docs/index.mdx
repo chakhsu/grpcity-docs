@@ -69,7 +69,9 @@ gPRCity: 一套简单、易用和高级的基于 Node.js 的 gRPC 微服务库�
 - **Error**: 提供了专有 Error 对象，保证异常捕捉后可以针对性处理；
 - **Middleware**: 客户端和服务端都支持中间件机制；
 - **Config**: 与官方配置对齐，支持 pb load 配置和 gRPC channel 配置；
+- **Validation**: Loader、client、server 选项均在运行时通过 [zod](https://zod.dev) 校验；
 - **Promise**: rpc 方法内部支持了 promisify，同时也保留了 callbackify ；
+- **AbortSignal**: 任意 RPC 调用都可以传入 `AbortSignal` 进行取消；
 - **Typescript**: 纯 TS 实现，类型齐全。
 
 ...还有更多等你发现。

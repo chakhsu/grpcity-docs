@@ -79,12 +79,16 @@ await loader.init(options)
 ```
 
 `options` 说明，包含如下参数:
-- isDev: （可选）布尔值，是否为开发模式；
-- packagePrefix: （可选）字符串，service name 包前缀，如: `dev`, `stage`等等；
-- loadOptions: （可选）proto load options；
+- `isDev`：（可选，boolean）开关开发模式。它本身不会产生任何外在效果，只用来开启 `packagePrefix`。
+- `packagePrefix`：（可选，string）仅当 `isDev: true` 时生效。会把加载到的所有 service 和 type 重新挂到 `<prefix>.<原名>`，并且 wire 上的 gRPC 方法路径变成 `/<prefix>.<package>.<Service>/...`。适合做租户/环境隔离。
+- `loadOptions`：（可选，object）原样透传给 `@grpc/proto-loader`，会按字段覆盖默认值。默认值：`keepCase: true`、`longs: String`、`enums: String`、`defaults: false`、`oneofs: true`。
 
 <Callout>
 其中`loadOptions`更多说明请看这一篇: [Config](/zh/docs/guide/config)
+</Callout>
+
+<Callout type="info">
+`init()` 是 **幂等** 且 **并发安全** 的：即使多个入口在第一次 `init()` 完成前同时调用，它们也会共享同一个进行中的 Promise。`initServer`、`initClients`、`initReflection` 内部都会在你没调过的情况下自动 `init()`，所以你只需要在「希望传参」或「想直接调用 `service()` / `type()`」时显式 `await loader.init(options)`。
 </Callout>
 
 #### 示例

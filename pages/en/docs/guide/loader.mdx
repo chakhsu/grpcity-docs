@@ -78,12 +78,16 @@ await loader.init(options)
 ```
 
 Explanation of `options`, which includes the following parameters:
-- isDev: (optional) Boolean value, indicating whether it is in development mode.
-- packagePrefix: (optional) String, the service name prefix, such as: `dev`, `stage`, etc.
-- loadOptions: (optional) Proto load options.
+- `isDev`: (optional, boolean) Toggles dev mode. On its own it does nothing visible; it gates `packagePrefix`.
+- `packagePrefix`: (optional, string) Only honored when `isDev` is `true`. Rebinds every loaded service and type under `<prefix>.<originalName>`, and the on-wire gRPC method paths become `/<prefix>.<package>.<Service>/...`. Useful for sandboxing tenants or environments.
+- `loadOptions`: (optional, object) Passed straight through to `@grpc/proto-loader`. Your object overrides the defaults field-by-field. Defaults: `keepCase: true`, `longs: String`, `enums: String`, `defaults: false`, `oneofs: true`.
 
 <Callout>
 For more information on `loadOptions`, please refer to this article: [Config](/en/docs/guide/config)
+</Callout>
+
+<Callout type="info">
+`init()` is **idempotent** and **concurrent-safe**: calling it multiple times — even from multiple entry points before the first call resolves — shares a single in-flight Promise. `initServer`, `initClients`, and `initReflection` call it internally if you haven't, so you only need an explicit `await loader.init(options)` when you want to pass options or call `service()` / `type()` directly.
 </Callout>
 
 #### Example

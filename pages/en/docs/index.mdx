@@ -80,7 +80,9 @@ The internal data flow design of `gRPCity` is very clear, as shown below:
   exceptions after catching.
 - **Promise**: Supports promisify internally in RPC methods while also
   preserving callbackify.
+- **AbortSignal**: Pass an `AbortSignal` to any RPC call to cancel it.
 - **Config**: Supports protobuf load configurations and gRPC channel configurations.
+- **Validation**: Loader, client and server options are validated at runtime with [zod](https://zod.dev).
 - **Typescript**: Implemented purely in TypeScript with comprehensive types.
 
 ...and a lot more.
