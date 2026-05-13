@@ -38,18 +38,19 @@ await loader.init({ isDev, packagePrefix, loadOptions })
 
 **Description:**
 - Loads the `proto` files and generates `proto` definitions based on the specified parameters.
+- **Idempotent and concurrent-safe**: subsequent calls (including parallel calls before the first one resolves) share a single in-flight Promise. `initServer`, `initClients`, and `initReflection` invoke `init()` internally if it hasn't run yet.
 
 **Parameters:**
 <OptionTable
   options={[
-    ['isDev', 'Boolean', `Optional, indicates whether it is in development mode, default is false`],
-    ['packagePrefix', 'String', `Optional, package name prefix supplement, e.g., 'dev', 'stage', default is empty`],
-    ['loadOptions', 'LoadOptions', `Optional, proto load options, default uses built-in loadOptions`]
+    ['isDev', 'Boolean', `Optional. Toggles dev mode; on its own it does nothing visible — it gates packagePrefix. Default false.`],
+    ['packagePrefix', 'String', `Optional. Only honored when isDev is true. Rebinds every loaded service/type under <prefix>.<originalName>; on-wire method paths become /<prefix>.<package>.<Service>/...`],
+    ['loadOptions', 'LoadOptions', `Optional. Passed straight through to @grpc/proto-loader. Defaults: keepCase: true, longs: String, enums: String, defaults: false, oneofs: true.`]
   ]}
 />
 
 **Returns:**
-- `void`: Empty.
+- `Promise<void>`.
 
 ### initClients()
 

@@ -65,6 +65,16 @@ server.inject(customService)
 **Description:**
 - Injects a custom `service` into the current `server`. Currently, only supports injection from `loader.initReflection()`.
 
+**Parameters:**
+<OptionTable
+  options={[
+    ['customService', 'Object', 'A pre-built service object exposing an `inject(server)` method. `loader.initReflection()` returns one.']
+  ]}
+/>
+
+**Returns:**
+- `void`: Empty.
+
 ### use()
 
 ```js

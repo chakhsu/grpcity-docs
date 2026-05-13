@@ -37,19 +37,20 @@ await loader.init({ isDev, packagePrefix, loadOptions })
 ```
 
 **功能说明:**
-- 执行加载 `proto` 文件，并参数规则生成 `proto` 定义。
+- 加载 `proto` 文件，按参数生成 `proto` 定义。
+- **幂等且并发安全**：再次调用（包括首次未完成时的并发调用）会共享同一个进行中的 Promise。`initServer`、`initClients`、`initReflection` 在你没调过的情况下会自动 `init()`。
 
 **参数说明:**
 <OptionTable
   options={[
-    ['isDev', 'Boolean', `可选，是否为开发模式，默认为 false`],
-    ['packagePrefix', 'String', `可选，包名前缀补充，如: 'dev', 'stage'，默认为空`],
-    ['loadOptions', 'LoadOptiobs', `可选，proto load options，默认使用内置 loadOptions`]
+    ['isDev', 'Boolean', `可选。开发模式开关，自身无可见效果，用于启用 packagePrefix。默认 false。`],
+    ['packagePrefix', 'String', `可选。仅当 isDev: true 生效。把所有 service/type 重新挂到 <prefix>.<原名>；wire 上的方法路径变成 /<prefix>.<package>.<Service>/...`],
+    ['loadOptions', 'LoadOptions', `可选。原样透传给 @grpc/proto-loader。默认：keepCase: true、longs: String、enums: String、defaults: false、oneofs: true。`]
   ]}
 />
 
 **返回值:**
-- `void`: 空。
+- `Promise<void>`。
 
 ### initClients()
 

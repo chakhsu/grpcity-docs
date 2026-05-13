@@ -65,6 +65,16 @@ server.inject(customService)
 **功能说明:**
 - 给当前 `server` 注入一个自定义的 `service`。目前仅支持 `loader.initReflection()` 的注入。
 
+**参数说明:**
+<OptionTable
+  options={[
+    ['customService', 'Object', '一个预先构造好的 service 对象，需要带有 inject(server) 方法。loader.initReflection() 返回的就是这种对象。']
+  ]}
+/>
+
+**返回值:**
+- `void`: 空。
+
 ### use()
 
 ```js
