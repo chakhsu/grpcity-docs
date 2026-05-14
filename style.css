@@ -106,3 +106,9 @@ nav a span.logo:hover {
   border-bottom-right-radius: 0.75rem;
   border-bottom-left-radius: 0.75rem;
 }
+
+/* Tighten Nextra's default footer wrapper spacing (it ships with py-12) */
+footer > div:last-child {
+  padding-top: 4.5rem !important;
+  padding-bottom: 4.5rem !important;
+}

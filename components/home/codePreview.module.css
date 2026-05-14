@@ -1,81 +1,233 @@
 .frame {
   width: 100%;
   border: 1px solid rgb(0 0 0 / 0.1);
-  border-radius: 1rem;
-  background: rgb(255 255 255 / 0.95);
+  border-radius: 0.85rem;
+  background: rgb(255 255 255 / 0.98);
   backdrop-filter: blur(8px);
   overflow: hidden;
   box-shadow:
-    0 32px 64px -32px rgb(0 0 0 / 0.25),
+    0 1px 0 0 rgb(255 255 255 / 0.5) inset,
+    0 24px 50px -20px rgb(15 23 42 / 0.18),
     0 0 0 1px rgb(0 0 0 / 0.02);
   display: flex;
   flex-direction: column;
-  min-height: 340px;
+  min-height: 420px;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.frame:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 0.5) inset,
+    0 32px 60px -20px rgb(15 23 42 / 0.25),
+    0 0 0 1px rgb(0 0 0 / 0.02);
 }
 
 :global(.dark) .frame {
-  background: rgb(13 17 23 / 0.95); /* matches github-dark-default bg */
+  background: rgb(13 17 23 / 0.98);
   border-color: rgb(255 255 255 / 0.1);
   box-shadow:
-    0 32px 64px -32px rgb(0 0 0 / 0.8),
+    0 1px 0 0 rgb(255 255 255 / 0.05) inset,
+    0 24px 50px -20px rgb(0 0 0 / 0.7),
     0 0 0 1px rgb(255 255 255 / 0.04);
+}
+
+:global(.dark) .frame:hover {
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 0.05) inset,
+    0 32px 60px -20px rgb(0 0 0 / 0.85),
+    0 0 0 1px rgb(255 255 255 / 0.04);
+}
+
+/* macOS-style title bar */
+.titleBar {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 0.85rem;
+  background: rgb(243 244 246);
+  border-bottom: 1px solid rgb(0 0 0 / 0.06);
+  position: relative;
+}
+
+:global(.dark) .titleBar {
+  background: rgb(22 27 34);
+  border-bottom-color: rgb(255 255 255 / 0.06);
+}
+
+.dots {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  display: inline-block;
+  box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.18);
+}
+
+.dotRed { background: #ff5f57; }
+.dotYellow { background: #febc2e; }
+.dotGreen { background: #28c840; }
+
+.titleLabel {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgb(107 114 128);
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+:global(.dark) .titleLabel {
+  color: rgb(156 163 175);
+}
+
+.headerCopy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: rgb(107 114 128);
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+  outline: none;
+}
+
+.headerCopy:hover {
+  background: rgb(0 0 0 / 0.06);
+  color: rgb(31 41 55);
+}
+
+.headerCopy:focus-visible {
+  box-shadow: 0 0 0 2px hsl(var(--nextra-primary-hue) 80% 50% / 0.45);
+}
+
+:global(.dark) .headerCopy {
+  color: rgb(156 163 175);
+}
+
+:global(.dark) .headerCopy:hover {
+  background: rgb(255 255 255 / 0.08);
+  color: rgb(229 231 235);
 }
 
 .tabs {
   display: flex;
-  gap: 0.125rem;
-  padding: 0.55rem 0.55rem 0;
+  gap: 0;
+  padding: 0 0.5rem;
   border-bottom: 1px solid rgb(0 0 0 / 0.06);
-  background: rgb(247 248 250 / 0.95); /* matches github-light-default bg */
+  background: rgb(247 248 250);
 }
 
 :global(.dark) .tabs {
   border-bottom-color: rgb(255 255 255 / 0.06);
-  background: rgb(22 27 34 / 0.95);
+  background: rgb(22 27 34);
 }
 
 .tab {
-  padding: 0.45rem 0.85rem;
+  position: relative;
+  padding: 0.65rem 0.95rem;
   border: none;
   background: transparent;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.78rem;
   color: rgb(107 114 128);
   cursor: pointer;
-  border-radius: 0.4rem 0.4rem 0 0;
-  position: relative;
-  bottom: -1px;
-  transition: color 120ms ease, background 120ms ease;
+  transition: color 140ms ease;
   outline: none;
 }
 
 .tab:hover {
   color: rgb(31 41 55);
-  background: rgb(0 0 0 / 0.03);
+}
+
+.tab:focus-visible {
+  color: hsl(var(--nextra-primary-hue) 80% 50%);
 }
 
 .tabActive {
-  color: hsl(var(--nextra-primary-hue) 80% 50%);
-  background: rgb(255 255 255);
-  border: 1px solid rgb(0 0 0 / 0.06);
-  border-bottom-color: transparent;
+  color: rgb(17 24 39);
+  font-weight: 600;
+}
+
+.tabIndicator {
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: -1px;
+  height: 2px;
+  background: hsl(var(--nextra-primary-hue) 80% 50%);
+  border-radius: 2px 2px 0 0;
+  transform-origin: center;
+  animation: tabIndicatorIn 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes tabIndicatorIn {
+  from {
+    transform: scaleX(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabIndicator {
+    animation: none;
+  }
 }
 
 :global(.dark) .tab:hover {
   color: rgb(229 231 235);
-  background: rgb(255 255 255 / 0.04);
 }
 
 :global(.dark) .tabActive {
-  color: hsl(var(--nextra-primary-hue) 80% 75%);
-  background: rgb(13 17 23 / 1);
-  border-color: rgb(255 255 255 / 0.08);
+  color: rgb(243 244 246);
+}
+
+:global(.dark) .tabIndicator {
+  background: hsl(var(--nextra-primary-hue) 80% 65%);
 }
 
 .codeBox {
   flex: 1;
   padding: 1.25rem 1.25rem 1.5rem;
   overflow-x: auto;
+  overflow-y: hidden;
+}
+
+@keyframes codeFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.codeBox > * {
+  animation: codeFadeIn 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .codeBox > * {
+    animation: none;
+  }
 }
 
 .fallback {
@@ -100,11 +252,51 @@
   background: transparent !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
   font-size: 0.82rem;
-  line-height: 1.6;
+  line-height: 1.62;
+  white-space: pre !important;
+  display: block !important;
 }
 
 .shiki :global(code) {
   background: transparent !important;
   padding: 0 !important;
   font-family: inherit !important;
+  display: grid !important;
+  white-space: pre !important;
+  counter-reset: codeLine;
+}
+
+.shiki :global(.line) {
+  display: block;
+  min-height: 1em;
+  counter-increment: codeLine;
+  position: relative;
+  padding-left: 2.75rem;
+}
+
+.shiki :global(.line)::before {
+  content: counter(codeLine);
+  position: absolute;
+  left: 0;
+  width: 1.75rem;
+  text-align: right;
+  color: rgb(156 163 175);
+  opacity: 0.5;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+  user-select: none;
+  pointer-events: none;
+}
+
+:global(.dark) .shiki :global(.line)::before {
+  color: rgb(107 114 128);
+}
+
+/* Fallback code also gets line numbers */
+.fallback {
+  counter-reset: codeLine;
+}
+
+.fallback code {
+  display: block;
 }

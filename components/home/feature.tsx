@@ -1,7 +1,9 @@
+import { useEffect, useRef } from 'react'
 import styles from './feature.module.css'
 
 const COPY = {
   '/en': {
+    eyebrow: 'Features',
     title: 'Built for production from day one.',
     subtitle:
       'Every gRPCity release ships with the features below on, behind a stable API.',
@@ -41,6 +43,7 @@ const COPY = {
     ]
   },
   '/zh': {
+    eyebrow: '特性',
     title: '从第一天起就为生产打磨。',
     subtitle: '每个 gRPCity 版本都默认启用下列特性，并保持稳定 API。',
     items: [
@@ -129,18 +132,43 @@ const ICONS: JSX.Element[] = [
 
 export default function Feature(locale: Locale) {
   const copy = COPY[locale] || COPY['/en']
+  const gridRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const grid = gridRef.current
+    if (!grid || typeof IntersectionObserver === 'undefined') return
+    const cards = Array.from(grid.querySelectorAll<HTMLElement>(`.${styles.card}`))
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            ;(entry.target as HTMLElement).classList.add(styles.cardVisible)
+            io.unobserve(entry.target)
+          }
+        })
+      },
+      { rootMargin: '0px 0px -10% 0px', threshold: 0.1 }
+    )
+    cards.forEach((c) => io.observe(c))
+    return () => io.disconnect()
+  }, [locale])
 
   return (
     <section className={styles.root}>
       <div className={styles.inner}>
         <div className={styles.heading}>
+          <span className={styles.eyebrow}>{copy.eyebrow}</span>
           <h2 className={styles.title}>{copy.title}</h2>
           <p className={styles.subtitle}>{copy.subtitle}</p>
         </div>
 
-        <div className={styles.grid}>
+        <div className={styles.grid} ref={gridRef}>
           {copy.items.map((item, i) => (
-            <article key={item.title} className={styles.card}>
+            <article
+              key={item.title}
+              className={styles.card}
+              style={{ ['--reveal-delay' as string]: `${i * 70}ms` }}
+            >
               <div className={styles.iconWrap}>{ICONS[i]}</div>
               <h3 className={styles.cardTitle}>{item.title}</h3>
               <p className={styles.cardBody}>{renderInline(item.body)}</p>

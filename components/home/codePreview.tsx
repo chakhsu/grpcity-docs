@@ -2,8 +2,18 @@ import { useEffect, useState } from 'react'
 import styles from './codePreview.module.css'
 
 const COPY = {
-  '/en': { eyebrow: 'Quick start', tabs: { loader: 'loader.js', server: 'server.js', client: 'client.js' } },
-  '/zh': { eyebrow: '快速上手', tabs: { loader: 'loader.js', server: 'server.js', client: 'client.js' } }
+  '/en': {
+    eyebrow: 'Quick start',
+    tabs: { loader: 'loader.js', server: 'server.js', client: 'client.js' },
+    copy: 'Copy',
+    copied: 'Copied'
+  },
+  '/zh': {
+    eyebrow: '快速上手',
+    tabs: { loader: 'loader.js', server: 'server.js', client: 'client.js' },
+    copy: '复制',
+    copied: '已复制'
+  }
 } as const
 
 type Locale = keyof typeof COPY
@@ -96,11 +106,58 @@ const useColorScheme = (): 'light' | 'dark' => {
 export default function CodePreview(locale: Locale) {
   const copy = COPY[locale] || COPY['/en']
   const [active, setActive] = useState<SnippetKey>('server')
+  const [copied, setCopied] = useState(false)
   const scheme = useColorScheme()
   const html = useHighlighted(active, scheme)
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(SNIPPETS[active])
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1600)
+    } catch {
+      /* ignore */
+    }
+  }
+
   return (
     <div className={styles.frame}>
+      <div className={styles.titleBar}>
+        <div className={styles.dots} aria-hidden>
+          <span className={`${styles.dot} ${styles.dotRed}`} />
+          <span className={`${styles.dot} ${styles.dotYellow}`} />
+          <span className={`${styles.dot} ${styles.dotGreen}`} />
+        </div>
+        <div className={styles.titleLabel}>{copy.eyebrow}</div>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className={styles.headerCopy}
+          aria-label={copied ? copy.copied : copy.copy}
+          title={copied ? copy.copied : copy.copy}
+        >
+          {copied ? (
+            <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden>
+              <path
+                fill="currentColor"
+                d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"
+              />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden>
+              <path
+                fill="currentColor"
+                d="M5 1.75A1.75 1.75 0 0 1 6.75 0h6.5A1.75 1.75 0 0 1 15 1.75v8.5A1.75 1.75 0 0 1 13.25 12H11v-1.5h2.25a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25h-6.5a.25.25 0 0 0-.25.25V4H5V1.75Z"
+              />
+              <path
+                fill="currentColor"
+                d="M1 5.75C1 4.784 1.784 4 2.75 4h6.5C10.216 4 11 4.784 11 5.75v8.5A1.75 1.75 0 0 1 9.25 16h-6.5A1.75 1.75 0 0 1 1 14.25v-8.5Zm1.75-.25a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h6.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25h-6.5Z"
+              />
+            </svg>
+          )}
+        </button>
+      </div>
+
       <div className={styles.tabs} role="tablist" aria-label={copy.eyebrow}>
         {(Object.keys(copy.tabs) as SnippetKey[]).map((key) => (
           <button
@@ -112,14 +169,15 @@ export default function CodePreview(locale: Locale) {
             onClick={() => setActive(key)}
           >
             {copy.tabs[key]}
+            {active === key && <span className={styles.tabIndicator} aria-hidden />}
           </button>
         ))}
       </div>
       <div className={styles.codeBox} aria-live="polite">
         {html ? (
-          <div className={styles.shiki} dangerouslySetInnerHTML={{ __html: html }} />
+          <div key={active} className={styles.shiki} dangerouslySetInnerHTML={{ __html: html }} />
         ) : (
-          <pre className={styles.fallback}>
+          <pre key={active} className={styles.fallback}>
             <code>{SNIPPETS[active]}</code>
           </pre>
         )}
