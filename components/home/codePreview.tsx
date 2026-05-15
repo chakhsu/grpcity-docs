@@ -1,25 +1,59 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 import styles from './codePreview.module.css'
 
 const COPY = {
   '/en': {
     eyebrow: 'Quick start',
-    tabs: { loader: 'loader.js', server: 'server.js', client: 'client.js' },
+    tabs: {
+      proto: 'service.proto',
+      loader: 'loader.js',
+      server: 'server.js',
+      client: 'client.js'
+    },
     copy: 'Copy',
     copied: 'Copied'
   },
   '/zh': {
     eyebrow: '快速上手',
-    tabs: { loader: 'loader.js', server: 'server.js', client: 'client.js' },
+    tabs: {
+      proto: 'service.proto',
+      loader: 'loader.js',
+      server: 'server.js',
+      client: 'client.js'
+    },
     copy: '复制',
     copied: '已复制'
   }
 } as const
 
 type Locale = keyof typeof COPY
-type SnippetKey = 'loader' | 'server' | 'client'
+type SnippetKey = 'proto' | 'loader' | 'server' | 'client'
+
+const LANGS: Record<SnippetKey, string> = {
+  proto: 'proto',
+  loader: 'javascript',
+  server: 'javascript',
+  client: 'javascript'
+}
 
 const SNIPPETS: Record<SnippetKey, string> = {
+  proto: `syntax = "proto3";
+
+package helloworld;
+
+service Greeter {
+  rpc SayGreet (HelloRequest) returns (HelloReply);
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloReply {
+  string message = 1;
+}`,
   loader: `import { ProtoLoader } from 'grpcity'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -72,7 +106,7 @@ const useHighlighted = (key: SnippetKey, theme: 'light' | 'dark') => {
       try {
         const { codeToHtml } = await import('shiki')
         const out = await codeToHtml(SNIPPETS[key], {
-          lang: 'javascript',
+          lang: LANGS[key],
           theme: theme === 'dark' ? 'github-dark-default' : 'github-light-default'
         })
         if (!cancelled) {

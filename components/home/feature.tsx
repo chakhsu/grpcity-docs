@@ -1,4 +1,7 @@
+'use client'
+
 import { useEffect, useRef } from 'react'
+import type { ReactElement } from 'react'
 import styles from './feature.module.css'
 
 const COPY = {
@@ -86,7 +89,7 @@ const COPY = {
 type Locale = keyof typeof COPY
 
 // Render backticked spans as <code>. Keep it tiny — no markdown parser.
-const renderInline = (text: string): JSX.Element[] => {
+const renderInline = (text: string): ReactElement[] => {
   const parts = text.split(/(`[^`]+`)/g)
   return parts.map((part, i) =>
     part.startsWith('`') && part.endsWith('`') ? (
@@ -97,7 +100,7 @@ const renderInline = (text: string): JSX.Element[] => {
   )
 }
 
-const ICONS: JSX.Element[] = [
+const ICONS: ReactElement[] = [
   <svg key="i0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
     <path d="M3 7h18M3 12h12M3 17h18" />
   </svg>,

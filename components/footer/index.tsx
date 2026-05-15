@@ -7,7 +7,11 @@ type LinkItem = {
   external?: boolean
 }
 
-export default function Footer(locale: string) {
+type FooterProps = {
+  locale: string
+}
+
+export default function Footer({ locale }: FooterProps) {
   const isZh = locale === '/zh'
 
   const tagline = isZh

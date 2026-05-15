@@ -1,0 +1,33 @@
+diff --git a/dist/components/navbar/index.client.js b/dist/components/navbar/index.client.js
+index 85988436aecac2a9073aef7cef392cbd84e28818..15667f12bf4cb399fb504b03f6327305155fdd1d 100644
+--- a/dist/components/navbar/index.client.js
++++ b/dist/components/navbar/index.client.js
+@@ -139,7 +139,14 @@ const ClientNavbar = (t0) => {
+           return /* @__PURE__ */ jsx(NavbarMenu, { menu: page, children: page.title }, page.name);
+         }
+         const href = ("frontMatter" in page ? page.route : page.firstChildRoute) || page.href || page.route;
+-        const isCurrentPage = href === pathname || pathname.startsWith(page.route + "/") && arr.every((item) => !("href" in item) || item.href !== pathname) || void 0;
++        const isCurrentPage = href === pathname || (href && pathname.startsWith(href + "/")) && arr.every((item) => {
++          if (item === page) return true;
++          const itemHref = ("frontMatter" in item ? item.route : item.firstChildRoute) || item.href || item.route;
++          if (!itemHref) return true;
++          if (itemHref === pathname) return false;
++          if (pathname.startsWith(itemHref + "/")) return false;
++          return true;
++        }) || void 0;
+         return /* @__PURE__ */ jsx(Anchor, { href, className: cn(classes.link, "x:aria-[current]:font-medium x:aria-[current]:subpixel-antialiased x:aria-[current]:text-current"), "aria-current": isCurrentPage, children: page.title }, page.name);
+       };
+       $[5] = pathname;
+diff --git a/dist/schemas.js b/dist/schemas.js
+index 060d0b98b76515e4f0a1cd9edb3c3f5d31597540..f17054ec71086d81f8242282a5e0bb42adbcb657 100644
+--- a/dist/schemas.js
++++ b/dist/schemas.js
+@@ -65,7 +65,7 @@ const LayoutPropsSchema = z.strictObject({
+   banner: reactNode.optional().meta({
+     description: "Rendered [`<Banner>` component](/docs/built-ins/banner). E.g. `<Banner {...bannerProps} />`"
+   }),
+-  children: reactNode,
++  children: reactNode.optional(),
+   copyPageButton: z.boolean().default(true).meta({
+     description: "Hide/show copy page content button."
+   }),

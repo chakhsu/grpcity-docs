@@ -1,4 +1,5 @@
 export default {
+  "index": "Overview",
   "loader": "Loader",
   "client": "Client",
   "server": "Server",
