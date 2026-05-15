@@ -10,27 +10,23 @@ export default {
   },
   "db-service": "DB Service",
   example: {
-    title: "Examples ↗",
+    title: "Examples",
     href: "https://github.com/chakhsu/grpcity/tree/main/example",
-    newWindow: true,
   },
   changelog: {
-    title: "Changelog ↗",
+    title: "Changelog",
     href: "https://github.com/chakhsu/grpcity/releases",
-    newWindow: true,
   },
   "-- Recommend": {
     type: "separator",
     title: "Recommend",
   },
   cacheProxyPlus: {
-    title: "Cache Proxy Plus ↗",
+    title: "Cache Proxy Plus",
     href: "https://github.com/chakhsu/cache-proxy-plus",
-    newWindow: true,
   },
   syncDefer: {
-    title: "Sync Defer ↗",
+    title: "Sync Defer",
     href: "https://github.com/chakhsu/sync-defer",
-    newWindow: true,
-  }
-}
+  },
+};

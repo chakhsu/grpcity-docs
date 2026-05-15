@@ -1,5 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
+import type { ReactElement } from 'react'
 import styles from './why.module.css'
 
 const COPY = {
@@ -39,7 +42,7 @@ const COPY = {
 
 type Locale = keyof typeof COPY
 
-const renderInline = (text: string): JSX.Element[] => {
+const renderInline = (text: string): ReactElement[] => {
   const parts = text.split(/(`[^`]+`)/g)
   return parts.map((part, i) =>
     part.startsWith('`') && part.endsWith('`') ? (

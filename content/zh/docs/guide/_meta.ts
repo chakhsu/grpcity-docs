@@ -1,4 +1,5 @@
 export default {
+  "index": "概览",
   "loader": "Loader",
   "client": "Client",
   "server": "Server",

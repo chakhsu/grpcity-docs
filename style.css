@@ -1,6 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import 'nextra-theme-docs/style.css';
+
+@source "./components";
+@source "./app";
+@source "./content";
 
 body {
   font-feature-settings: "rlig" 1,"calt" 1;
@@ -81,34 +84,39 @@ nav a span.logo:hover {
   background-color: transparent;
 }
 
-.nextra-code {
-  font-size: .8rem!important;
-}
+/* Nextra wraps <footer> in a max-w-(--nextra-content-width) container.
+   The Switchers bar above the footer uses the same wrapper — no extra overrides
+   needed; footer + Switchers will line up with the docs content automatically. */
 
-.nextra-code ._bg-gray-100 {
-  background-color: hsl(var(--nextra-primary-hue)var(--nextra-primary-saturation)94%/var(--tw-bg-opacity));
-}
-
-.nextra-code ._rounded-t-md {
-  border-top-left-radius: 0.75rem;
-  border-top-right-radius: 0.75rem;
-}
-.nextra-code ._rounded-b-md {
-  border-bottom-right-radius: 0.75rem;
-  border-bottom-left-radius: 0.75rem;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-.nextra-code pre {
-  border-top-left-radius: 0.75rem;
-  border-top-right-radius: 0.75rem;
-  border-bottom-right-radius: 0.75rem;
-  border-bottom-left-radius: 0.75rem;
-}
-
-/* Tighten Nextra's default footer wrapper spacing (it ships with py-12) */
-footer > div:last-child {
+/* Nextra 4 ships <footer> with built-in py-12 px-4/6 (= 48px/24px).
+   The previous Nextra 3 build used a 72px vertical pad; restore that rhythm
+   so the footer height matches the legacy site. */
+body > div > footer {
   padding-top: 4.5rem !important;
   padding-bottom: 4.5rem !important;
+}
+
+/* Sidebar folder header should highlight whenever any descendant link is the
+   active page — match the visual treatment of the leaf <a class="x:bg-primary-100">. */
+aside.nextra-sidebar li:has(a.x\:bg-primary-100) > button {
+  background-color: rgb(224, 239, 255) !important;
+  color: rgb(0, 76, 163) !important;
+  font-weight: 600 !important;
+}
+.dark aside.nextra-sidebar li:has(a.x\:bg-primary-100) > button {
+  background-color: rgb(0 76 163 / 0.1) !important;
+  color: rgb(96, 165, 250) !important;
+}
+
+/* Home (landing) page: break out of Nextra's content container & padding so the
+   hero/feature/why sections fluidly fill the viewport at any width.
+   Scoped to the wrapper that contains <main> so we don't catch the Switchers bar. */
+body[data-page="home"] div.x\:mx-auto.x\:flex.x\:max-w-\(--nextra-content-width\):has(main) {
+  max-width: none !important;
+}
+body[data-page="home"] div.x\:mx-auto.x\:flex.x\:max-w-\(--nextra-content-width\) > article {
+  padding: 0 !important;
+}
+body[data-page="home"] main {
+  width: 100% !important;
 }
