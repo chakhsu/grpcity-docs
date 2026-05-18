@@ -120,3 +120,9 @@ body[data-page="home"] div.x\:mx-auto.x\:flex.x\:max-w-\(--nextra-content-width\
 body[data-page="home"] main {
   width: 100% !important;
 }
+/* Nextra appends an empty <div class="x:mt-16"> as a spacer after children when
+   there's no `lastUpdated`. Hide it on the landing page since the home sections
+   manage their own vertical rhythm. */
+body[data-page="home"] article > div.x\:mt-16:empty {
+  display: none !important;
+}
