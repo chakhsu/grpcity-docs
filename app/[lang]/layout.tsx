@@ -70,7 +70,13 @@ const RootLayout: FC<LayoutProps> = async ({ children, params }) => {
 
   return (
     <html lang={lang} dir="ltr" suppressHydrationWarning>
-      <Head />
+      <Head
+        color={{
+          hue: { light: 220, dark: 220 },
+          saturation: { light: 15, dark: 20 },
+          lightness: { light: 25, dark: 75 }
+        }}
+      />
       <body>
         <Layout
           banner={banner}

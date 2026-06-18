@@ -73,13 +73,13 @@
 }
 
 .tab:focus-visible {
-  color: hsl(var(--nextra-primary-hue) 80% 50%);
+  color: hsl(220 15% 30%);
 }
 
 .tabActive {
-  color: hsl(var(--nextra-primary-hue) 80% 40%);
+  color: hsl(220 20% 20%);
   font-weight: 600;
-  border-bottom-color: hsl(var(--nextra-primary-hue) 80% 45%);
+  border-bottom-color: hsl(220 20% 35%);
 }
 
 :global(.dark) .tab {
@@ -91,8 +91,8 @@
 }
 
 :global(.dark) .tabActive {
-  color: hsl(var(--nextra-primary-hue) 80% 65%);
-  border-bottom-color: hsl(var(--nextra-primary-hue) 80% 65%);
+  color: hsl(220 20% 85%);
+  border-bottom-color: hsl(220 25% 65%);
 }
 
 /* Code area */
@@ -297,7 +297,7 @@
 }
 
 .copyBtn:focus-visible {
-  box-shadow: 0 0 0 2px hsl(var(--nextra-primary-hue) 80% 50% / 0.45);
+  box-shadow: 0 0 0 2px hsl(220 20% 35% / 0.45);
 }
 
 :global(.dark) .copyBtn {

@@ -48,14 +48,14 @@
   inset: 0;
   z-index: -2;
   background:
-    radial-gradient(60% 50% at 15% 20%, hsl(var(--nextra-primary-hue) 85% 60% / 0.14), transparent 70%),
-    radial-gradient(45% 45% at 92% 75%, hsl(280 80% 60% / 0.10), transparent 70%);
+    radial-gradient(60% 50% at 15% 20%, hsl(220 25% 50% / 0.08), transparent 70%),
+    radial-gradient(45% 45% at 92% 75%, hsl(240 20% 55% / 0.06), transparent 70%);
 }
 
 :global(.dark) .tilesBg {
   background:
-    radial-gradient(60% 50% at 15% 20%, hsl(var(--nextra-primary-hue) 85% 60% / 0.20), transparent 70%),
-    radial-gradient(45% 45% at 92% 75%, hsl(280 80% 60% / 0.16), transparent 70%);
+    radial-gradient(60% 50% at 15% 20%, hsl(220 30% 60% / 0.12), transparent 70%),
+    radial-gradient(45% 45% at 92% 75%, hsl(240 25% 55% / 0.10), transparent 70%);
 }
 
 /* Faint grid backdrop */
@@ -85,7 +85,7 @@
   pointer-events: none;
   background: radial-gradient(
     600px 280px at 25% 45%,
-    hsl(var(--nextra-primary-hue) 80% 60% / 0.08),
+    hsl(220 25% 50% / 0.06),
     transparent 70%
   );
   animation: spotlightDrift 14s ease-in-out infinite;
@@ -95,7 +95,7 @@
 :global(.dark) .spotlight {
   background: radial-gradient(
     600px 280px at 25% 45%,
-    hsl(var(--nextra-primary-hue) 80% 60% / 0.14),
+    hsl(220 30% 60% / 0.10),
     transparent 70%
   );
 }
@@ -219,13 +219,13 @@
   display: inline-block;
   font-size: clamp(1.4rem, 2.8vw, 2rem);
   line-height: 1.2;
-  color: hsl(var(--nextra-primary-hue, 212) 90% 50%);
+  color: hsl(220 15% 25%);
   background-image: linear-gradient(
     120deg,
-    hsl(var(--nextra-primary-hue, 212) 90% 50%) 0%,
-    hsl(calc(var(--nextra-primary-hue, 212) + 40deg) 90% 58%) 35%,
-    hsl(calc(var(--nextra-primary-hue, 212) + 80deg) 80% 62%) 70%,
-    hsl(calc(var(--nextra-primary-hue, 212) + 40deg) 90% 58%) 100%
+    hsl(220 20% 20%) 0%,
+    hsl(220 15% 35%) 35%,
+    hsl(215 12% 45%) 70%,
+    hsl(220 15% 35%) 100%
   );
   background-size: 200% 100%;
   -webkit-background-clip: text;
@@ -242,7 +242,7 @@
 }
 
 :global(.dark) .accent {
-  color: hsl(var(--nextra-primary-hue, 212) 90% 65%);
+  color: hsl(220 20% 80%);
 }
 
 .subtitle {
@@ -285,23 +285,23 @@
 
 .cta:focus-visible,
 .secondaryAction:focus-visible {
-  box-shadow: 0 0 0 3px hsl(var(--nextra-primary-hue) 80% 50% / 0.35);
+  box-shadow: 0 0 0 3px hsl(220 20% 30% / 0.35);
 }
 
 .cta {
-  background: hsl(var(--nextra-primary-hue) 80% 48%);
+  background: hsl(220 20% 12%);
   color: white;
   box-shadow:
-    0 1px 0 0 hsl(var(--nextra-primary-hue) 80% 38%) inset,
-    0 8px 20px -8px hsl(var(--nextra-primary-hue) 80% 40% / 0.55);
+    0 1px 0 0 hsl(220 15% 22%) inset,
+    0 8px 20px -8px hsl(220 20% 10% / 0.55);
 }
 
 .cta:hover {
-  background: hsl(var(--nextra-primary-hue) 80% 44%);
+  background: hsl(220 20% 18%);
   transform: translateY(-1px);
   box-shadow:
-    0 1px 0 0 hsl(var(--nextra-primary-hue) 80% 36%) inset,
-    0 14px 28px -10px hsl(var(--nextra-primary-hue) 80% 40% / 0.6);
+    0 1px 0 0 hsl(220 15% 28%) inset,
+    0 14px 28px -10px hsl(220 20% 10% / 0.6);
 }
 
 .cta svg {
@@ -366,7 +366,7 @@
 }
 
 .prompt {
-  color: hsl(var(--nextra-primary-hue) 80% 50%);
+  color: hsl(220 15% 35%);
   font-weight: 600;
   user-select: none;
 }
@@ -402,13 +402,13 @@
 }
 
 .copyBtn:hover {
-  background: hsl(var(--nextra-primary-hue) 80% 50%);
+  background: hsl(220 20% 18%);
   color: white;
   transform: scale(1.05);
 }
 
 .copyBtn:focus-visible {
-  box-shadow: 0 0 0 3px hsl(var(--nextra-primary-hue) 80% 50% / 0.35);
+  box-shadow: 0 0 0 3px hsl(220 20% 30% / 0.35);
 }
 
 :global(.dark) .copyBtn {
@@ -417,7 +417,7 @@
 }
 
 :global(.dark) .copyBtn:hover {
-  background: hsl(var(--nextra-primary-hue) 80% 55%);
+  background: hsl(220 20% 45%);
   color: white;
 }
 

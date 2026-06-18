@@ -102,9 +102,9 @@
 }
 
 .socialLink:hover {
-  color: hsl(var(--nextra-primary-hue, 212) 80% 45%);
-  background: hsl(var(--nextra-primary-hue, 212) 80% 50% / 0.08);
-  border-color: hsl(var(--nextra-primary-hue, 212) 80% 50% / 0.35);
+  color: hsl(220 15% 25%);
+  background: hsl(220 20% 50% / 0.08);
+  border-color: hsl(220 20% 50% / 0.25);
   transform: translateY(-1px);
 }
 
@@ -115,9 +115,9 @@
 }
 
 :global(.dark) .socialLink:hover {
-  color: hsl(var(--nextra-primary-hue, 212) 80% 75%);
-  background: hsl(var(--nextra-primary-hue, 212) 80% 60% / 0.15);
-  border-color: hsl(var(--nextra-primary-hue, 212) 80% 60% / 0.4);
+  color: hsl(220 20% 85%);
+  background: hsl(220 25% 60% / 0.12);
+  border-color: hsl(220 25% 60% / 0.3);
 }
 
 /* Link columns */

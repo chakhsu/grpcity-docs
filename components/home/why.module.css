@@ -33,16 +33,16 @@
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: hsl(var(--nextra-primary-hue) 70% 45%);
+  color: hsl(220 15% 40%);
   padding: 0.28rem 0.75rem;
   border-radius: 999px;
-  background: hsl(var(--nextra-primary-hue) 80% 60% / 0.08);
-  border: 1px solid hsl(var(--nextra-primary-hue) 80% 60% / 0.18);
+  background: hsl(220 20% 50% / 0.08);
+  border: 1px solid hsl(220 20% 50% / 0.15);
   margin-bottom: 1rem;
 }
 
 :global(.dark) .eyebrow {
-  color: hsl(var(--nextra-primary-hue) 80% 75%);
+  color: hsl(220 20% 75%);
 }
 
 .title {
@@ -124,11 +124,11 @@
 }
 
 .row:not(.headRow):hover {
-  background: hsl(var(--nextra-primary-hue) 80% 60% / 0.04);
+  background: hsl(220 20% 50% / 0.04);
 }
 
 :global(.dark) .row:not(.headRow):hover {
-  background: hsl(var(--nextra-primary-hue) 80% 60% / 0.06);
+  background: hsl(220 25% 55% / 0.06);
 }
 
 .headRow {
@@ -192,7 +192,7 @@
 }
 
 .brand {
-  color: hsl(var(--nextra-primary-hue) 80% 42%);
+  color: hsl(220 15% 25%);
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -202,12 +202,12 @@
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 999px;
-  background: hsl(var(--nextra-primary-hue) 80% 50%);
-  box-shadow: 0 0 0 3px hsl(var(--nextra-primary-hue) 80% 50% / 0.18);
+  background: hsl(220 20% 35%);
+  box-shadow: 0 0 0 3px hsl(220 20% 35% / 0.18);
 }
 
 :global(.dark) .brand {
-  color: hsl(var(--nextra-primary-hue) 80% 75%);
+  color: hsl(220 20% 80%);
 }
 
 .brandCell {
@@ -279,21 +279,21 @@
   gap: 0.5rem;
   font-weight: 600;
   font-size: 0.92rem;
-  color: hsl(var(--nextra-primary-hue) 80% 42%);
+  color: hsl(220 15% 25%);
   padding: 0.65rem 1.3rem;
   border-radius: 0.65rem;
-  border: 1px solid hsl(var(--nextra-primary-hue) 80% 50% / 0.35);
-  background: hsl(var(--nextra-primary-hue) 80% 50% / 0.06);
+  border: 1px solid hsl(220 20% 35% / 0.25);
+  background: hsl(220 20% 35% / 0.05);
   text-decoration: none;
   transition: background 160ms ease, border-color 160ms ease, transform 160ms ease,
     box-shadow 160ms ease;
 }
 
 .ctaLink:hover {
-  background: hsl(var(--nextra-primary-hue) 80% 50% / 0.12);
-  border-color: hsl(var(--nextra-primary-hue) 80% 50% / 0.6);
+  background: hsl(220 20% 35% / 0.10);
+  border-color: hsl(220 20% 35% / 0.5);
   transform: translateY(-1px);
-  box-shadow: 0 10px 20px -10px hsl(var(--nextra-primary-hue) 80% 40% / 0.4);
+  box-shadow: 0 10px 20px -10px hsl(220 25% 15% / 0.35);
 }
 
 .ctaLink svg {
@@ -305,5 +305,5 @@
 }
 
 :global(.dark) .ctaLink {
-  color: hsl(var(--nextra-primary-hue) 80% 80%);
+  color: hsl(220 20% 85%);
 }
